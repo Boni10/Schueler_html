@@ -232,7 +232,7 @@ body.mathe .st-S2 .stufe-chip{color:#8a5a12}body.mathe .st-S3 .stufe-chip{color:
 .stift-bar button{font:inherit;font-size:16px;min-width:40px;height:36px;border-radius:10px;border:1.5px solid transparent;background:#fffaf0;cursor:pointer}
 .stift-bar button.an{border-color:var(--ink)}
 .stift-bar button.farbe{background:var(--c);min-width:30px;width:30px;border-radius:50%}
-.stift-cv{display:block;width:100%;height:auto;touch-action:pan-y;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+.stift-cv{display:block;width:100%;height:auto;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
 /* Werkzeug */
 .werkzeug{background:var(--card);border-radius:18px;border:1px solid var(--line);padding:12px 16px;margin:12px 0}
 .werkzeug>b{font-family:var(--hand);font-weight:400;font-size:26px;color:#2f5f9e}
@@ -1098,6 +1098,7 @@ var Stift = (function () {
 
     /* ---------- Fingergesten (nur mit opt.gesten, nur ohne Finger-Modus): 2 Finger kurz = zurück, 3 Finger kurz = wiederholen */
     var tipps = {}, geste = null;
+    var schieb = null;   /* Finger-Wisch ohne Gesten: das Schreibfeld sperrt das native Scrollen (touch-action:none), die Seite scrollt von Hand mit */
     function gesteStart(e) {
       if (!geste) geste = { t: Date.now(), max: 0, ok: true };
       tipps[e.pointerId] = [e.clientX, e.clientY];
@@ -1127,7 +1128,11 @@ var Stift = (function () {
         e.preventDefault(); if (cur) return; try { cv.setPointerCapture(e.pointerId); } catch (x) {}
         groesse(); cur = { laser: true, pen: e.pointerType === 'pen' }; if (cur.pen) stiftLaeuft = true; schweif = []; laserHin(pos(e)); return;
       }
-      if (touch && !finger) { if (opt.gesten && !cur) { e.preventDefault(); gesteStart(e); } return; }
+      if (touch && !finger) {
+        if (opt.gesten && !cur) { e.preventDefault(); gesteStart(e); }
+        else if (!opt.gesten && !cur) schieb = { id: e.pointerId, y: e.clientY };
+        return;
+      }
       if (cur) return;                                            /* zweiter Kontakt während eines Strichs */
       e.preventDefault(); groesse(); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
       if (e.pointerType === 'pen') { stiftLaeuft = true; tipps = {}; geste = null; }
@@ -1156,7 +1161,11 @@ var Stift = (function () {
       trafo(); stil(cur); abschnitt(cur, cur.p.length - 2);
     }
     cv.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch' && !(cur && cur.laser) && (!finger || !cur)) { if (opt.gesten && !finger) { e.preventDefault(); gesteZug(e); } return; }
+      if (e.pointerType === 'touch' && !(cur && cur.laser) && (!finger || !cur)) {
+        if (opt.gesten && !finger) { e.preventDefault(); gesteZug(e); }
+        else if (schieb && e.pointerId === schieb.id && !finger) { window.scrollBy(0, schieb.y - e.clientY); schieb.y = e.clientY; }
+        return;
+      }
       if (!cur) {   /* Pencil im Hover: Laserpunkt folgt ohne Berührung */
         if (aktiv && modus === 'laser' && e.pointerType === 'pen' && !e.buttons) { laser = pos(e); ovNeu(); }
         return;
@@ -1182,9 +1191,9 @@ var Stift = (function () {
       if (stiftLaeuft) { stiftLaeuft = false; stiftEnde = Date.now(); }
       cur = null;
     }
-    function hoch(e) { if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, false); return; } ende(e); }
+    function hoch(e) { if (schieb && e.pointerId === schieb.id) schieb = null; if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, false); return; } ende(e); }
     cv.addEventListener('pointerup', hoch);
-    cv.addEventListener('pointercancel', function (e) { if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, true); return; } ende(null); });
+    cv.addEventListener('pointercancel', function (e) { if (schieb && e.pointerId === schieb.id) schieb = null; if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, true); return; } ende(null); });
     cv.addEventListener('lostpointercapture', function (e) { if (cur && (cur.id === undefined || e.pointerId === cur.id)) ende(null); });
     cv.addEventListener('pointerleave', function (e) { if (!cur && laser && e.pointerType === 'pen') { laser = null; ovNeu(); } });
     // Apple Pencil: nicht scrollen, Finger scrollen weiter (außer Finger-Modus); mit Gesten keine Zoom- oder Scrollgesten auf dem Schreibfeld
@@ -1211,9 +1220,11 @@ var Stift = (function () {
       if (b.dataset.a === 'zurueck') zurueck();
       if (b.dataset.a === 'vor') vorwaerts();
       if (b.dataset.a === 'leeren') leeren();
-      if (b.dataset.a === 'finger') { finger = !finger; b.classList.toggle('an', finger); cv.style.touchAction = finger || opt.gesten ? 'none' : 'pan-y'; }
+      if (b.dataset.a === 'finger') { finger = !finger; b.classList.toggle('an', finger); cv.style.touchAction = 'none'; }
     });
-    if (opt.gesten) cv.style.touchAction = 'none';
+    /* Immer touch-action:none und nicht markierbar, sonst bricht iPadOS das ruhige Halten des Pencils (Radierer) als Scroll- oder Markier-Geste ab;
+       ohne opt.gesten scrollt die Seite beim Fingerwisch von Hand mit (schieb) */
+    cv.style.touchAction = 'none'; cv.style.userSelect = cv.style.webkitUserSelect = 'none'; cv.style.webkitTouchCallout = 'none';
     function speichern() { if (!key) return; try { localStorage.setItem(key, JSON.stringify(strokes)); } catch (e) {} if (opt.onChange) opt.onChange(strokes); }
     if (key) { try { strokes = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { strokes = []; } }
     setTimeout(groesse, 0);
@@ -1661,8 +1672,14 @@ var AUFGABEN = (function () {
   var st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
   function zahl(s) {
-    s = (s || '').replace(/[\s ]/g, '').replace(/−/g, '-').replace(/,/g, '.').replace(/[·x×*]10\^?/g, 'e').replace(/^10\^/, '1e');
-    var m = s.match(/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/i); return m ? parseFloat(m[0]) : NaN;
+    /* Zahlen wie 6,7e-11 · 6,7·10^-11 · 6,7*10^(-11) · 6,7 · 10⁻¹¹ · 6,7×10^{-11}; Einheit dahinter ist erlaubt, Reste wie „(“ nicht */
+    var hoch = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '+' };
+    s = String(s || '').replace(/10\s*\^?\s*([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g, function (m, e) { return '10^' + e.split('').map(function (c) { return hoch[c]; }).join(''); });
+    s = s.replace(/[\s  ]/g, '').replace(/[−–]/g, '-').replace(/,/g, '.').replace(/[(){}\[\]]/g, '').replace(/\*\*/g, '^')
+      .replace(/[·x×*⋅]10\^?/gi, 'e').replace(/^10\^/, '1e');
+    var m = s.match(/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/i); if (!m) return NaN;
+    var rest = s.slice(m[0].length);
+    return /^(?![eE])[a-zA-Zµ°²³\/·*.]*$/.test(rest) ? parseFloat(m[0]) : NaN;
   }
   function nah(a, b, t) { return Math.abs(a - b) <= Math.abs(b) * t; }
   // geltende Ziffern der Eingabe (Nullen am Ende einer ganzen Zahl ohne Komma zählen nicht)

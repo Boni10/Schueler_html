@@ -232,7 +232,7 @@ body.mathe .st-S2 .stufe-chip{color:#8a5a12}body.mathe .st-S3 .stufe-chip{color:
 .stift-bar button{font:inherit;font-size:16px;min-width:40px;height:36px;border-radius:10px;border:1.5px solid transparent;background:#fffaf0;cursor:pointer}
 .stift-bar button.an{border-color:var(--ink)}
 .stift-bar button.farbe{background:var(--c);min-width:30px;width:30px;border-radius:50%}
-.stift-cv{display:block;width:100%;height:auto;touch-action:pan-y;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+.stift-cv{display:block;width:100%;height:auto;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
 /* Werkzeug */
 .werkzeug{background:var(--card);border-radius:18px;border:1px solid var(--line);padding:12px 16px;margin:12px 0}
 .werkzeug>b{font-family:var(--hand);font-weight:400;font-size:26px;color:#2f5f9e}
@@ -813,10 +813,35 @@ var Bild = (function () {
       s += '<line x1="70" y1="160" x2="230" y2="160" stroke="' + C.ink + '" stroke-width="1.5"/>';
       return svg(s + T(150, 180, lr, C.ink, 14, 'middle') + T(150, 40, lm, C.ink, 14, 'middle'));
     },
-    planet: function (name, farbe, l1, l2) {
-      var s = '<circle cx="95" cy="92" r="72" fill="' + farbe + '" stroke="' + C.ink + '" stroke-width="2.5"/><line x1="95" y1="92" x2="167" y2="92" stroke="' + C.red + '" stroke-width="2"/><circle cx="95" cy="92" r="4" fill="' + C.ink + '"/>';
-      s += '<rect x="112" y="10" width="14" height="10" fill="' + C.soft + '"/><line x1="119" y1="20" x2="119" y2="40" stroke="' + C.soft + '" stroke-dasharray="3 3"/><circle cx="119" cy="44" r="4" fill="' + C.ink + '"/>';
-      return svg(s + T(95, 60, name, C.ink, 15, 'middle') + T(180, 110, l1 || '', C.red, 15) + T(180, 140, l2 || '', C.green, 15));
+    planet: function (name, farbe, l1, l2, art, phi) {
+      // Himmelskörper mit Radius. Standard: Person auf der Oberfläche, blauer Pfeil zur Mitte (Anziehung), l1 am Radius, l2 an der Person.
+      // Steht in l1 die Höhe h: Körper in der Höhe h über dem Boden. art 'ort': Ort auf der Breite phi (Kreisbahn um die Erdachse).
+      var cx = 92, cy = 114, R = 64, s = '', hoch = /<span class="m">h<\/span>/.test(l1 || '');
+      s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="' + farbe + '" stroke="' + C.ink + '" stroke-width="2.5"/>';
+      if (name === 'Erde') s += '<path d="M' + (cx - 46) + ',' + (cy - 4) + ' q14,-18 32,-8 q10,10 22,4 q4,16 -12,22 q-18,4 -22,18 q-16,-8 -20,-36z M' + (cx + 12) + ',' + (cy + 14) + ' q16,-6 26,6 q-2,16 -18,18 q-12,-6 -8,-24z" fill="' + C.mint + '" stroke="' + C.ink + '" stroke-width="1.2"/>';
+      s += '<circle cx="' + cx + '" cy="' + cy + '" r="3.5" fill="' + C.ink + '"/>';
+      if (art === 'ort') {
+        var w = (phi || 48) * Math.PI / 180, px = cx + R * Math.cos(w), py = cy - R * Math.sin(w);
+        s += '<line x1="' + cx + '" y1="' + (cy - R - 14) + '" x2="' + cx + '" y2="' + (cy + R + 10) + '" stroke="' + C.soft + '" stroke-width="1.5" stroke-dasharray="5 4"/>';
+        s += '<line x1="' + (cx - R) + '" y1="' + cy + '" x2="' + (cx + R) + '" y2="' + cy + '" stroke="' + C.soft + '" stroke-width="1.5" stroke-dasharray="5 4"/>';
+        s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + px.toFixed(1) + '" y2="' + py.toFixed(1) + '" stroke="' + C.ink + '" stroke-width="1.5"/>';
+        s += '<line x1="' + cx + '" y1="' + py.toFixed(1) + '" x2="' + px.toFixed(1) + '" y2="' + py.toFixed(1) + '" stroke="' + C.blue + '" stroke-width="3"/>';
+        s += '<path d="M' + (cx + 22) + ',' + cy + ' A22,22 0 0 0 ' + (cx + 22 * Math.cos(w)).toFixed(1) + ',' + (cy - 22 * Math.sin(w)).toFixed(1) + '" fill="none" stroke="' + C.red + '" stroke-width="2"/>';
+        s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="6" fill="' + C.red + '" stroke="#fff" stroke-width="2"/>';
+        return svg(s + T(cx + 26, cy - 6, 'φ', C.red, 13) + T(cx, cy + 44, name, C.ink, 15, 'middle') + T(px + 10, py - 8, l1 || '', C.red, 15) + T(cx + R + 8, cy + 26, l2 || '', C.green, 15));
+      }
+      s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + R) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="2"/>';
+      if (hoch) {
+        var yb = cy - R - 36;
+        s += '<line x1="' + cx + '" y1="' + (cy - R) + '" x2="' + cx + '" y2="' + (yb + 8) + '" stroke="' + C.soft + '" stroke-width="1.8" stroke-dasharray="4 3"/>';
+        s += '<line x1="' + (cx - 6) + '" y1="' + (cy - R) + '" x2="' + (cx + 6) + '" y2="' + (cy - R) + '" stroke="' + C.soft + '" stroke-width="1.8"/>';
+        s += '<circle cx="' + cx + '" cy="' + yb + '" r="8" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2"/>';
+        s += pfeil(cx, cy - R + 5, cx, cy - R + 30, C.blue, 2.5);
+        return svg(s + T(cx, cy + 40, name, C.ink, 15, 'middle') + T(cx + 14, cy - R - 2, l1 || '', C.red, 15) + T(cx + 16, yb + 2, l2 || '', C.green, 15));
+      }
+      s += '<g transform="translate(' + cx + ',' + (cy - R + 1) + ') scale(.7)">' + mensch(0, 0, '#e0620d') + '</g>';
+      s += pfeil(cx, cy - R + 5, cx, cy - R + 30, C.blue, 2.5);
+      return svg(s + T(cx, cy + 40, name, C.ink, 15, 'middle') + T(cx + R + 8, cy + 6, l1 || '', C.red, 15) + T(cx + 18, cy - R - 22, l2 || '', C.green, 15));
     },
     fall: function (lh, lt) {
       var s = '<line x1="10" y1="172" x2="290" y2="172" stroke="' + C.ink + '" stroke-width="3"/><line x1="60" y1="172" x2="60" y2="18" stroke="' + C.soft + '" stroke-width="4"/>';
@@ -982,6 +1007,7 @@ var Stift = (function () {
 
     /* ---------- Fingergesten (nur mit opt.gesten, nur ohne Finger-Modus): 2 Finger kurz = zurück, 3 Finger kurz = wiederholen */
     var tipps = {}, geste = null;
+    var schieb = null;   /* Finger-Wisch ohne Gesten: das Schreibfeld sperrt das native Scrollen (touch-action:none), die Seite scrollt von Hand mit */
     function gesteStart(e) {
       if (!geste) geste = { t: Date.now(), max: 0, ok: true };
       tipps[e.pointerId] = [e.clientX, e.clientY];
@@ -1011,7 +1037,11 @@ var Stift = (function () {
         e.preventDefault(); if (cur) return; try { cv.setPointerCapture(e.pointerId); } catch (x) {}
         groesse(); cur = { laser: true, pen: e.pointerType === 'pen' }; if (cur.pen) stiftLaeuft = true; schweif = []; laserHin(pos(e)); return;
       }
-      if (touch && !finger) { if (opt.gesten && !cur) { e.preventDefault(); gesteStart(e); } return; }
+      if (touch && !finger) {
+        if (opt.gesten && !cur) { e.preventDefault(); gesteStart(e); }
+        else if (!opt.gesten && !cur) schieb = { id: e.pointerId, y: e.clientY };
+        return;
+      }
       if (cur) return;                                            /* zweiter Kontakt während eines Strichs */
       e.preventDefault(); groesse(); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
       if (e.pointerType === 'pen') { stiftLaeuft = true; tipps = {}; geste = null; }
@@ -1040,7 +1070,11 @@ var Stift = (function () {
       trafo(); stil(cur); abschnitt(cur, cur.p.length - 2);
     }
     cv.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch' && !(cur && cur.laser) && (!finger || !cur)) { if (opt.gesten && !finger) { e.preventDefault(); gesteZug(e); } return; }
+      if (e.pointerType === 'touch' && !(cur && cur.laser) && (!finger || !cur)) {
+        if (opt.gesten && !finger) { e.preventDefault(); gesteZug(e); }
+        else if (schieb && e.pointerId === schieb.id && !finger) { window.scrollBy(0, schieb.y - e.clientY); schieb.y = e.clientY; }
+        return;
+      }
       if (!cur) {   /* Pencil im Hover: Laserpunkt folgt ohne Berührung */
         if (aktiv && modus === 'laser' && e.pointerType === 'pen' && !e.buttons) { laser = pos(e); ovNeu(); }
         return;
@@ -1066,9 +1100,9 @@ var Stift = (function () {
       if (stiftLaeuft) { stiftLaeuft = false; stiftEnde = Date.now(); }
       cur = null;
     }
-    function hoch(e) { if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, false); return; } ende(e); }
+    function hoch(e) { if (schieb && e.pointerId === schieb.id) schieb = null; if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, false); return; } ende(e); }
     cv.addEventListener('pointerup', hoch);
-    cv.addEventListener('pointercancel', function (e) { if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, true); return; } ende(null); });
+    cv.addEventListener('pointercancel', function (e) { if (schieb && e.pointerId === schieb.id) schieb = null; if (e.pointerType === 'touch' && !(cur && cur.laser) && !(finger && cur)) { gesteEnde(e, true); return; } ende(null); });
     cv.addEventListener('lostpointercapture', function (e) { if (cur && (cur.id === undefined || e.pointerId === cur.id)) ende(null); });
     cv.addEventListener('pointerleave', function (e) { if (!cur && laser && e.pointerType === 'pen') { laser = null; ovNeu(); } });
     // Apple Pencil: nicht scrollen, Finger scrollen weiter (außer Finger-Modus); mit Gesten keine Zoom- oder Scrollgesten auf dem Schreibfeld
@@ -1095,9 +1129,11 @@ var Stift = (function () {
       if (b.dataset.a === 'zurueck') zurueck();
       if (b.dataset.a === 'vor') vorwaerts();
       if (b.dataset.a === 'leeren') leeren();
-      if (b.dataset.a === 'finger') { finger = !finger; b.classList.toggle('an', finger); cv.style.touchAction = finger || opt.gesten ? 'none' : 'pan-y'; }
+      if (b.dataset.a === 'finger') { finger = !finger; b.classList.toggle('an', finger); cv.style.touchAction = 'none'; }
     });
-    if (opt.gesten) cv.style.touchAction = 'none';
+    /* Immer touch-action:none und nicht markierbar, sonst bricht iPadOS das ruhige Halten des Pencils (Radierer) als Scroll- oder Markier-Geste ab;
+       ohne opt.gesten scrollt die Seite beim Fingerwisch von Hand mit (schieb) */
+    cv.style.touchAction = 'none'; cv.style.userSelect = cv.style.webkitUserSelect = 'none'; cv.style.webkitTouchCallout = 'none';
     function speichern() { if (!key) return; try { localStorage.setItem(key, JSON.stringify(strokes)); } catch (e) {} if (opt.onChange) opt.onChange(strokes); }
     if (key) { try { strokes = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { strokes = []; } }
     setTimeout(groesse, 0);
@@ -1493,8 +1529,14 @@ var AUFGABEN = (function () {
   var st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
   function zahl(s) {
-    s = (s || '').replace(/[\s ]/g, '').replace(/−/g, '-').replace(/,/g, '.').replace(/[·x×*]10\^?/g, 'e').replace(/^10\^/, '1e');
-    var m = s.match(/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/i); return m ? parseFloat(m[0]) : NaN;
+    /* Zahlen wie 6,7e-11 · 6,7·10^-11 · 6,7*10^(-11) · 6,7 · 10⁻¹¹ · 6,7×10^{-11}; Einheit dahinter ist erlaubt, Reste wie „(“ nicht */
+    var hoch = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '+' };
+    s = String(s || '').replace(/10\s*\^?\s*([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g, function (m, e) { return '10^' + e.split('').map(function (c) { return hoch[c]; }).join(''); });
+    s = s.replace(/[\s  ]/g, '').replace(/[−–]/g, '-').replace(/,/g, '.').replace(/[(){}\[\]]/g, '').replace(/\*\*/g, '^')
+      .replace(/[·x×*⋅]10\^?/gi, 'e').replace(/^10\^/, '1e');
+    var m = s.match(/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/i); if (!m) return NaN;
+    var rest = s.slice(m[0].length);
+    return /^(?![eE])[a-zA-Zµ°²³\/·*.]*$/.test(rest) ? parseFloat(m[0]) : NaN;
   }
   function nah(a, b, t) { return Math.abs(a - b) <= Math.abs(b) * t; }
   // geltende Ziffern der Eingabe (Nullen am Ende einer ganzen Zahl ohne Komma zählen nicht)
