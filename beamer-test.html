@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beamer-Test</title>
+<style>
+:root{
+  --papier:#fbf1dc; --tinte:#2b3445; --leise:#6b7280; --rand:#d9cfbb;
+  --gruen:#22c55e; --rot:#ef4444; --gelb:#facc15; --blau:#3b82f6;
+  --flaeche:#ffffff; --hinter:#f3efe6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--tinte);background:var(--hinter);-webkit-text-size-adjust:100%}
+button{font:inherit}
+
+/* ---------- Folie (Beamer und Vorschau) ---------- */
+.folie{width:1280px;height:720px;position:relative;overflow:hidden;
+  background-color:var(--papier);
+  background-image:linear-gradient(rgba(0,0,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px);
+  background-size:32px 32px}
+.folie .streifen{position:absolute;left:0;top:0;bottom:0;width:22px}
+.folie .etikett{position:absolute;left:64px;top:40px;color:#fff;font-weight:700;font-size:26px;padding:8px 20px;border-radius:10px}
+.folie h1{position:absolute;left:64px;right:64px;top:120px;margin:0;font-size:64px;line-height:1.15}
+.folie p{position:absolute;left:64px;right:64px;top:300px;margin:0;font-size:38px;line-height:1.35}
+.folie .nummer{position:absolute;right:48px;bottom:36px;font-size:30px;color:var(--leise)}
+.folie .riesig{position:absolute;right:56px;top:20px;font-size:180px;font-weight:800;opacity:.18}
+
+/* ---------- Beamer ---------- */
+body.beamer{background:#111;overflow:hidden;height:100vh}
+#buehne{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#rahmen{transform-origin:center center}
+#schwarz{position:fixed;inset:0;background:#000;display:none;z-index:5}
+#warten{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  background:#111;color:#eee;font-size:28px;text-align:center;padding:24px;z-index:6}
+#warten small{font-size:18px;color:#aaa;max-width:640px}
+#laufbalken{position:fixed;left:0;bottom:0;height:6px;width:100%;z-index:4;background:rgba(255,255,255,.08)}
+#laufbalken i{display:block;height:100%;width:12%;background:var(--blau)}
+#ecke{position:fixed;right:8px;top:6px;font-size:12px;color:rgba(255,255,255,.55);z-index:4;font-variant-numeric:tabular-nums}
+
+/* ---------- Regie ---------- */
+.wrap{max-width:920px;margin:0 auto;padding:16px 16px 48px}
+.kopf{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+.kopf h1{font-size:24px;margin:0}
+.lampe{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:15px}
+.lampe::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--rot)}
+.lampe.an{background:#dcfce7;color:#166534}
+.lampe.an::before{background:var(--gruen)}
+.karte{background:var(--flaeche);border:1px solid var(--rand);border-radius:14px;padding:16px;margin:0 0 14px}
+.karte h2{font-size:18px;margin:0 0 10px}
+details.karte summary{font-weight:700;font-size:18px;cursor:pointer}
+ol.schritte{margin:10px 0 0;padding-left:22px;line-height:1.5}
+ol.schritte li{margin:0 0 10px}
+.hinweis{font-size:14px;color:var(--leise)}
+.knopf-link{display:inline-block;margin:6px 0 2px;padding:12px 18px;border-radius:12px;background:var(--blau);color:#fff;font-weight:700;text-decoration:none;font-size:17px}
+.regiegitter{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:700px){.regiegitter{grid-template-columns:1fr}}
+.vorschau{width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:10px;border:1px solid var(--rand);position:relative;background:#111}
+.vorschau .innen{position:absolute;left:0;top:0;transform-origin:0 0}
+.steuer{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.steuer button{flex:1 1 120px;min-height:56px;border-radius:12px;border:1px solid var(--rand);background:#fff;font-size:18px;font-weight:700;color:var(--tinte)}
+.steuer button.haupt{background:var(--blau);color:#fff;border-color:var(--blau)}
+.steuer button.aktiv{background:#111;color:#fff}
+.notiz{background:#fff8d6;border:1px dashed #d4b106;border-radius:10px;padding:12px;font-size:16px;line-height:1.45}
+.pruef label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eee;font-size:16px;line-height:1.4}
+.pruef input{width:22px;height:22px;flex:0 0 auto;margin-top:1px}
+table.werte{width:100%;border-collapse:collapse;font-size:15px}
+table.werte td{padding:6px 4px;border-bottom:1px solid #eee;vertical-align:top}
+table.werte td:first-child{color:var(--leise);width:46%}
+#protokoll{width:100%;min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;border:1px solid var(--rand);border-radius:10px;padding:10px;background:#fafafa;color:var(--tinte)}
+.klein-knopf{margin-top:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--rand);background:#fff;font-weight:600;font-size:15px;color:var(--tinte)}
+.warnung{background:#fee2e2;border:1px solid #fca5a5;color:#7f1d1d;border-radius:10px;padding:10px 12px;font-size:15px;margin-top:10px;display:none}
+</style>
+</head>
+<body>
+
+<!-- ================= Regie (Standard) ================= -->
+<div id="regie" class="wrap" hidden>
+  <div class="kopf">
+    <h1>Beamer-Test: Regie</h1>
+    <span id="lampe" class="lampe">Beamer nicht verbunden</span>
+  </div>
+
+  <details class="karte" id="anleitung" open>
+    <summary>Anleitung (in der Schule, etwa 5 Minuten)</summary>
+    <ol class="schritte">
+      <li><b>iPad per Kabel mit dem Beamer verbinden</b> (USB-C auf HDMI). AirPlay bzw. Apple TV probierst du erst danach, siehe unten.</li>
+      <li><b>Stage Manager einschalten:</b> Oben rechts nach unten wischen (Kontrollzentrum), dann auf das Symbol mit dem Rechteck und den drei Punkten links daneben tippen. Findest du es dort nicht: Einstellungen &gt; Multitasking &amp; Gesten &gt; Stage Manager.</li>
+      <li><b>Diese Seite in Safari offen lassen.</b> Dieses Fenster ist deine Regie und bleibt auf dem iPad. Kein privates Fenster verwenden, sonst finden sich die beiden Fenster nicht.</li>
+      <li><b>Beamer-Fenster öffnen:</b> Halte den blauen Knopf unten <b>lange gedrückt</b> und wähle „In neuem Fenster öffnen“. (Nur kurz tippen öffnet einen Tab, das reicht nicht.)<br>
+        <a class="knopf-link" id="beamerlink" href="#beamer" target="_blank" rel="opener">Beamer-Fenster</a>
+      </li>
+      <li><b>Das neue Fenster auf den Beamer schieben:</b> Oben am Fenster das Fenstermenü öffnen (drei Punkte in der Mitte oder die Fensterknöpfe links oben) und „Auf Display bewegen“ bzw. den Namen des Beamers wählen. Die genaue Bezeichnung kann abweichen. Mit Trackpad oder Maus geht es auch, indem du das Fenster am oberen Rand auf den Beamer ziehst.</li>
+      <li><b>Zurück in diesem Fenster:</b> Die Lampe oben wird grün. Tippe auf „Weiter“ und „Zurück“ und schau, ob der Beamer mitschaltet.</li>
+      <li><b>Prüfliste abhaken,</b> dann unten „Protokoll kopieren“ antippen und mir den Text schicken. Ein Bildschirmfoto der ganzen Seite geht auch.</li>
+    </ol>
+    <p class="hinweis"><b>Wenn es hakt:</b><br>
+      Der Beamer zeigt genau dasselbe wie das iPad: Dann spiegelt das iPad noch. Prüfe, ob Stage Manager an ist. Eventuell unter Einstellungen &gt; Bildschirm &amp; Helligkeit beim Beamer das Spiegeln ausschalten (Bezeichnung kann abweichen).<br>
+      Die Lampe bleibt rot: Beide Fenster neu laden. Beide müssen normale Safari-Fenster sein (kein privater Modus, nicht in der mebis- oder OneDrive-App).<br>
+      Die Folie ist auf dem Beamer klein: Das Beamer-Fenster über die Fensterknöpfe vergrößern bzw. maximieren. Notiere, ob das ging.<br>
+      <b>Zusatztest AirPlay:</b> Wenn ein Apple TV im Raum ist, alles noch einmal über das Kontrollzentrum &gt; Bildschirmsynchronisierung probieren.</p>
+    <p class="hinweis"><b>Zusatztest mebis:</b> Lade diese Datei (beamer-test.html) in deinen mebis-Kurs als Datei hoch, für Schüler verborgen. Dann öffnest du mebis nicht in der App, sondern <b>in Safari</b> (lernplattform.bycs.de, dort anmelden), tippst die Datei an und machst ab Schritt 4 alles noch einmal. Klappt das, brauchen die Stunden später kein öffentliches GitHub. Notiere im Protokoll, ob es über mebis ging (die Adresse steht automatisch drin).</p>
+  </details>
+
+  <div class="regiegitter">
+    <div class="karte">
+      <h2>Das sieht die Klasse</h2>
+      <div class="vorschau" id="vorschau"><div class="innen" id="vorschauInnen"></div></div>
+      <div class="steuer">
+        <button id="zurueck">◀ Zurück</button>
+        <button id="weiter" class="haupt">Weiter ▶</button>
+        <button id="schwarzKnopf">Schwarz</button>
+      </div>
+      <p class="hinweis">Auch mit den Pfeiltasten einer Tastatur.</p>
+    </div>
+    <div class="karte">
+      <h2>Das siehst nur du</h2>
+      <div class="notiz" id="notiz"></div>
+      <div class="warnung" id="gleicherSchirm">Das Beamer-Fenster meldet dieselbe Bildschirmgröße wie dieses Fenster. Vermutlich liegt es noch auf dem iPad und nicht auf dem Beamer (Schritt 5).</div>
+    </div>
+  </div>
+
+  <div class="karte pruef">
+    <h2>Prüfliste</h2>
+    <label><input type="checkbox" data-p="1"> Der Beamer zeigt nur die Folie, nicht diese Regie-Seite.</label>
+    <label><input type="checkbox" data-p="2"> Das iPad zeigt die Regie mit der gelben Notiz.</label>
+    <label><input type="checkbox" data-p="3"> „Weiter“ und „Zurück“ schalten den Beamer sofort mit.</label>
+    <label><input type="checkbox" data-p="4"> Die Folie füllt die Beamerfläche (fast) ganz aus.</label>
+    <label><input type="checkbox" data-p="5"> „Schwarz“ macht den Beamer dunkel, erneutes Tippen holt die Folie zurück.</label>
+    <label><input type="checkbox" data-p="6"> Der blaue Laufbalken unten auf dem Beamer läuft flüssig, auch während du hier tippst.</label>
+    <label><input type="checkbox" data-p="7"> Es klappt auch über AirPlay bzw. Apple TV (nur wenn getestet).</label>
+  </div>
+
+  <div class="karte">
+    <h2>Messwerte (automatisch)</h2>
+    <table class="werte" id="werte"></table>
+  </div>
+
+  <div class="karte">
+    <h2>Protokoll für Claude</h2>
+    <textarea id="protokoll" readonly></textarea>
+    <button class="klein-knopf" id="kopieren">Protokoll kopieren</button>
+    <span class="hinweis" id="kopiert"></span>
+  </div>
+</div>
+
+<!-- ================= Beamer ================= -->
+<div id="beamer" hidden>
+  <div id="buehne"><div id="rahmen"></div></div>
+  <div id="schwarz"></div>
+  <div id="laufbalken"><i id="laeufer"></i></div>
+  <div id="ecke"></div>
+  <div id="warten">Beamer-Fenster bereit<small>Warte auf die Regie. Lass das andere Safari-Fenster mit der Regie geöffnet.</small></div>
+</div>
+
+<script>
+"use strict";
+var FOLIEN=[
+  {farbe:"#22d3ee",phase:"Ankommen",titel:"Willkommen zum Beamer-Test",text:"Diese Folie sieht nur der Beamer. Auf dem iPad liegt die Regie.",notiz:"Folie 1: Begrüßung. Diese gelbe Notiz darf die Klasse nicht sehen. Steht sie auf dem Beamer, spiegelt das iPad noch."},
+  {farbe:"#ff7a1a",phase:"Einstieg",titel:"Weiterschalten",text:"Wenn du in der Regie auf „Weiter“ tippst, wechselt diese Folie sofort.",notiz:"Folie 2: Achte darauf, wie schnell der Beamer reagiert. Die Verzögerung steht unten bei den Messwerten."},
+  {farbe:"#a855f7",phase:"Wir",titel:"Größe prüfen",text:"Füllt diese Folie die Beamerfläche aus? Rechts oben in der Ecke stehen die Fenstermaße.",notiz:"Folie 3: Wenn die Folie klein ist, das Beamer-Fenster über die Fensterknöpfe maximieren."},
+  {farbe:"#22c55e",phase:"Ihr",titel:"Laufbalken",text:"Unten läuft ein blauer Balken. Er soll flüssig laufen, auch wenn du in der Regie tippst.",notiz:"Folie 4: Probiere hier auch den Knopf „Schwarz“."},
+  {farbe:"#facc15",phase:"Merke",titel:"Geschafft",text:"Wenn alles geklappt hat, können wir die Stunden so umbauen: Folien auf dem Beamer, Stundenkarte auf dem iPad.",notiz:"Folie 5: Jetzt Prüfliste abhaken und das Protokoll kopieren."}
+];
+var ROLLE=(location.hash==="#beamer")?"beamer":"regie";
+var KANAL="beamer-test-v1";
+window.addEventListener("hashchange",function(){location.reload()});
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function folieHTML(i){
+  var f=FOLIEN[i];
+  var dunkel=(f.farbe==="#facc15");
+  return '<div class="folie"><div class="streifen" style="background:'+f.farbe+'"></div>'+
+    '<div class="etikett" style="background:'+f.farbe+';color:'+(dunkel?"#3a2e00":"#fff")+'">'+esc(f.phase)+'</div>'+
+    '<div class="riesig">'+(i+1)+'</div>'+
+    '<h1>'+esc(f.titel)+'</h1><p>'+esc(f.text)+'</p>'+
+    '<div class="nummer">Folie '+(i+1)+' von '+FOLIEN.length+'</div></div>';
+}
+
+/* ---------- Nachrichten: BroadcastChannel, Ersatz localStorage ---------- */
+var bc=null, wege={BroadcastChannel:0,localStorage:0}, gesehen={};
+try{bc=new BroadcastChannel(KANAL);bc.onmessage=function(e){empfang(e.data,"BroadcastChannel")}}catch(e){bc=null}
+window.addEventListener("storage",function(e){
+  if(e.key===KANAL&&e.newValue){try{empfang(JSON.parse(e.newValue),"localStorage")}catch(_){}}
+});
+var speicherOk=true;
+function senden(m){
+  m.id=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  m.von=ROLLE;
+  if(bc){try{bc.postMessage(m)}catch(e){}}
+  try{localStorage.setItem(KANAL,JSON.stringify(m))}catch(e){speicherOk=false}
+}
+function empfang(m,weg){
+  if(!m||m.von===ROLLE||gesehen[m.id])return;
+  gesehen[m.id]=1;
+  wege[weg]++;
+  if(ROLLE==="beamer")beamerEmpfang(m);else regieEmpfang(m);
+}
+
+/* ================= Beamer ================= */
+function startBeamer(){
+  document.body.className="beamer";
+  document.getElementById("beamer").hidden=false;
+  document.title="Beamer-Test: Beamer";
+  var rahmen=document.getElementById("rahmen");
+  var zustand={folie:0,schwarz:false}, verbunden=false;
+  function skalieren(){
+    var s=Math.min(window.innerWidth/1280,window.innerHeight/720);
+    rahmen.style.transform="scale("+s+")";
+    rahmen.style.width="1280px";rahmen.style.height="720px";
+  }
+  function zeigen(){
+    rahmen.innerHTML=folieHTML(zustand.folie);
+    document.getElementById("schwarz").style.display=zustand.schwarz?"block":"none";
+  }
+  window.addEventListener("resize",skalieren);
+  skalieren();zeigen();
+
+  window.beamerEmpfang=function(m){
+    if(m.typ==="zustand"){
+      zustand.folie=m.folie;zustand.schwarz=m.schwarz;
+      if(!verbunden){verbunden=true;document.getElementById("warten").style.display="none"}
+      zeigen();
+    }else if(m.typ==="ping"){
+      senden({typ:"pong",t:m.t});
+    }
+  };
+
+  /* Laufbalken und Bildrate */
+  var laeufer=document.getElementById("laeufer"), bilder=0, fps=0, t0=performance.now();
+  function lauf(t){
+    var x=((t%2000)/2000)*100;
+    laeufer.style.transform="translateX("+(x*8.4)+"%)";
+    bilder++;
+    if(t-t0>=1000){fps=Math.round(bilder*1000/(t-t0));bilder=0;t0=t}
+    requestAnimationFrame(lauf);
+  }
+  requestAnimationFrame(lauf);
+
+  function puls(){
+    var info={typ:"puls",w:window.innerWidth,h:window.innerHeight,sw:screen.width,sh:screen.height,
+      dpr:window.devicePixelRatio||1,fps:fps,sichtbar:document.visibilityState,folie:zustand.folie,
+      bc:!!bc,speicher:speicherOk};
+    senden(info);
+    document.getElementById("ecke").textContent=info.w+"×"+info.h+" · Schirm "+info.sw+"×"+info.sh+" · "+fps+" fps";
+  }
+  senden({typ:"hallo"});
+  setInterval(puls,1000);puls();
+  document.addEventListener("visibilitychange",puls);
+}
+
+/* ================= Regie ================= */
+function startRegie(){
+  document.getElementById("regie").hidden=false;
+  var zustand={folie:0,schwarz:false};
+  var beamer=null, zuletzt=0, rtts=[], verbundenJe=false;
+  var vorschau=document.getElementById("vorschau"), innen=document.getElementById("vorschauInnen");
+
+  function vorschauSkalieren(){innen.style.transform="scale("+(vorschau.clientWidth/1280)+")"}
+  function zeigen(){
+    innen.innerHTML=folieHTML(zustand.folie);
+    innen.style.opacity=zustand.schwarz?".15":"1";
+    vorschauSkalieren();
+    document.getElementById("notiz").textContent=FOLIEN[zustand.folie].notiz;
+    document.getElementById("schwarzKnopf").classList.toggle("aktiv",zustand.schwarz);
+    senden({typ:"zustand",folie:zustand.folie,schwarz:zustand.schwarz});
+  }
+  function weiter(){if(zustand.folie<FOLIEN.length-1){zustand.folie++;zeigen()}}
+  function zurueck(){if(zustand.folie>0){zustand.folie--;zeigen()}}
+  document.getElementById("weiter").onclick=weiter;
+  document.getElementById("zurueck").onclick=zurueck;
+  document.getElementById("schwarzKnopf").onclick=function(){zustand.schwarz=!zustand.schwarz;zeigen()};
+  document.addEventListener("keydown",function(e){
+    if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();weiter()}
+    if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();zurueck()}
+  });
+  window.addEventListener("resize",vorschauSkalieren);
+
+  window.regieEmpfang=function(m){
+    if(m.typ==="hallo"){senden({typ:"zustand",folie:zustand.folie,schwarz:zustand.schwarz})}
+    else if(m.typ==="puls"){beamer=m;zuletzt=Date.now();verbundenJe=true}
+    else if(m.typ==="pong"){rtts.push(performance.now()-m.t);if(rtts.length>20)rtts.shift()}
+  };
+
+  setInterval(function(){senden({typ:"ping",t:performance.now()})},2000);
+
+  var pruef=document.querySelectorAll(".pruef input");
+  for(var i=0;i<pruef.length;i++)pruef[i].addEventListener("change",aktualisieren);
+
+  function median(a){if(!a.length)return null;var b=a.slice().sort(function(x,y){return x-y});return b[Math.floor(b.length/2)]}
+  function aktualisieren(){
+    var an=(Date.now()-zuletzt)<2500;
+    var lampe=document.getElementById("lampe");
+    lampe.className="lampe"+(an?" an":"");
+    lampe.textContent=an?"Beamer verbunden":(verbundenJe?"Verbindung verloren":"Beamer nicht verbunden");
+    var gleich=!!(beamer&&beamer.sw===screen.width&&beamer.sh===screen.height);
+    document.getElementById("gleicherSchirm").style.display=(an&&gleich)?"block":"none";
+    var ms=median(rtts);
+    var zeilen=[
+      ["Verbindung",an?"ja":(verbundenJe?"unterbrochen":"nein")],
+      ["Übertragung",(wege.BroadcastChannel?"BroadcastChannel ":"")+(wege.localStorage?"localStorage":"")||"noch nichts empfangen"],
+      ["Verzögerung (hin und zurück)",ms===null?"unbekannt":Math.round(ms)+" ms"],
+      ["Beamer-Fenster",beamer?beamer.w+" × "+beamer.h:"unbekannt"],
+      ["Bildschirm des Beamer-Fensters",beamer?beamer.sw+" × "+beamer.sh+" (Faktor "+beamer.dpr+")":"unbekannt"],
+      ["Bildschirm dieses Fensters",screen.width+" × "+screen.height+" (Fenster "+window.innerWidth+" × "+window.innerHeight+")"],
+      ["Bildrate Beamer",beamer?beamer.fps+" fps":"unbekannt"],
+      ["Beamer-Fenster sichtbar",beamer?(beamer.sichtbar==="visible"?"ja":"nein ("+beamer.sichtbar+")"):"unbekannt"],
+      ["Beamer zeigt Folie",beamer?(beamer.folie+1)+" (Regie: "+(zustand.folie+1)+")":"unbekannt"]
+    ];
+    var html="";
+    for(var i=0;i<zeilen.length;i++)html+="<tr><td>"+esc(zeilen[i][0])+"</td><td>"+esc(zeilen[i][1])+"</td></tr>";
+    document.getElementById("werte").innerHTML=html;
+
+    var text="Beamer-Test Protokoll\n";
+    for(i=0;i<zeilen.length;i++)text+=zeilen[i][0]+": "+zeilen[i][1]+"\n";
+    text+="Hinweis gleicher Bildschirm: "+(gleich?"ja":"nein")+"\n";
+    text+="Prüfliste:\n";
+    for(i=0;i<pruef.length;i++){
+      text+="  ["+(pruef[i].checked?"x":" ")+"] "+pruef[i].parentNode.textContent.trim()+"\n";
+    }
+    text+="Adresse: "+location.hostname+(location.hostname?"":"(lokale Datei)")+"\n";
+    text+="Gerät: "+navigator.userAgent+"\n";
+    var feld=document.getElementById("protokoll");
+    if(document.activeElement!==feld)feld.value=text;
+  }
+  setInterval(aktualisieren,500);
+
+  document.getElementById("kopieren").onclick=function(){
+    aktualisieren();
+    var feld=document.getElementById("protokoll"), meldung=document.getElementById("kopiert");
+    function alt(){feld.focus();feld.select();try{document.execCommand("copy");meldung.textContent=" Kopiert."}catch(e){meldung.textContent=" Bitte Text markieren und kopieren."}}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(feld.value).then(function(){meldung.textContent=" Kopiert."},alt);
+    }else alt();
+  };
+
+  zeigen();aktualisieren();
+}
+
+if(ROLLE==="beamer")startBeamer();else startRegie();
+</script>
+</body>
+</html>
