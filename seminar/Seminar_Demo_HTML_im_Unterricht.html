@@ -502,6 +502,20 @@ html.beamer-modus body{overflow:hidden}
 .knopf{font:inherit;font-size:15px;font-weight:700;border-radius:999px;padding:9px 18px;border:0;background:var(--ink);color:#fff8ea;cursor:pointer;min-height:42px}
 .knopf.leise{background:var(--card-2);color:var(--ink-soft);border:1.5px solid var(--line);font-weight:600}
 .knopf:disabled{opacity:.4;cursor:default}
+/* Zeithinweis zwei Minuten vor Ende der Planzeit einer Station: schwebt am oberen Rand, damit er auch bei den unteren Aufgaben auffällt.
+   Warmes Bernstein: deutlich zu sehen, aber freundlich statt rot und warnend. Erscheint sanft von oben, der Ring pulsiert zweimal. */
+.zeitpopup{position:fixed;z-index:60;top:calc(env(safe-area-inset-top,0px) + 74px);left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 24px));display:flex;align-items:center;gap:12px;padding:12px 14px 12px 16px;background:#ffe9a8;border:2px solid #e8a317;border-radius:14px;color:#3a2a05;font-size:16.5px;font-weight:600;line-height:1.35;box-shadow:0 10px 28px rgba(80,55,10,.28);animation:zpein .45s ease-out,zpring 1.6s ease-out .45s 2}
+.zeitpopup .zp-icon{font-size:26px;line-height:1;flex:none}
+.zeitpopup .zh-text{flex:1;min-width:0}
+.zeitpopup .zh-ok{flex:none;font:inherit;font-size:15px;font-weight:700;color:#3a2a05;background:#fff7dc;border:1.5px solid #c98a0b;border-radius:999px;padding:7px 18px;cursor:pointer;min-height:40px}
+.zeitpopup .zh-ok:hover{background:#fff}
+/* Zweite Stufe, Planzeit um: etwas wärmer (Orange statt Bernstein), aber immer noch kein Alarmrot */
+.zeitpopup.ende{background:#ffd2ad;border-color:#e0620d;color:#3d1d05}
+.zeitpopup.ende .zh-ok{border-color:#c4500a;background:#fff3e8}
+@keyframes zpein{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes zpring{0%{box-shadow:0 10px 28px rgba(80,55,10,.28),0 0 0 0 rgba(232,163,23,.65)}100%{box-shadow:0 10px 28px rgba(80,55,10,.28),0 0 0 16px rgba(232,163,23,0)}}
+@media (max-width:480px){.zeitpopup{flex-wrap:wrap;font-size:15.5px;padding:10px 12px}.zeitpopup .zh-ok{margin-left:auto}}
+@media print{.zeitpopup{display:none!important}}
 .weiter{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:2px dashed var(--line)}
 .weiter .hint{flex:1;text-align:center;font-size:14px;color:var(--ink-soft)}
 .skala{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);margin-top:-2px}
@@ -669,6 +683,12 @@ html[data-design="hell"] .knopf.leise{background:#fff;border:1px solid var(--gra
 html[data-design="hell"] .mini-knopf{border:1px solid var(--graphit);color:var(--graphit);background:#fff}
 html[data-design="hell"] .mini-knopf.an{background:var(--graphit);color:#fff}
 html[data-design="hell"] .weiter{border-top:1px dashed var(--haar-2)}
+/* hell: Pfirsich-Gelb, eckig-weich wie die Karten, ohne dicken Schatten; Rand in Graphit */
+html[data-design="hell"] .zeitpopup{background:#ffe7b8;border:1.5px solid var(--graphit);box-shadow:0 6px 18px rgba(58,58,62,.16)}
+html[data-design="hell"] .zeitpopup .zh-ok{background:#fff;border:1px solid var(--graphit);font-weight:600}
+html[data-design="hell"] .zeitpopup .zh-ok:hover{background:var(--graphit);color:#fff}
+html[data-design="hell"] .zeitpopup.ende{background:#ffd5b8}
+html[data-design="hell"] .zeitpopup.ende .zh-ok{background:#fff;border-color:var(--graphit)}
 
 
 </style>
@@ -730,7 +750,7 @@ html[data-design="hell"] .weiter{border-top:1px dashed var(--haar-2)}
   <div class="wrap">
     <div class="sec-head">
       <div><p class="label">Stundenkarte und Beamer</p><h2>Vorbereitung auf einen Blick.</h2></div>
-      <p>Die Stundenkarte ist für die Lehrkraft: dunkel, knapp, nach Szenen gegliedert. Der Knopf „Beamer“ öffnet die Folien. Tippen rechts geht einen Schritt weiter, Tippen im linken Drittel einen zurück.</p>
+      <p>Die Stundenkarte ist für die Lehrkraft: knapp, nach Szenen gegliedert. Der Knopf „Beamer“ öffnet die Folien. Tippen rechts geht einen Schritt weiter, Tippen im linken Drittel einen zurück.</p>
     </div>
     <div class="legende" aria-label="Phasenfarben">
       <span style="--c:var(--ph-ank)"><i></i>Ankommen</span><span style="--c:var(--ph-ein)"><i></i>Einstieg</span><span style="--c:var(--ph-wir)"><i></i>Wir</span><span style="--c:var(--ph-ihr)"><i></i>Ihr</span><span style="--c:var(--ph-merke)"><i></i>Merke</span><span style="--c:var(--ph-exit)"><i></i>Exit</span><span style="--c:var(--ph-ha)"><i></i>Hausaufgabe</span>
@@ -845,7 +865,7 @@ html[data-design="hell"] .weiter{border-top:1px dashed var(--haar-2)}
   <div class="wrap">
     <div class="sec-head">
       <div><p class="label">Digitales AB als Lernlandkarte</p><h2>Sechs Stationen, ein Weg.</h2></div>
-      <p>So arbeitet die Klasse am iPad. Die Karte oben zeigt den Fortschritt, Newton steht an der aktuellen Station. Die nächste Station öffnet sich, wenn die vorige geschafft ist. Für die Vorführung lassen sich alle Stationen freischalten.</p>
+      <p>So arbeitet die Klasse am iPad. Die Karte oben zeigt den Fortschritt, Newton steht an der aktuellen Station. Die nächste Station öffnet sich, wenn die vorige geschafft ist. Zwei Minuten vor Ende der Planzeit erinnert ein Hinweis daran, die Tipps zu nutzen und bald zu wechseln. Für die Vorführung lassen sich alle Stationen freischalten.</p>
     </div>
     <div class="ab">
       <div class="ab-kopf">
@@ -1944,17 +1964,80 @@ var SIM = (function () {
     var GM = 3.986e14, RE = 6.371e6, H0 = 4.0e5, v0 = 7.0, bahnen = [], akt = null, run = false, last = 0, W = 0, H = 0, d = 1;
     var FARBEN = ['#e0620d', '#1c64d9', '#23884a', '#a855f7', '#c92a2a', '#d4a514'];
     var vK = Math.sqrt(GM / (RE + H0)), vF = Math.sqrt(2) * vK;
-    function groesse() { var b = cv.getBoundingClientRect(); d = Math.min(window.devicePixelRatio || 1, 2); W = b.width || 400; H = b.height || 400; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); zeichnen(); }
+    var erde = null, erdeS = 0;
+    /* Küstenlinien, stark vereinfacht: Längengrad,Breitengrad in Grad. Quelle sind eigene grobe Umrisse nach dem Atlas, keine Karten- oder Messdaten. */
+    var LAND = {
+      amerika: '-168,65.5 -163,68 -156,71 -141,69.5 -128,70 -115,68.5 -100,68 -90,69 -82,68 -75,67.5 -68,63 -65,60.5 -61,56 -56,52.2 -59.5,48 -64,47 -66,45 -70,43.5 -70,41.8 -74,40.5 -75.5,38 -76,35.2 -78.5,33.8 -81,31.5 -80,27 -80.3,25.3 -81.2,25.2 -82.7,27.5 -83,29.5 -85,29.7 -89,30 -90,29.2 -94,29.5 -97.2,27.5 -97.5,24 -97.7,22 -96,19 -95,18.2 -92,18.6 -91,19.2 -90.5,21 -87,21.3 -87.5,18 -88.3,16 -85,15.8 -83.3,15 -83.6,11 -82.5,9.3 -80,9.2 -77.5,8.7 -75.5,10.5 -72,12 -71.5,10.5 -68,10.5 -64,10.6 -61,10.5 -58,7 -55,5.8 -52,5 -50,1.5 -50,0 -48,-1 -44.5,-2.5 -40,-3 -37,-5 -35,-6 -35,-9 -38,-13 -39,-18 -41,-22 -44,-23 -48,-26 -48.5,-28 -52,-32 -54,-34.5 -57,-35 -57.5,-38 -62,-39 -62.5,-41 -65,-41 -65,-45 -67.5,-46.5 -66,-48 -69,-51 -68.5,-53 -71,-54 -74,-52 -75.5,-47 -73.8,-43 -73.5,-38 -71.5,-32 -71.5,-27 -70.2,-19 -70.5,-18 -75,-15 -77,-12 -79,-8 -81.2,-5.5 -80,-2 -80.8,0 -79,2 -77.5,4 -77.5,7 -79.5,8.8 -83,8.4 -85.8,10 -87.5,13 -91,14 -94,16 -96,15.7 -101,17.5 -105.5,20 -105.5,23 -108.5,25.5 -111,28 -114.7,31.5 -114.8,30 -112.8,27 -110.5,24.5 -109.5,23 -112,25 -114.5,28 -116,30.5 -117,32.7 -120.5,34.5 -122.5,37.5 -124,40.5 -124,46 -123,48.5 -125,50 -130,54 -135,58 -140,59.8 -146,60.8 -150,59.5 -152,58 -158,56.5 -164,54.7 -160,58.5 -162,60 -165,62 -165,64',
+      hudson: '-94.5,59 -92.5,57 -88.5,56.5 -85,55.3 -82.2,53 -80.5,51.3 -79,52.8 -78.8,55.5 -77.5,59 -77.8,62.3 -82,63.5 -86,64 -90,64 -94,62',
+      afrika: '-17.2,14.7 -16.5,19.5 -14.5,26 -10,29.8 -9.7,31.5 -7,34 -5.5,35.8 -2,35.1 1,36.5 6,37 10,37.2 11,35.5 10.2,33.8 11.5,32.9 15.2,32.3 19.5,30.3 20,32 22,33 25,31.8 28,31.2 31,31.5 32.5,31.1 34.2,31.2 34.9,29.5 34.3,27.8 33.6,28 32.6,29.9 33.6,27.2 34.9,24.5 36.5,22 37.3,19 38.6,17.5 39.5,15.5 41.5,13.5 43.1,12.7 44.5,10.8 48,11.2 51.2,11.8 50.8,10 49,6 47.5,3 45,1.5 42,-0.8 40.2,-2.8 39.3,-5 39,-8 40.5,-11 40.6,-15 36,-18.8 35,-22 35.5,-24 32.8,-26 32.4,-28.6 30,-31.2 27,-33.5 24,-34.3 20,-34.8 18.4,-34 18,-31.8 16.5,-28.6 15,-26.5 14.5,-22.9 11.8,-17.5 13.5,-12 12.2,-6 9.3,-1 9.5,3.5 8.5,4.5 6,4.3 4,6.3 1.5,6.1 -2,4.8 -5,5.2 -8.5,4.5 -11,6.8 -13.3,9 -14.8,10.8 -16.8,12.5',
+      eurasien: '-5.5,36 -9,37 -9.5,39 -8.8,42 -9,43.2 -2,43.5 -1.3,45.5 -4.8,48.4 -1.5,48.7 1.5,50.2 3.5,51.5 5,53.2 8.5,53.7 8.3,55.5 8.2,57 10.5,57.7 10.5,59 7,58 5.2,59.5 5,62 8,63.5 12,66 15,68 19,70 24,71 29,71 33,69.7 41,67.5 44,68 55,68.5 60,69.5 68,69 70,73 80,72.5 90,75.5 100,77 112,74 130,71.5 140,72.5 160,70 170,69.5 180,68.5 180,64 163,59 156,51 150,59 142,53 140,47 131,42.5 129,35 126,35 124.5,39.5 121,40.5 118,38.5 122,37 120,34 122,30 120,25 116,22.5 110,21 108,17 109,12 105,9 104,10.3 100.5,13 100,7 103,1.5 100.5,3 98.5,8 98.5,16 94.5,16 94,19 92,21 90,22 87,21 85,19.5 80,15 80,10 77.5,8 76,11 73,17 72.5,21 70,21 68.5,23.5 66.5,25.3 61.5,25 57,25.8 56.5,27 54,26.7 51,27.8 49.5,30 48,30 48.5,28 50,26 51.5,24.5 53,24.3 56,24.3 56.5,26 58,23.5 59.8,22.5 57.5,19 55,17 52,16 48,14 45,12.8 43.3,12.7 42.8,15 41,19 39,22 37,26 35,28.5 34.8,29.5 34.3,31 34.8,32 35.5,34 36,36.5 32,36.2 28,36.7 27,37.5 26.5,39.5 26,40.5 23.8,40 24,38 22.5,36.5 21.5,37 21,39 19.5,40.3 19.4,41.8 16,43.5 13.5,45.6 12.3,45 12.5,44 16,41.8 18.5,40.1 16.5,38.8 15.7,38 15.7,40 12.5,41.5 10.5,43 8.8,44.4 7,43.7 4.5,43.4 3,42.5 3.2,41.7 0.8,40.8 -0.3,39.4 0,38.7 -0.8,37.6 -2.2,36.7',
+      ostsee: '10.7,57.6 10.7,59.2 12,59 12.5,56 12.8,55.4 14.2,54.5 19,54.4 21.3,55.5 21,57 23.7,57.2 24.3,59.3 30,59.9 22.5,59.8 21.5,60.5 21.4,62.5 25.2,65 21.6,65.6 19,63 17.2,60.8 18.7,59.3 16.7,57.2 16.1,56.1 14.5,56 12.8,56.2',
+      schwarz: '28,41.2 29.2,41.1 31,41.1 35,42 38,41 41.5,41.5 41.5,43 39,44.5 37.5,45.2 35,45 33,44.5 33,46 31.5,46.6 30,45.5 29,44.5 28,43.5 28,42',
+      kaspi: '47,45 49,46.5 51,47 53,46.5 53.5,44 51.5,42.5 53,40.5 54,38.5 51,36.8 49,37.5 49.3,39.5 48,41.8 47.5,43.3',
+      inseln: ['-73,78 -60,82 -30,83.5 -18,81 -20,76 -22,70 -32,68 -40,65 -43,60 -49,61 -53,66 -55,70 -60,76 -66,76.5',
+        '-5.5,50 1.5,51 1.7,52.8 -0.5,54 -2,55.8 -1.8,57.5 -3,58.6 -5,58.5 -6,56.5 -5,55 -3.3,54.8 -3,53.3 -4.5,53 -5.2,51.8 -3.5,51.3',
+        '-6,52.2 -6,54 -8,55.2 -10,54 -10,52 -8,51.5',
+        '-24,65.5 -22,66.4 -16,66.5 -13.5,65 -15,64.2 -19,63.4 -22.5,63.8',
+        '49.3,-12 50.5,-15.5 48,-22 45,-25.5 43.5,-23 44.5,-17 47,-15',
+        '-85,22 -80,23.2 -74,20 -77.5,19.8 -81,22']
+    };
+    function pfadAus(s) { return s.trim().split(/\s+/).map(function (p) { var a = p.split(','); return [+a[0], +a[1]]; }); }
+    /* Die Erde von der Seite: Blick auf den Atlantik (Mitte 25° West, 25° Nord geneigt), Nordpol nahe oben, dort steht der Berg mit der Kanone.
+       Orthografische Projektion; Punkte auf der Rückseite werden an den Rand geklemmt, damit die Küstenlinien dort sauber enden. */
+    function erdeBild(r) {
+      var RAD = Math.PI / 180, pad = 4, sz = Math.ceil(2 * (r + pad)), c = document.createElement('canvas'); c.width = c.height = Math.ceil(sz * d);
+      var x = c.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0);
+      var m0 = sz / 2, lon0 = -25 * RAD, lat0 = 25 * RAD, sl = Math.sin(lat0), cl = Math.cos(lat0);
+      function pr(lo, la) { lo *= RAD; la *= RAD; var dl = lo - lon0, cp = Math.cos(la); return [cp * Math.sin(dl), cl * Math.sin(la) - sl * cp * Math.cos(dl), sl * Math.sin(la) + cl * cp * Math.cos(dl)]; }
+      /* ein Vieleck dem aktuellen Pfad hinzufügen; lange Kanten werden unterteilt, Rückseite am Rand entlang geführt */
+      function bahn(pts) {
+        var erst = true, letzt = null;
+        function ziel(q) {
+          var rand = q[2] < 0, px = q[0], py = q[1]; if (rand) { var l = Math.hypot(px, py) || 1; px /= l; py /= l; }
+          var P = { x: m0 + px * r, y: m0 - py * r, rand: rand, a: Math.atan2(py, px) };
+          if (erst) { x.moveTo(P.x, P.y); erst = false; }
+          else if (P.rand && letzt.rand) {
+            var da = P.a - letzt.a; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+            var n = Math.max(1, Math.ceil(Math.abs(da) / 0.1)); for (var k = 1; k <= n; k++) { var aa = letzt.a + da * k / n; x.lineTo(m0 + Math.cos(aa) * r, m0 - Math.sin(aa) * r); }
+          } else x.lineTo(P.x, P.y);
+          letzt = P;
+        }
+        for (var i = 0; i < pts.length; i++) {
+          var a = pts[i], b = pts[(i + 1) % pts.length], n = Math.max(1, Math.ceil(Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])) / 2.5));
+          for (var k = 0; k < n; k++) ziel(pr(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n));
+        }
+        x.closePath();
+      }
+      /* Ozean */
+      var g = x.createRadialGradient(m0 - r * 0.3, m0 - r * 0.3, 4, m0, m0, r); g.addColorStop(0, '#d6e8fb'); g.addColorStop(1, '#8fb5e0');
+      x.fillStyle = g; x.beginPath(); x.arc(m0, m0, r, 0, 7); x.fill();
+      x.save(); x.beginPath(); x.arc(m0, m0, r, 0, 7); x.clip();
+      /* Land: Meere im Inneren (Ostsee, Schwarzes und Kaspisches Meer, Hudsonbai) als Löcher */
+      x.fillStyle = '#c3e4c6'; x.strokeStyle = '#8bbd96'; x.lineWidth = 0.9; x.lineJoin = 'round';
+      x.beginPath(); bahn(pfadAus(LAND.eurasien)); bahn(pfadAus(LAND.ostsee)); bahn(pfadAus(LAND.schwarz)); bahn(pfadAus(LAND.kaspi)); x.fill('evenodd'); x.stroke();
+      x.beginPath(); bahn(pfadAus(LAND.afrika)); x.fill(); x.stroke();
+      x.beginPath(); bahn(pfadAus(LAND.amerika)); bahn(pfadAus(LAND.hudson)); x.fill('evenodd'); x.stroke();
+      LAND.inseln.forEach(function (s, i) { x.fillStyle = i === 0 ? '#eef4f6' : '#c3e4c6'; x.beginPath(); bahn(pfadAus(s)); x.fill(); x.stroke(); });
+      /* Eis um den Nordpol, mit unregelmäßigem Rand */
+      var eis = []; for (var lo = -180; lo < 180; lo += 8) eis.push([lo, 75 + 3.5 * Math.sin(lo * 3 * RAD) + 2 * Math.sin(lo * 7 * RAD + 1)]);
+      x.fillStyle = 'rgba(248,251,253,0.92)'; x.beginPath(); bahn(eis); x.fill();
+      /* Kugelschatten: Licht von links oben, zum Rand hin dunkler */
+      var sh = x.createRadialGradient(m0 - r * 0.35, m0 - r * 0.4, r * 0.15, m0, m0, r * 1.02);
+      sh.addColorStop(0, 'rgba(255,255,255,0.2)'); sh.addColorStop(0.55, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(25,55,95,0.3)');
+      x.fillStyle = sh; x.fillRect(0, 0, sz, sz);
+      x.restore();
+      x.strokeStyle = '#1d2733'; x.lineWidth = 2; x.beginPath(); x.arc(m0, m0, r, 0, 7); x.stroke();
+      return c;
+    }
+    function groesse() { var b = cv.getBoundingClientRect(); d = Math.min(window.devicePixelRatio || 1, 2); W = b.width || 400; H = b.height || 400; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); erde = null; zeichnen(); }
     function sk() { return (Math.min(W, H) / 2 - 8) / (2.05 * RE); }
     function P(x, y) { var s = sk(); return [W / 2 + x * s, H / 2 - y * s]; }
     function zeichnen() {
       ctx.clearRect(0, 0, W, H);
       var s = sk(), c = P(0, 0);
-      var g = ctx.createRadialGradient(c[0] - RE * s * 0.3, c[1] - RE * s * 0.3, 4, c[0], c[1], RE * s);
-      g.addColorStop(0, '#d6e8fb'); g.addColorStop(1, '#8fb5e0'); ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(c[0], c[1], RE * s, 0, 7); ctx.fill(); ctx.strokeStyle = '#1d2733'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#bfe6cf'; ctx.beginPath(); ctx.ellipse(c[0] - RE * s * 0.3, c[1] + RE * s * 0.2, RE * s * 0.35, RE * s * 0.22, 0.5, 0, 7); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(c[0] + RE * s * 0.35, c[1] - RE * s * 0.25, RE * s * 0.25, RE * s * 0.3, -0.4, 0, 7); ctx.fill();
+      /* Die Erde ändert sich nicht: einmal in eine Hilfsfläche zeichnen und nur bei neuer Größe neu */
+      if (!erde || erdeS !== s) { erde = erdeBild(RE * s); erdeS = s; }
+      ctx.drawImage(erde, c[0] - erde.width / (2 * d), c[1] - erde.height / (2 * d), erde.width / d, erde.height / d);
       /* Berg (nicht maßstäblich breit) mit Kanone */
       var b0 = P(-0.12 * RE, Math.sqrt(RE * RE - 0.0144 * RE * RE)), b1 = P(0, RE + H0), b2 = P(0.12 * RE, Math.sqrt(RE * RE - 0.0144 * RE * RE));
       ctx.fillStyle = '#8b7d6b'; ctx.beginPath(); ctx.moveTo(b0[0], b0[1]); ctx.lineTo(b1[0], b1[1]); ctx.lineTo(b2[0], b2[1]); ctx.closePath(); ctx.fill();
@@ -2310,6 +2393,9 @@ var AB = (function () {
   var fmt = U.fmt, sig = U.sig, nah = U.nah, rnd = U.rnd;
   var KEY = 'seminar-demo-ab-v1';
   var S = U.laden(KEY, null) || { st: {}, cur: 1, open: 1, schaetzung: null, luecken: [], serie: { lauf: 0, best: 0, fertig: false }, gewaehlt: null, name: '' };
+  /* Zeitmarken der Stationen (nur Uhrzeiten dieses Geräts, keine Namen): gehören zum Stand und werden mit ihm gespeichert und gelöscht.
+     Ältere gespeicherte Stände haben das Feld noch nicht. */
+  S.zeit = S.zeit || { start: {}, gezeigt: {}, ende: {} };
   function save() { U.speichern(KEY, S); }
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -2753,11 +2839,46 @@ var AB = (function () {
       if (go) go.disabled = !erledigt(n) && !S.demo;
       if (h) h.textContent = erledigt(n) ? 'Station geschafft ✓' : h.dataset.t;
     });
-    save(); code();
+    zeitPruefen(); save(); code();
+  }
+  /* ------------------------------------------------------------------ Zeithinweis je Station
+     Interner Timer, nur im Speicher der Seite: nichts wird gesendet oder gespeichert. Die Planzeit steht im Kopf jeder Station („ca. 6 min“).
+     Zwei Minuten vor dem Ende erscheint einmal ein Hinweis, falls die Station dann noch nicht geschafft ist. Letzte Station und Stationen bis 2 min bekommen keinen.
+     Mit dem Ende der Planzeit erscheint einmal ein zweites Fenster (etwas wärmer in der Farbe): zügig abschließen und wechseln. Die letzte Station hat kein „nächste“, dort gibt es beide nicht. */
+  var ZEIT = S.zeit, zeitBox = null;
+  /* Die Startzeiten überstehen ein Neuladen. Sind sie älter als vier Stunden (anderer Tag, andere Stunde) oder liegen sie in der Zukunft
+     (Uhr verstellt), fängt alles von vorn an; sonst käme nach der Pause sofort „Zeit abgelaufen“. */
+  (function () {
+    var jetzt = Date.now();
+    if (Object.keys(ZEIT.start).some(function (k) { return jetzt - ZEIT.start[k] > 4 * 3600 * 1000 || jetzt < ZEIT.start[k]; })) { ZEIT.start = {}; ZEIT.gezeigt = {}; ZEIT.ende = {}; }
+  })();
+  function planMin(n) { var z = $('.station[data-n="' + n + '"] .st-kopf .zeit'), m = z && /ca\.\s*(\d+)\s*min/.exec(z.textContent); return m ? +m[1] : 0; }
+  function zeitPruefen() {
+    var box = zeitBox; if (!box) return;
+    var n = S.cur, sec = $('.station[data-n="' + n + '"]');
+    /* Das Fenster gehört zu der Station, für die es aufging: wechselt man oder wird sie geschafft, verschwindet es von selbst */
+    if (!box.hidden && (+box.dataset.n !== n || erledigt(+box.dataset.n))) box.hidden = true;
+    if (!sec || erledigt(n)) return;
+    var p = planMin(n); if (p <= 0 || n >= 6 || !ZEIT.start[n]) return;
+    var min = (Date.now() - ZEIT.start[n]) / 60000;
+    /* Zuerst das Ende prüfen: ist die Planzeit schon ganz um (z. B. nach längerer Pause), kommt nur dieses Fenster, nicht beide nacheinander */
+    if (min >= p && !ZEIT.ende[n]) {
+      ZEIT.ende[n] = ZEIT.gezeigt[n] = true; save();
+      $('.zp-icon', box).textContent = '⌛'; box.classList.add('ende');
+      $('.zh-text', box).textContent = 'Zeit abgelaufen: Jetzt sollten Sie zügig abschließen und zur nächsten Station wechseln.';
+      box.dataset.n = n; box.hidden = false;
+    } else if (p > 2 && min >= p - 2 && !ZEIT.gezeigt[n]) {
+      ZEIT.gezeigt[n] = true; save();
+      var tipps = $$('.knoepfe button', sec).some(function (b) { return /Tipp/.test(b.textContent); });
+      $('.zp-icon', box).textContent = '⏱'; box.classList.remove('ende');
+      $('.zh-text', box).textContent = (tipps ? 'Nutzen Sie jetzt die Hinweise (Tipps, Nachbar, Lehrkraft). ' : '') + 'In 2 Minuten sollten Sie zur nächsten Station wechseln.';
+      box.dataset.n = n; box.hidden = false;
+    }
   }
   function zeige(n, fokus) {
     if (n > S.open && !S.demo) return;
     S.cur = n; save();
+    if (!ZEIT.start[n]) ZEIT.start[n] = Date.now();
     $$('.station').forEach(function (s) { s.hidden = +s.dataset.n !== n; });
     karteAktualisieren();
     if (fokus) { var h = $('.station[data-n="' + n + '"] h3'); var kb = $('#lk-karte'); window.scrollTo({ top: kb.getBoundingClientRect().top + scrollY + kb.offsetHeight - 70, behavior: U.reduce ? 'auto' : 'smooth' }); if (h) try { h.focus({ preventScroll: true }); } catch (e) {} }
@@ -2855,6 +2976,14 @@ var AB = (function () {
     var root = $('#ab'); if (!root) return;
     /* Hinweistexte zuerst sichern: karteAktualisieren überschreibt sie mit „Station geschafft“ */
     $$('.weiter .hint').forEach(function (h) { h.dataset.t = h.textContent; });
+    /* Zeithinweis: ein Fenster, das am oberen Bildrand schwebt und beim Scrollen mitgeht, damit man es auch bei den unteren Aufgaben sieht.
+       Es bleibt ausgeblendet, der Text kommt erst beim Einblenden (siehe zeitPruefen). */
+    var zb = document.createElement('div'); zb.className = 'zeitpopup'; zb.setAttribute('role', 'status'); zb.setAttribute('aria-live', 'polite'); zb.hidden = true;
+    zb.innerHTML = '<span class="zp-icon" aria-hidden="true">⏱</span><span class="zh-text"></span><button type="button" class="zh-ok">Okay</button>';
+    document.body.appendChild(zb); zeitBox = zb;
+    $('.zh-ok', zb).addEventListener('click', function () { zb.hidden = true; });
+    setInterval(zeitPruefen, 5000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) zeitPruefen(); });
     $('#lk-karte').innerHTML = kartenSVG();
     $$('#lk-karte .ort').forEach(function (g) {
       function los() { zeige(+g.dataset.n, true); }
