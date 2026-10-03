@@ -1440,38 +1440,148 @@ var U = (function () {
     if (!running) draw(performance.now());
   }
   var T0 = performance.now();
-  /* ---------- helles Design: durchscheinender Planet wie bei BlueYard ----------
-     Körper mit hellem rosa Rand, innen eine dichte Wolke aus Körnchen (zur Mitte hin dichter), rote Flecken,
-     außen ein Kranz aus funkelnden Punkten. Alles dreht sich langsam um die senkrechte Achse. */
-  var KORN = [], KRANZ = [], FLECK = [];
+  /* ---------- helles Design: durchscheinender Gasplanet wie bei BlueYard ----------
+     Körper mit breitem hellem rosa Saum, auf der Oberfläche Wolkenstreifen und Körnchen, darüber große Wirbel.
+     Außen ein Kranz aus funkelnden Punkten und Teilchen, die sich vom Rand lösen. Alles dreht sich langsam um die senkrechte Achse.
+     Die Teilchen liegen in Zahlenreihen (Float32Array) statt in Einzelobjekten: das spart Speicher und ist beim Durchlaufen viel schneller. */
+  var SPR = null, NC = null, NX = null; /* SPR: weiche Flecken als Bildchen; NC, NX: Hilfsfläche für die Wolken */
   var KFARBEN = [['#c4402f', 0.7], ['#e8704f', 0.7], ['#fff0d4', 0.9]];
+  /* Körnchen: KN Stück; Ausgangslage KH, aktuelle Lage KS (je x, y, z); KC Farbe (0 rot, 1 koralle, 2 creme, 3 weißer Funke), KG Größe,
+     KV0 Sichtschwelle, KTW und KPH Flackern, KI 1/Radius², KA bewegt sich gerade (1) oder ruht an seinem Platz (0) */
+  var KN = 0, KH, KS, KC, KG, KV0, KTW, KPH, KI, KA;
+  /* Wolkenflecken: NN Stück, NH/NS/NI/NA wie oben, NG Größe, NAL Deckkraft, NSP Bildchen */
+  var NN = 0, NH, NS, NI, NA, NG, NAL, NSP;
+  /* Kranz: RN Stück, RX/RY/RZ Lage, RG Größe, RTW/RPH Flackern, RW weiß (1) oder creme (0) */
+  var RN = 0, RX, RY, RZ, RG, RTW, RPH, RW;
+  var STROM = [], QUAL = 1; /* STROM: Teilchen, die sich vom Rand lösen; QUAL: Anteil der gezeichneten Teilchen, 1 = alle */
+  /* Puffer für das Zeichnen, einmal angelegt und jedes Bild wiederverwendet (keine neuen Listen je Bild):
+     KB[0..2] Körnchen je Farbe (x, y, Größe), FB[0..11] Funken: drei Farben (weiß innen, weiß außen, creme) mal vier Helligkeitsstufen */
+  var KB = [], KBN = [0, 0, 0], FB = [], FBN = new Int32Array(12);
+  var FFARBE = ['#ffffff', '#ffffff', '#ffe6c2'];
   function zufallsRichtung() { var u = Math.random() * 2 - 1, a = Math.random() * 6.283, s = Math.sqrt(1 - u * u); return [Math.cos(a) * s, u, Math.sin(a) * s]; }
+  /* weicher runder Fleck als Bildchen, wird für die Wolken in Größe und Helligkeit gezeichnet */
+  function sprite(rgb) {
+    var c = document.createElement('canvas'); c.width = c.height = 64; var x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(' + rgb + ',1)'); g.addColorStop(0.55, 'rgba(' + rgb + ',0.4)'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64); return c;
+  }
   function bauStaub() {
-    var i, d, r;
-    /* Körnchen im Inneren: Abstand zur Mitte mit kleinem Exponenten, dadurch dicht in der Mitte und licht am Rand */
-    /* Ein Teil der Körnchen sammelt sich um Klumpenzentren, das gibt die fleckige Struktur */
-    var zentren = [];
-    for (i = 0; i < 28; i++) { d = zufallsRichtung(); r = 0.3 + Math.random() * 0.55; zentren.push([d[0] * r, d[1] * r, d[2] * r, 0.08 + Math.random() * 0.12]); }
-    function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
-    for (i = 0; i < 36000; i++) {
-      if (Math.random() < 0.55) {
-        var zc = zentren[i % zentren.length]; d = [zc[0] + gauss() * zc[3] * 2, zc[1] + gauss() * zc[3] * 2, zc[2] + gauss() * zc[3] * 2];
-        r = Math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]); if (r > 0.94) { d = [d[0] / r * 0.94, d[1] / r * 0.94, d[2] / r * 0.94]; } r = 1;
-      } else { d = zufallsRichtung(); r = 0.94 * Math.pow(Math.random(), 0.8); }
-      var q = Math.random();
-      KORN.push({ x: d[0] * r, y: d[1] * r, z: d[2] * r, c: q < 0.42 ? 0 : q < 0.76 ? 1 : q < 0.94 ? 2 : 3, g: 0.6 + Math.random() * 1.3, tw: 1 + Math.random() * 3, ph: Math.random() * 6.283 });
+    var i, d, r, L = [];
+    /* Wolkenstreifen: gewellte Ketten entlang der Breitenkreise. Die Körnchen sammeln sich entlang dieser Ketten (wie im Video:
+       die Körnchen liegen in den roten Wolken), und dieselben Ketten tragen die weichen Wolkenflecken. */
+    var punkte = [], wolken = [];
+    for (i = 0; i < 42; i++) {
+      var y0 = (Math.random() - 0.5) * 1.8, f0 = Math.random() * 6.283, nn = 8 + Math.floor(Math.random() * 8), ab = 0.08 + Math.random() * 0.05, ph0 = Math.random() * 6.283, am = 0.06 + Math.random() * 0.1, col = Math.random() < 0.78 ? 0 : 1;
+      for (var kk = 0; kk < nn; kk++) {
+        var ff = f0 + kk * ab, yy = Math.max(-0.97, Math.min(0.97, y0 + am * Math.sin(kk * 0.55 + ph0) + (Math.random() - 0.5) * 0.03)), rr = Math.sqrt(1 - yy * yy);
+        punkte.push([rr * Math.sin(ff), yy, rr * Math.cos(ff)]);
+        wolken.push([rr * Math.sin(ff) * 0.99, yy * 0.99, rr * Math.cos(ff) * 0.99, 0.07 + Math.random() * 0.06, 0.2 + Math.random() * 0.2, col]);
+      }
     }
+    function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
+    /* Körnchen auf einer dünnen Kugelschale; gut die Hälfte nahe an den Wolkenketten, der Rest gleichmäßig verteilt */
+    for (i = 0; i < 36000; i++) {
+      var q = Math.random(), c = q < 0.42 ? 0 : q < 0.76 ? 1 : q < 0.94 ? 2 : 3;
+      if (c >= 2 && Math.random() < 1 / 3) continue; /* weiße und cremefarbene Körnchen: ein Drittel weniger */
+      if (Math.random() < 0.55) {
+        var zc = punkte[(Math.random() * punkte.length) | 0]; d = [zc[0] + gauss() * 0.09, zc[1] + gauss() * 0.09, zc[2] + gauss() * 0.09];
+        r = Math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]); d = [d[0] / r, d[1] / r, d[2] / r];
+      } else d = zufallsRichtung();
+      r = 0.95 + Math.random() * 0.04;
+      /* v0: ab dieser Blickhöhe ist das Körnchen sichtbar; so werden es zum Rand der Kugel hin weniger, wie im Video */
+      L.push([d[0] * r, d[1] * r, d[2] * r, c, 0.6 + Math.random() * 1.3, 0.05 + 0.85 * Math.pow(Math.random(), 0.7), 1 + Math.random() * 3, Math.random() * 6.283]);
+    }
+    KN = L.length; KH = new Float32Array(3 * KN); KC = new Uint8Array(KN); KG = new Float32Array(KN); KV0 = new Float32Array(KN); KTW = new Float32Array(KN); KPH = new Float32Array(KN); KI = new Float32Array(KN); KA = new Uint8Array(KN);
+    for (i = 0; i < KN; i++) { var e = L[i]; KH[3 * i] = e[0]; KH[3 * i + 1] = e[1]; KH[3 * i + 2] = e[2]; KC[i] = e[3]; KG[i] = e[4]; KV0[i] = e[5]; KTW[i] = e[6]; KPH[i] = e[7]; KI[i] = 1 / (e[0] * e[0] + e[1] * e[1] + e[2] * e[2]); }
+    KS = new Float32Array(KH);
+    NN = wolken.length; NH = new Float32Array(3 * NN); NG = new Float32Array(NN); NAL = new Float32Array(NN); NSP = new Uint8Array(NN); NI = new Float32Array(NN); NA = new Uint8Array(NN);
+    for (i = 0; i < NN; i++) { var wv = wolken[i]; NH[3 * i] = wv[0]; NH[3 * i + 1] = wv[1]; NH[3 * i + 2] = wv[2]; NG[i] = wv[3]; NAL[i] = wv[4]; NSP[i] = wv[5]; NI[i] = 1 / (wv[0] * wv[0] + wv[1] * wv[1] + wv[2] * wv[2]); }
+    NS = new Float32Array(NH);
+    SPR = [sprite('218,74,58'), sprite('255,238,218')];
     /* Kranz: dicht an der Oberfläche, nach außen dünner */
-    for (i = 0; i < 5200; i++) {
+    RN = 5200; RX = new Float32Array(RN); RY = new Float32Array(RN); RZ = new Float32Array(RN); RG = new Float32Array(RN); RTW = new Float32Array(RN); RPH = new Float32Array(RN); RW = new Uint8Array(RN);
+    for (i = 0; i < RN; i++) {
       d = zufallsRichtung(); r = 0.98 + Math.pow(Math.random(), 3) * 0.2;
-      KRANZ.push({ x: d[0] * r, y: d[1] * r, z: d[2] * r, g: 0.5 + Math.random() * 1.4, tw: 0.8 + Math.random() * 2.6, ph: Math.random() * 6.283, w: Math.random() < 0.75 });
+      RX[i] = d[0] * r; RY[i] = d[1] * r; RZ[i] = d[2] * r; RG[i] = 0.5 + Math.random() * 1.4; RTW[i] = 0.8 + Math.random() * 2.6; RPH[i] = Math.random() * 6.283; RW[i] = Math.random() < 0.75 ? 1 : 0;
     }
     /* Ausströmen: Teilchen lösen sich rundum am Rand und fliegen nach außen */
     for (i = 0; i < 6400; i++) { var sp = { g: 0.8 + Math.random() * 1.4, w: Math.random() < 0.9 }; neuStart(sp, -Math.random() * 3); STROM.push(sp); }
-    /* Rote Flecken auf der Oberfläche */
-    for (i = 0; i < 9; i++) { d = zufallsRichtung(); FLECK.push({ x: d[0], y: d[1], z: d[2], g: 0.2 + Math.random() * 0.2, a: 0.35 + Math.random() * 0.25 }); }
+    /* Zeichenpuffer: groß genug für alle Teilchen auf einmal */
+    for (i = 0; i < 3; i++) KB.push(new Float32Array(3 * KN));
+    var fmax = 3 * (KN + RN + STROM.length);
+    for (i = 0; i < 12; i++) FB.push(new Float32Array(i < 4 ? 3 * KN : fmax));
   }
-  var STROM = [];
+  /* Große Wirbel wie auf einem Gasplaneten, immer einer ab- und einer aufziehend. Die Körnchen und Wolken werden von der Strömung des Wirbels
+     weitergetragen (sie drehen immer nur in eine Richtung) und kehren danach langsam an ihren Platz zurück.
+     WPER: Lebensdauer eines Wirbels in Sekunden (zieht auf, Höhepunkt, klingt ab), alle WPER/2 Sekunden beginnt ein neuer;
+     WOMEGA: Drehgeschwindigkeit im Kern am Höhepunkt in Bogenmaß je Sekunde; WTAU: Zeit in Sekunden, in der die Körnchen zurück an ihren Platz finden (je größer, desto stärker verwirbelt);
+     WRHO2: Breite des Wirbels (Quadrat des Abstands, bei dem die Drehung auf etwa ein Drittel fällt, 0,72 = rund 50° Kugelwinkel);
+     WSPIRAL: wie stark sich die eigenen Wolkenarme des Wirbels aufwickeln; WT: Feinheit der Abstandstabelle */
+  var WPER = 15, WOMEGA = 0.5, WTAU = 5, WRHO2 = 0.72, WSPIRAL = 0.5, WT = 1024, EXPT = new Float32Array(WT + 1);
+  /* Abklingen der Drehung mit dem Abstand. Der flache Ausläufer ist abgezogen, damit die Wirkung bei etwa 105° ganz auf null geht:
+     Teilchen dahinter brauchen gar nicht mehr gerechnet zu werden. WJMAX: letzter Tabellenplatz mit Wirkung */
+  var WJMAX = (WT * 0.6) | 0, WE0 = Math.exp(-6 * WJMAX / WT);
+  for (var ej = 0; ej <= WT; ej++) EXPT[ej] = ej <= WJMAX ? (Math.exp(-6 * ej / WT) - WE0) / (1 - WE0) : 0;
+  var TL = -1; /* Zeit des letzten Strömungsschritts */
+  function hsh(a, b) { var x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); }
+  /* Die zwei Wirbel zur Zeit t. Stärke: halb weiche Kurve, halb Dreieck; bei halbem Versatz ergeben beide zusammen immer 1 (weiches Überblenden). */
+  function wirbelAt(t) {
+    var VW = [];
+    for (var sl = 0; sl < 2; sl++) {
+      var wph = t / WPER + sl * 0.5, cyc = Math.floor(wph), wu = wph - cyc, sn = Math.sin(Math.PI * wu);
+      var wb = 0.5 * sn * sn + 0.5 * (1 - Math.abs(2 * wu - 1));
+      if (wb < 0.004) continue;
+      /* Mittelpunkt so wählen, dass er in der Mitte des Wirbellebens vorn auf der Kugel liegt (die Kugel dreht sich um 0,07 je Sekunde), oben (negatives y) */
+      var key = cyc * 2 + sl, lon = -(cyc + 0.5 - sl * 0.5) * WPER * 0.07 + (hsh(1, key) - 0.5) * 0.7, lat = -(0.1 + 0.45 * hsh(2, key)), rl = Math.sqrt(1 - lat * lat);
+      /* I: Fläche unter dem Stärkeverlauf bis zum Zeitpunkt (so weit ist die Strömung insgesamt gedreht); phi: das in Sekunden */
+      var I = 0.5 * (wu / 2 - Math.sin(2 * Math.PI * wu) / (4 * Math.PI)) + 0.5 * (wu <= 0.5 ? wu * wu : 2 * wu - wu * wu - 0.5);
+      VW.push({ x: rl * Math.sin(lon), y: lat, z: rl * Math.cos(lon), b: wb, key: key, phi: WPER * I });
+    }
+    return VW;
+  }
+  /* Ein Strömungsschritt für eine Teilchenart: S aktuelle Lage, H Ausgangslage, IR 1/Radius², A Bewegt-Merker, N Anzahl.
+     Jedes Teilchen wird um die Achse jedes nahen Wirbels ein kleines Stück gedreht und dann ein Stück zurück zur Ausgangslage gezogen.
+     Teilchen, die an ihrem Platz ruhen und keinem Wirbel nah sind, werden übersprungen. */
+  function stroemen(S, H, IR, A, N, a, b, rel, WF) {
+    var ax = a.x, ay = a.y, az = a.z, as = a.s, bx = b.x, by = b.y, bz = b.z, bs = b.s;
+    for (var i = 0; i < N; i++) {
+      var o = 3 * i, x = S[o], y = S[o + 1], z = S[o + 2], bew = 0, dot, d2, j, om, c, k1, nx, ny, nz;
+      if (as > 0) {
+        dot = x * ax + y * ay + z * az; d2 = 2 - 2.06 * dot; j = d2 > 0 ? (d2 * WF) | 0 : 0;
+        if (j <= WJMAX) {
+          om = as * EXPT[j]; c = 1 - om * om * 0.5; k1 = dot * om * om * 0.5;
+          nx = x * c + (ay * z - az * y) * om + ax * k1; ny = y * c + (az * x - ax * z) * om + ay * k1; nz = z * c + (ax * y - ay * x) * om + az * k1;
+          x = nx; y = ny; z = nz; bew = 1;
+        }
+      }
+      if (bs > 0) {
+        dot = x * bx + y * by + z * bz; d2 = 2 - 2.06 * dot; j = d2 > 0 ? (d2 * WF) | 0 : 0;
+        if (j <= WJMAX) {
+          om = bs * EXPT[j]; c = 1 - om * om * 0.5; k1 = dot * om * om * 0.5;
+          nx = x * c + (by * z - bz * y) * om + bx * k1; ny = y * c + (bz * x - bx * z) * om + by * k1; nz = z * c + (bx * y - by * x) * om + bz * k1;
+          x = nx; y = ny; z = nz; bew = 1;
+        }
+      }
+      if (!bew && !A[i]) continue;
+      var dx = H[o] - x, dy = H[o + 1] - y, dz = H[o + 2] - z;
+      if (!bew && dx * dx + dy * dy + dz * dz < 1e-9) { S[o] = H[o]; S[o + 1] = H[o + 1]; S[o + 2] = H[o + 2]; A[i] = 0; continue; }
+      x += dx * rel; y += dy * rel; z += dz * rel;
+      /* zurück auf die Kugelschale: ein Newton-Schritt statt Wurzel und Division, genau genug, weil die Abweichung je Schritt winzig ist */
+      var sk = 1.5 - 0.5 * (x * x + y * y + z * z) * IR[i];
+      S[o] = x * sk; S[o + 1] = y * sk; S[o + 2] = z * sk; A[i] = 1;
+    }
+  }
+  var KEINER = { x: 0, y: 0, z: 1, s: 0 };
+  /* Bringt Körnchen und Wolken auf den Stand der Zeit t */
+  function bewege(t, nK) {
+    if (TL < 0 || t < TL || !KS) { TL = t; return; }
+    var dt = Math.min(0.1, t - TL); TL = t; if (dt <= 0) return;
+    var VW = U.reduce ? [] : wirbelAt(t), rel = 1 - Math.exp(-dt / WTAU), WF = WT / (6 * WRHO2);
+    for (var n = 0; n < VW.length; n++) VW[n].s = WOMEGA * VW[n].b * dt;
+    var a = VW[0] || KEINER, b = VW[1] || KEINER;
+    stroemen(KS, KH, KI, KA, nK, a, b, rel, WF);
+    stroemen(NS, NH, NI, NA, NN, a, b, rel, WF);
+  }
   /* Dichte rund um die Kugel: überall etwas, dazu sanfte Wellen, die langsam um die Kugel wandern */
   function dichte(a, t) { return 0.6 + 0.2 * Math.sin(3 * a + t * 0.6) + 0.2 * Math.sin(5 * a - t * 0.45 + 1.7); }
   function neuStart(sp, t) {
@@ -1480,12 +1590,32 @@ var U = (function () {
     /* wo die Welle gerade schwach ist, wartet das Teilchen kurz */
     sp.born = t + (Math.random() > dichte(sp.a, t) ? 0.2 + Math.random() * 0.6 : 0);
   }
+  /* Funke in einen der zwölf Puffer legen: Farbe f (0 weiß innen, 1 weiß außen, 2 creme), Helligkeit hl 0 bis 1 */
+  function funke(f, x, y, s, hl) {
+    var st = Math.floor((hl - 0.2) * 4.4); if (st < 0) return; if (st > 3) st = 3;
+    var bi = f * 4 + st, B = FB[bi], n = FBN[bi]; B[n] = x - s / 2; B[n + 1] = y - s / 2; B[n + 2] = s; FBN[bi] = n + 3;
+  }
+  /* Alle Funken zeichnen: je Farbe und Helligkeitsstufe ein einziger Pfad */
+  function funkenZeichnen(von, bis) {
+    for (var bi = von; bi < bis; bi++) {
+      var n = FBN[bi]; if (!n) continue;
+      var B = FB[bi]; ctx.fillStyle = FFARBE[(bi / 4) | 0]; ctx.globalAlpha = 0.3 + (bi % 4) * 0.22; ctx.beginPath();
+      for (var j = 0; j < n; j += 3) ctx.rect(B[j], B[j + 1], B[j + 2], B[j + 2]);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
   function zeichneHell(now) {
     var t = U.reduce ? 0 : (now - T0) / 1000; ctx.clearRect(0, 0, w, h);
     mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
-    var cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.3, k = 0.75 * Math.max(0.75, R / 130), g, i, p; /* Teilchengröße wächst mit der Kugel; 0,75: feinere Körnung */
+    /* Teilchengröße wächst mit der Kugel; 0,75: feinere Körnung; bei Selbstbremse etwas größer, damit die Fläche nicht lichter wirkt */
+    var cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.3, k = 0.75 * Math.max(0.75, R / 130) * Math.pow(QUAL, -0.4), g, i, p, o;
+    var nK = (KN * QUAL) | 0, nR = (RN * QUAL) | 0, nS = (STROM.length * QUAL) | 0;
     var rot = t * 0.07 + mx * 0.4, cr = Math.cos(rot), sr = Math.sin(rot), tilt = 0.22 + my * 0.1, ct = Math.cos(tilt), st = Math.sin(tilt);
-    function proj(x, y, z) { var x1 = x * cr + z * sr, z1 = -x * sr + z * cr; return [cx + x1 * R, cy + (y * ct - z1 * st) * R, y * st + z1 * ct]; }
+    /* Blickrichtung für die Projektion, in die Zahlen R, ct, st schon eingerechnet: Bildschirm x = cx + X·Lage, y = cy + Y·Lage, Tiefe = Z·Lage */
+    var Xx = cr * R, Xz = sr * R, Yx = sr * st * R, Yy = ct * R, Yz = -cr * st * R, Zx = -sr * ct, Zy = st, Zz = cr * ct;
+    var PQ = [0, 0, 0];
+    function proj(x, y, z) { PQ[0] = cx + Xx * x + Xz * z; PQ[1] = cy + Yx * x + Yy * y + Yz * z; PQ[2] = Zx * x + Zy * y + Zz * z; return PQ; }
     /* Atmosphäre: breiter Hof von Rosaweiß an der Kugel nach Pfirsich, weich auslaufend.
        Viele Stufen mit sanfter Kurve, damit keine Ringe entstehen; Außenradius kleiner als die halbe Leinwand, sonst zeichnet sich ein Kasten ab */
     g = ctx.createRadialGradient(cx, cy, R * 0.92, cx, cy, Math.min(w, h) * 0.495);
@@ -1502,23 +1632,64 @@ var U = (function () {
     /* oben etwas wärmer und heller */
     g = ctx.createLinearGradient(0, cy - R, 0, cy + R); g.addColorStop(0, 'rgba(255,214,170,0.45)'); g.addColorStop(0.5, 'rgba(255,214,170,0)');
     ctx.fillStyle = g; ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
-    /* rote Flecken, nur auf der Vorderseite */
-    for (i = 0; i < FLECK.length; i++) {
-      p = FLECK[i]; var f = proj(p.x, p.y, p.z); if (f[2] < 0.1) continue;
-      var rr = R * p.g * (0.6 + 0.4 * f[2]);
-      g = ctx.createRadialGradient(f[0], f[1], 0, f[0], f[1], rr); g.addColorStop(0, 'rgba(218,74,58,' + (p.a * f[2]) + ')'); g.addColorStop(1, 'rgba(218,74,58,0)');
-      ctx.fillStyle = g; ctx.fillRect(f[0] - rr, f[1] - rr, 2 * rr, 2 * rr);
+    /* Gasplanet-Wirbel: Körnchen und Wolken folgen der Strömung (siehe bewege). VW: die Wirbel dieses Bildes für Wolkenarme und Auge */
+    bewege(t, nK);
+    var VW = U.reduce ? [] : wirbelAt(t);
+    /* Wolken: weiche Flecken, zum Rand hin blasser und schmaler. Weil sie weich sind, in halber Auflösung auf eine Hilfsfläche zeichnen
+       (viermal weniger Pixel) und diese einmal über die Kugel legen */
+    var nw = Math.max(1, Math.round(w * 0.5)), nh = Math.max(1, Math.round(h * 0.5));
+    if (!NC || NC.width !== nw || NC.height !== nh) { NC = document.createElement('canvas'); NC.width = nw; NC.height = nh; NX = NC.getContext('2d'); }
+    NX.setTransform(1, 0, 0, 1, 0, 0); NX.clearRect(0, 0, nw, nh); NX.setTransform(0.5, 0, 0, 0.5, 0, 0);
+    for (i = 0; i < NN; i++) {
+      o = 3 * i; var fz = Zx * NS[o] + Zy * NS[o + 1] + Zz * NS[o + 2]; if (fz < 0.05) continue;
+      var fx = cx + Xx * NS[o] + Xz * NS[o + 2], fy = cy + Yx * NS[o] + Yy * NS[o + 1] + Yz * NS[o + 2];
+      var rr = R * NG[i] * (0.55 + 0.45 * fz);
+      NX.globalAlpha = NAL[i] * Math.pow(fz, 0.8);
+      NX.drawImage(SPR[NSP[i]], fx - rr, fy - rr, 2 * rr, 2 * rr);
     }
-    /* Körnchen: drei Farben in Stapeln, weiße Funken einzeln mit Flackern */
-    var stapel = [[], [], []], funken = [];
-    for (i = 0; i < KORN.length; i++) {
-      p = KORN[i]; var q = proj(p.x, p.y, p.z), s = p.g * k * (0.8 + q[2] * 0.3);
-      if (p.c === 3) funken.push(q[0], q[1], s * 1.3, 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * p.tw + p.ph)));
-      else stapel[p.c].push(q[0] - s / 2, q[1] - s / 2, s);
+    /* Eigene Wolkenarme jedes Wirbels: sechs Speichen vom Mittelpunkt nach außen. Sie erscheinen mit dem Wirbel, und die Drehung wickelt sie zu Spiralen auf. */
+    for (var vi = 0; vi < VW.length; vi++) {
+      var W = VW[vi], vcx = W.x, vcy = W.y, vcz = W.z, vb = W.b;
+      var e1x = vcz, e1z = -vcx, e1l = Math.sqrt(e1x * e1x + e1z * e1z) || 1; e1x /= e1l; e1z /= e1l;
+      var e2x = vcy * e1z, e2y = vcz * e1x - vcx * e1z, e2z = -vcy * e1x, sph0 = hsh(3, W.key) * 6.283;
+      for (var mm = 0; mm < 9; mm++) {
+        var dl = 0.12 + mm * 0.115, cs = Math.cos(dl) * 0.99, sn = Math.sin(dl) * 0.99;
+        /* Aufwicklung: Je näher am Kern, desto weiter ist der Arm schon gedreht; die Drehung wächst nur, der Arm verschwindet erst durch Ausblenden */
+        var auf = WOMEGA * WSPIRAL * W.phi * Math.exp(-(2 - 2 * Math.cos(dl)) / WRHO2);
+        for (var sp2 = 0; sp2 < 6; sp2++) {
+          var phs = sph0 + sp2 / 6 * 6.283 + auf, cph = Math.cos(phs), sph = Math.sin(phs);
+          var f2 = proj(vcx * cs + (e1x * cph + e2x * sph) * sn, vcy * cs + (e2y * sph) * sn, vcz * cs + (e1z * cph + e2z * sph) * sn);
+          if (f2[2] < 0.05) continue;
+          var r2 = R * (0.07 + 0.012 * mm) * (0.55 + 0.45 * f2[2]);
+          NX.globalAlpha = 0.34 * vb * (1 - dl / 1.25) * Math.pow(f2[2], 0.8);
+          NX.drawImage(SPR[sp2 % 3 === 2 ? 1 : 0], f2[0] - r2, f2[1] - r2, 2 * r2, 2 * r2);
+        }
+      }
+      /* helles Auge im Zentrum */
+      var ea = proj(vcx * 0.97, vcy * 0.97, vcz * 0.97);
+      if (ea[2] > 0.05) { var er = R * 0.22 * (0.5 + 0.5 * ea[2]); NX.globalAlpha = 0.5 * vb * ea[2]; NX.drawImage(SPR[1], ea[0] - er, ea[1] - er, 2 * er, 2 * er); }
     }
+    NX.globalAlpha = 1; ctx.globalAlpha = 1; ctx.drawImage(NC, 0, 0, w, h);
+    /* Körnchen: zuerst nur die Tiefe rechnen; hinten oder zu nah am Rand: gleich weiter. Sonst in den Puffer ihrer Farbe, weiße Funken mit Flackern */
+    KBN[0] = KBN[1] = KBN[2] = 0; FBN.fill(0);
+    var B0 = KB[0], B1 = KB[1], B2 = KB[2], n0 = 0, n1 = 0, n2 = 0;
+    for (i = 0; i < nK; i++) {
+      o = 3 * i; var X = KS[o], Y = KS[o + 1], Z = KS[o + 2], qz = Zx * X + Zy * Y + Zz * Z;
+      if (qz < KV0[i]) continue;
+      var qx = cx + Xx * X + Xz * Z, qy = cy + Yx * X + Yy * Y + Yz * Z, s = KG[i] * k * (0.8 + qz * 0.3), kc = KC[i];
+      if (kc === 3) funke(0, qx, qy, s * 1.3, 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * KTW[i] + KPH[i])));
+      else if (kc === 0) { B0[n0] = qx - s / 2; B0[n0 + 1] = qy - s / 2; B0[n0 + 2] = s; n0 += 3; }
+      else if (kc === 1) { B1[n1] = qx - s / 2; B1[n1 + 1] = qy - s / 2; B1[n1 + 2] = s; n1 += 3; }
+      else { B2[n2] = qx - s / 2; B2[n2 + 1] = qy - s / 2; B2[n2 + 2] = s; n2 += 3; }
+    }
+    KBN[0] = n0; KBN[1] = n1; KBN[2] = n2;
     /* je Farbe ein einziger Pfad aus vielen kleinen Quadraten: ein Zeichenbefehl statt Tausender, sonst bremst der Browser stark */
-    stapel.forEach(function (L, c) { ctx.fillStyle = KFARBEN[c][0]; ctx.globalAlpha = KFARBEN[c][1]; ctx.beginPath(); for (var j = 0; j < L.length; j += 3) ctx.rect(L[j], L[j + 1], L[j + 2], L[j + 2]); ctx.fill(); });
-    funkeln(funken, '#ffffff');
+    for (var kf = 0; kf < 3; kf++) {
+      var KBf = KB[kf], kn = KBN[kf]; ctx.fillStyle = KFARBEN[kf][0]; ctx.globalAlpha = KFARBEN[kf][1]; ctx.beginPath();
+      for (var j = 0; j < kn; j += 3) ctx.rect(KBf[j], KBf[j + 1], KBf[j + 2], KBf[j + 2]);
+      ctx.fill();
+    }
+    funkenZeichnen(0, 4);
     /* breiter heller Saum: legt sich zum Rand hin über die Körnchen, der Übergang zur Randfarbe wird weich und breit */
     g = ctx.createRadialGradient(cx, cy, R * 0.62, cx, cy, R);
     g.addColorStop(0, 'rgba(255,232,224,0)'); g.addColorStop(0.55, 'rgba(255,232,224,0.24)'); g.addColorStop(1, 'rgba(255,240,234,0.75)');
@@ -1527,39 +1698,26 @@ var U = (function () {
     /* heller Saum am Rand */
     ctx.strokeStyle = 'rgba(255,244,238,0.5)'; ctx.lineWidth = 1.6 * Math.max(1, k); ctx.beginPath(); ctx.arc(cx, cy, R - 0.8, 0, 6.283); ctx.stroke();
     /* Kranz: Funken außen, hinter der Kugel verdeckt */
-    var weiss = [], creme = [];
-    for (i = 0; i < KRANZ.length; i++) {
-      p = KRANZ[i]; var c = proj(p.x, p.y, p.z);
-      if (c[2] < 0 && (c[0] - cx) * (c[0] - cx) + (c[1] - cy) * (c[1] - cy) < R * R) continue;
-      (p.w ? weiss : creme).push(c[0], c[1], p.g * k, 0.25 + 0.7 * (0.5 + 0.5 * Math.sin(t * p.tw + p.ph)));
+    var R2 = R * R;
+    for (i = 0; i < nR; i++) {
+      var RXi = RX[i], RYi = RY[i], RZi = RZ[i], cz = Zx * RXi + Zy * RYi + Zz * RZi;
+      var px = cx + Xx * RXi + Xz * RZi, py = cy + Yx * RXi + Yy * RYi + Yz * RZi;
+      if (cz < 0 && (px - cx) * (px - cx) + (py - cy) * (py - cy) < R2) continue;
+      funke(RW[i] ? 1 : 2, px, py, RG[i] * k, 0.25 + 0.7 * (0.5 + 0.5 * Math.sin(t * RTW[i] + RPH[i])));
     }
     /* Ausströmen: Alter bestimmt den Abstand, kurz einblenden, dann ausblenden; vor dem Leinwandrand ganz weg */
     var rmax = Math.min(w, h) * 0.49 / R;
-    for (i = 0; i < STROM.length; i++) {
+    for (i = 0; i < nS; i++) {
       p = STROM[i]; var alter = t - p.born;
       if (alter > p.life) { neuStart(p, t); alter = t - p.born; }
       if (alter < 0) continue;
       var dist = 1 + alter * p.v, an = p.a + alter * p.dr + mx * 0.4, rest = 1 - alter / p.life;
       var hell2 = Math.min(1, alter / 0.35) * rest * Math.min(1, (rmax - dist) / 0.1);
       if (hell2 <= 0.05) continue;
-      (p.w ? weiss : creme).push(cx + Math.cos(an) * dist * R, cy + Math.sin(an) * dist * R, p.g * k, 0.3 + hell2 * 0.7);
+      funke(p.w ? 1 : 2, cx + Math.cos(an) * dist * R, cy + Math.sin(an) * dist * R, p.g * k, 0.3 + hell2 * 0.7);
     }
-    funkeln(weiss, '#ffffff'); funkeln(creme, '#ffe6c2');
-  }
-  /* Funken flackern: in vier Helligkeitsstufen gebündelt, damit nicht jeder Punkt einzeln umgeschaltet wird */
-  function funkeln(L, farbe) {
-    ctx.fillStyle = farbe;
-    for (var stufe = 0; stufe < 4; stufe++) {
-      ctx.globalAlpha = 0.3 + stufe * 0.22; ctx.beginPath();
-      for (var j = 0; j < L.length; j += 4) {
-        if (Math.min(3, Math.floor((L[j + 3] - 0.2) * 4.4)) !== stufe) continue;
-        ctx.rect(L[j] - L[j + 2] / 2, L[j + 1] - L[j + 2] / 2, L[j + 2], L[j + 2]);
-      }
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-  function draw(now) {
+    funkenZeichnen(4, 12);
+  }  function draw(now) {
     if (hell) { zeichneHell(now); return; }
     var t = (now - T0) / 1000; ctx.clearRect(0, 0, w, h);
     mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
@@ -1592,12 +1750,20 @@ var U = (function () {
     ctx.globalAlpha = 1;
   }
   /* Der helle Planet dreht sich langsam, 30 Bilder pro Sekunde reichen und schonen das iPad */
-  var zuletzt = 0;
-  function loop(now) { if (!running) return; if (!hell || now - zuletzt > 30) { draw(now); zuletzt = now; } raf = requestAnimationFrame(loop); }
+  var zuletzt = 0, zaehl = 0, dauer = 8;
+  /* Selbstbremse: braucht ein Bild im Schnitt länger als 20 ms (altes iPad), werden 20 % der Teilchen weggelassen, bis es reicht (mindestens ein Drittel bleibt). Schnelle Geräte merken nichts. */
+  function loop(now) {
+    if (!running) return;
+    if (!hell || now - zuletzt > 30) {
+      var t0 = performance.now(); draw(now); zuletzt = now;
+      if (hell) { dauer = dauer * 0.9 + (performance.now() - t0) * 0.1; if (++zaehl % 15 === 0 && dauer > 20 && QUAL > 0.34) { QUAL *= 0.8; dauer = 12; } }
+    }
+    raf = requestAnimationFrame(loop);
+  }
   function start() { if (running || U.reduce || !visible || document.hidden) return; running = true; raf = requestAnimationFrame(loop); }
   function stop() { running = false; cancelAnimationFrame(raf); }
   build(); bauStaub(); resize();
-  window.KONST = { farben: function (an) { hell = !!an; draw(performance.now()); } };
+  window.KONST = { farben: function (an) { hell = !!an; draw(performance.now()); }, qual: function () { return QUAL; }, bei: function (s) { hell = true; if (TL < 0) TL = 0; while (TL < s - 1 / 30) bewege(TL + 1 / 30, (KN * QUAL) | 0); draw(T0 + s * 1000); } /* bei: Testzugang, zeichnet die Kugel zum Zeitpunkt s Sekunden */ };
   window.addEventListener('resize', resize);
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
   if (!U.reduce) {
