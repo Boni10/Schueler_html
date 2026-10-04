@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -1207,7 +1210,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return T_ + ' = ' + FR('60 s', p.n) + ' = ' + s(p.T) + ' s;&ensp; ' + v_ + ' = ' + FR('2π · ' + f(p.dc / 200, 2) + ' m', s(p.T) + ' s') + ' = ' + s(p.vms) + ' m/s ≈ ' + s(p.v) + ' km/h'; } },
 
   { id: '1S11', teil: 1, stufe: 'S1', titel: 'Karussell',
-    zufall: function () { return { T: r(4, 10, 0.5), r: r(2, 5, 0.5) }; },
+    zufall: function () { return { T: r(5, 10, 0.5), r: r(2, 3.5, 0.5) }; },   // Kinderkarussell: bis 4,4 m/s
     calc: function (p) { p.w = P2 / p.T; p.v = p.w * p.r; },
     bild: function (p) { return Bild.karussell(M('r') + ' = ' + f(p.r, 1) + ' m', M('T') + ' = ' + f(p.T, 1) + ' s'); },
     text: function (p) { return 'Ein Kinderkarussell braucht für eine Runde ' + T_ + ' = ' + f(p.T, 1) + ' s. Ein Kind sitzt ' + r_ + ' = ' + f(p.r, 1) + ' m von der Achse entfernt. <b>Berechnen Sie</b> ' + w_ + ' und ' + v_ + '.'; },
@@ -1292,7 +1295,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return v_ + ' = ' + FR('2π · ' + f(p.r, 1) + ' m', f(p.T, 1) + ' s') + ' = ' + s(p.v, 2) + ' m/s = ' + s(p.vk, 2) + ' km/h'; } },
 
   { id: '1S26', teil: 1, stufe: 'S2', titel: 'Kreisverkehr',
-    zufall: function () { return { r: r(12, 25, 1), T: r(8, 16, 1) }; },
+    zufall: function () { return { r: r(15, 25, 1), T: r(14, 24, 1) }; },   // Kreisverkehr: 11 bis 40 km/h
     calc: function (p) { p.v = P2 * p.r / p.T; p.vk = p.v * 3.6; },
     bild: function (p) { return Bild.kreisverkehr(M('r') + ' = ' + p.r + ' m', M('T') + ' = ' + p.T + ' s'); },
     text: function (p) { return 'Ein Auto fährt einmal ganz um einen Kreisverkehr. Seine Bahn hat den Radius ' + p.r + ' m, die Runde dauert ' + p.T + ' s. <b>Berechnen Sie</b> die Geschwindigkeit des Autos in m/s und in km/h.'; },
@@ -1305,7 +1308,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.w = P2 / p.T; p.va = p.w * p.ra / 100; p.vi = p.w * p.ri / 100; p.q = p.ra / p.ri; },
     bild: function (p) { return Bild.cd('außen ' + f(p.ra, 1) + ' cm', 'innen ' + f(p.ri, 1) + ' cm', p.u + ' U/min').replace(/url\(#cdg\d+\)/, '#5a4e44'); },
     text: function (p) { return 'Eine Schallplatte läuft mit ' + p.u + ' Umdrehungen pro Minute. Die Rille beginnt außen bei ' + r_ + ' = ' + f(p.ra, 1) + ' cm und endet innen bei ' + r_ + ' = ' + f(p.ri, 1) + ' cm.<br>a) <b>Berechnen Sie</b> die Bahngeschwindigkeit der Nadel am Anfang und am Ende.<br>b) <b>Begründen Sie</b>, warum die Tonqualität zum Plattenende hin abnimmt.'; },
-    felder: [{ label: 'v außen', unit: 'm/s', wert: function (p) { return p.va; } }, { label: 'v innen', unit: 'm/s', wert: function (p) { return p.vi; } }],
+    felder: [{ label: 'v außen', unit: 'm/s', wert: function (p) { return p.va; }, fehler: [{ w: function (p) { return p.va * 60; }, t: 'Die Umdrehungszahl gilt pro Minute. Erst T = 60 s/n bestimmen.' }, { w: function (p) { return p.va * 100; }, t: 'Radius in Metern einsetzen: cm durch 100.' }] }, { label: 'v innen', unit: 'm/s', wert: function (p) { return p.vi; }, fehler: [{ w: function (p) { return p.vi * 60; }, t: 'Die Umdrehungszahl gilt pro Minute. Erst T = 60 s/n bestimmen.' }, { w: function (p) { return p.vi * 100; }, t: 'Radius in Metern einsetzen: cm durch 100.' }] }],
     tipps: [function (p) { return T_ + ' = 60 s / ' + p.u + ' = ' + s(p.T, 2) + ' s. Alle Rillenpunkte haben dasselbe ' + w_ + '.'; }, function () { return 'Pro Sekunde läuft außen mehr Rille unter der Nadel durch als innen. Was heißt das für die Toninformation pro Zentimeter?'; }],
     loesung: function (p) { return T_ + ' = ' + s(p.T, 2) + ' s; ' + w_ + ' = ' + s(p.w) + ' 1/s;&ensp; ' + v_ + '<sub>außen</sub> = ' + s(p.va, 2) + ' m/s;&ensp; ' + v_ + '<sub>innen</sub> = ' + s(p.vi, 2) + ' m/s (Faktor ' + f(p.q, 1) + ')'; },
     muster: function (p) { return 'Die Platte dreht sich mit konstantem ω. Wegen v = ω · r läuft die Nadel innen ' + f(p.q, 1) + '-mal langsamer. Dieselbe Toninformation einer Sekunde muss innen auf einer viel kürzeren Rillenstrecke untergebracht werden. Die Auslenkungen werden feiner, die Nadel tastet sie schlechter ab, vor allem hohe Töne leiden.'; } },
@@ -1406,7 +1409,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return r_ + ' = ' + FR(v_ + ' · ' + T_, '2π') + ' = ' + FR(f(p.v, 1) + ' m/s · ' + f(p.T, 1) + ' s', '2π') + ' = ' + s(p.r, 2) + ' m'; } },
 
   { id: '2S21', teil: 2, stufe: 'T', niveau: 'S2', titel: 'Wie groß ist die Trommel?',
-    zufall: function () { return { n: pick([1000, 1200, 1400, 1600]), v: r(25, 40, 1) }; },
+    zufall: function () { var n = pick([1000, 1200, 1400, 1600]), d = r(38, 52, 2) / 100; return { n: n, v: Math.round(Math.PI * d * n / 60) }; },   // Trommeldurchmesser 38 bis 52 cm
     calc: function (p) { p.T = 60 / p.n; p.r = p.v * p.T / P2; p.dc = 200 * p.r; },
     bild: function (p) { return Bild.trommel(M('d') + ' = ?', p.n + ' 1/min'); },
     text: function (p) { return 'Beim Schleudern mit ' + p.n + ' 1/min erreicht die Wäsche am Trommelrand eine Bahngeschwindigkeit von ' + p.v + ' m/s. <b>Bestimmen Sie</b> den Trommeldurchmesser in cm.'; },
@@ -1627,6 +1630,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -1663,6 +1667,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -1690,6 +1695,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -1767,6 +1774,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -1946,5 +1957,28 @@ document.querySelectorAll('.werkzeug[data-wegfinder]').forEach(function(W){
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -341,8 +344,8 @@ textarea.verm{font:inherit;width:100%;min-height:84px;border:2px solid var(--lin
 .regler-zeile{position:relative;height:44px;margin:-6px 0 0}
 #schaetz-regler{position:absolute;left:7%;width:88%;top:0}
 input[type=range]{-webkit-appearance:none;appearance:none;height:10px;border-radius:999px;background:#efe2c4;border:1.5px solid #cbbd9f;margin:16px 0}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;border-radius:50%;background:#ff7a1a;border:3px solid #fff;box-shadow:0 0 0 2px #3a3128;cursor:pointer}
-input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#ff7a1a;border:3px solid #fff;box-shadow:0 0 0 2px #3a3128;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:40px;border-radius:50%;background:#ff7a1a;border:3px solid #fff;box-shadow:0 0 0 2px #3a3128;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:36px;height:36px;border-radius:50%;background:#ff7a1a;border:3px solid #fff;box-shadow:0 0 0 2px #3a3128;cursor:pointer}
 input[type=range]:focus-visible{outline:3px solid #1c64d9;outline-offset:4px}
 #schaetz-text,#leiter2-text{font-size:17px;margin:4px 0}
 
@@ -1310,7 +1313,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.F0 = G * ME * p.m / qu(RE); p.F1 = G * ME * p.m / qu(RE + p.h); p.d = p.F0 - p.F1; },
     bild: function (p) { return Bild.planet('Erde', Bild.C.sky, M('h') + ' = ' + f(p.h, 0) + ' m', p.m + ' kg'); },
     text: function (p) { return 'Eine Person (' + p.m + ' kg) ist ' + p.ort + ', ' + f(p.h, 0) + ' m über dem Meer. <b>Berechnen Sie</b> die Gravitationskraft der Erde dort und <b>bestimmen Sie</b>, um wie viel Newton sie kleiner ist als auf Meereshöhe (Abstand 6371 km zum Erdmittelpunkt).'; },
-    felder: [{ label: 'F oben', unit: 'N', wert: function (p) { return p.F1; }, tol: 0.001, sig: 4 }, { label: 'Unterschied', unit: 'N', wert: function (p) { return p.d; }, tol: 0.05 }],
+    felder: [{ label: 'F oben', unit: 'N', wert: function (p) { return p.F1; }, tol: 0.001, sig: 4 }, { label: 'Unterschied', unit: 'N', wert: function (p) { return p.d; }, tol: 0.05, fehler: [{ w: function (p) { return p.F1; }, t: 'Das ist die Kraft oben. Gefragt ist der Unterschied zur Kraft auf Meereshöhe.' }] }],
     tipps: [function () { return 'Abstand oben: ' + r_ + ' = 6371 km + Höhe. Genau rechnen, der Unterschied ist klein!'; }, function (p) { return 'Auf Meereshöhe: ' + s(p.F0, 4) + ' N.'; }],
     loesung: function (p) { return 'oben: ' + s(p.F1, 4) + ' N; unten: ' + s(p.F0, 4) + ' N; Unterschied ' + s(p.d, 2) + ' N (' + s(p.d / p.F0 * 100, 2) + ' %)'; } },
 
@@ -1319,7 +1322,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.F = G * 1.989e30 * p.m / qu(p.d); },
     bild: function (p) { return Bild.orbit({ farbeZ: '#f7d77a', farbeK: '#c6dbf5', rz: 26, lr: e(p.d) + ' m', lt: '', name: p.pl, nameZ: 'Sonne' }); },
     text: function (p) { return '<b>Berechnen Sie</b> die Gravitationskraft zwischen der Sonne (1,989 · 10<sup>30</sup> kg) und dem Planeten ' + p.pl + ' (' + e(p.m) + ' kg) im mittleren Abstand ' + e(p.d, 4) + ' m.'; },
-    felder: [{ label: 'F<sub>Grav</sub>', unit: 'N', wert: function (p) { return p.F; } }],
+    felder: [{ label: 'F<sub>Grav</sub>', unit: 'N', wert: function (p) { return p.F; }, fehler: [{ w: function (p) { return p.F * p.d; }, t: 'Der Abstand muss quadriert werden.' }] }],
     tipps: [function () { return 'Zehnerpotenzen getrennt rechnen: 10<sup>−11</sup> · 10<sup>30</sup> · 10<sup>24</sup> / 10<sup>22</sup>.'; }, function () { return 'Taschenrechner: 6.674e-11 * 1.989e30 * ... / (...)^2.'; }],
     loesung: function (p) { return FG + ' = ' + GS + ' · ' + FR('1,989 · 10<sup>30</sup> kg · ' + e(p.m) + ' kg', '(' + e(p.d, 4) + ' m)²') + ' = ' + e(p.F) + ' N'; } },
 
@@ -1357,7 +1360,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.F = G * 7.35e22 * p.m / qu(1.738e6); },
     bild: function (p) { return Bild.planet('Mond', '#e8e2d6', M('R') + ' = 1738 km', p.m + ' kg'); },
     text: function (p) { return 'Eine Astronautin hat samt Anzug ' + p.m + ' kg. <b>Berechnen Sie</b> die Gravitationskraft, die der Mond (7,35 · 10<sup>22</sup> kg, Radius 1738 km) auf der Mondoberfläche auf sie ausübt.'; },
-    felder: [{ label: 'F<sub>Grav</sub>', unit: 'N', wert: function (p) { return p.F; } }],
+    felder: [{ label: 'F<sub>Grav</sub>', unit: 'N', wert: function (p) { return p.F; }, fehler: [{ w: function (p) { return p.F * 1e6; }, t: 'Radius in Metern einsetzen: 1738 km = 1,738 · 10<sup>6</sup> m, und dann quadrieren.' }, { w: function (p) { return p.F * 1.738e6; }, t: 'Der Radius muss quadriert werden.' }] }],
     tipps: [function () { return r_ + ' = Mondradius in Metern.'; }, function () { return 'Etwa ein Sechstel der Gewichtskraft auf der Erde.'; }],
     loesung: function (p) { return FG + ' = ' + s(p.F) + ' N (auf der Erde: ' + s(p.m * 9.81) + ' N)'; } },
 
@@ -1436,7 +1439,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.T = 27.3 * 86400; p.M = 4 * Math.PI * Math.PI * Math.pow(3.84e8, 3) / (G * qu(p.T)); },
     bild: function () { return Bild.orbit({ farbeZ: '#c6dbf5', farbeK: '#e8e2d6', rz: 22, rk: 9, lr: '3,84 · 10<tspan baseline-shift="super" font-size="11">8</tspan> m', lt: '27,3 Tage', name: 'Mond', nameZ: 'Erde' }); },
     text: function () { return 'Es geht auch ohne Fallversuch: Der Mond umläuft die Erde in 27,3 Tagen auf einem Kreis mit ' + r_ + ' = 3,84 · 10<sup>8</sup> m. <b>Bestimmen Sie</b> daraus die Erdmasse. <i>Tipp: Die Gravitationskraft ist hier die Zentripetalkraft.</i>'; },
-    felder: [{ label: 'M<sub>Erde</sub>', unit: 'kg', wert: function (p) { return p.M; } }],
+    felder: [{ label: 'M<sub>Erde</sub>', unit: 'kg', wert: function (p) { return p.M; }, fehler: [{ w: function (p) { return p.M * 86400 * 86400; }, t: 'Die Umlaufdauer muss in Sekunden eingesetzt werden: 27,3 Tage = 27,3 · 86 400 s.' }, { w: function (p) { return p.M / (4 * Math.PI * Math.PI); }, t: 'Der Faktor 4π² fehlt: Aus v = 2π r/T folgt v² = 4π² r²/T².' }] }],
     tipps: [function () { return G_ + Mm + M('m') + '/' + r_ + '² = ' + M('m') + ' · 4π²' + r_ + '/' + T_ + '².'; }, function () { return Mm + ' = 4π²' + r_ + '³/(' + G_ + T_ + '²).'; }],
     loesung: function (p) { return Mm + ' = ' + FR('4π² · (3,84 · 10<sup>8</sup> m)³', GS + ' · (2,36 · 10<sup>6</sup> s)²') + ' = ' + e(p.M) + ' kg'; } },
 
@@ -1476,7 +1479,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.T = p.Td * 86400; p.v = P2 * p.r / p.T; p.M = qu(p.v) * p.r / G; },
     bild: function (p) { return Bild.orbit({ farbeZ: '#f7d77a', farbeK: '#f3c1c8', rz: 26, lr: e(p.r, 4) + ' m', lt: f(p.Td, 1) + ' Tage', name: p.k, nameZ: 'Sonne' }); },
     text: function (p) { return 'Die ' + p.k + ' umläuft die Sonne in ' + f(p.Td, 1) + ' Tagen auf einer (fast) kreisförmigen Bahn mit ' + r_ + ' = ' + e(p.r, 4) + ' m. <b>Berechnen Sie</b> ihre Bahngeschwindigkeit und daraus die Masse der Sonne.'.replace('Die Erde', 'Die Erde').replace('Die Mars', 'Der Mars').replace('Die Merkur', 'Der Merkur'); },
-    felder: [{ label: 'v', unit: 'km/s', wert: function (p) { return p.v / 1000; } }, { label: 'M<sub>Sonne</sub>', unit: 'kg', wert: function (p) { return p.M; }, fehler: [{ w: function (p) { return p.v * p.r / G; }, t: 'v muss quadriert werden: M = v² · r/G.' }] }],
+    felder: [{ label: 'v', unit: 'km/s', wert: function (p) { return p.v / 1000; }, fehler: [{ w: function (p) { return p.v; }, t: 'Das ist m/s. Gefragt ist km/s: durch 1000.' }, { w: function (p) { return p.r / p.T / 1000; }, t: 'Der Umfang der Bahn ist 2π · r, nicht r.' }] }, { label: 'M<sub>Sonne</sub>', unit: 'kg', wert: function (p) { return p.M; }, fehler: [{ w: function (p) { return p.v * p.r / G; }, t: 'v muss quadriert werden: M = v² · r/G.' }] }],
     tipps: [function () { return v_ + ' = 2π' + r_ + '/' + T_ + ' mit ' + T_ + ' in Sekunden.'; }, function () { return 'Aus ' + v_ + ' = √(' + G_ + Mm + '/' + r_ + '): ' + Mm + ' = ' + v_ + '²' + r_ + '/' + G_ + '.'; }],
     loesung: function (p) { return T_ + ' = ' + e(p.T) + ' s;&ensp; ' + v_ + ' = ' + s(p.v / 1000) + ' km/s;&ensp; ' + Mm + ' = ' + FR('(' + e(p.v) + ' m/s)² · ' + e(p.r, 4) + ' m', GS) + ' = ' + e(p.M) + ' kg'; } },
 
@@ -1533,7 +1536,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.T = 27.3 * 86400; p.r = Math.cbrt(G * ME * qu(p.T) / (4 * Math.PI * Math.PI)) / 1000; },
     bild: function () { return Bild.orbit({ farbeZ: '#c6dbf5', farbeK: '#e8e2d6', rz: 22, rk: 9, lr: '?', lt: '27,3 Tage', name: 'Mond', nameZ: 'Erde' }); },
     text: function () { return 'Der Mond umkreist die Erde (5,97 · 10<sup>24</sup> kg) in 27,3 Tagen. <b>Bestimmen Sie</b> mit dem Gravitationsgesetz den Radius der Mondbahn in km.'; },
-    felder: [{ label: 'r', unit: 'km', wert: function (p) { return p.r; } }],
+    felder: [{ label: 'r', unit: 'km', wert: function (p) { return p.r; }, fehler: [{ w: function (p) { return p.r * 1000; }, t: 'Das ist in m. Gefragt ist km.' }] }],
     tipps: [function () { return G_ + Mm + '/' + r_ + '² = 4π²' + r_ + '/' + T_ + '² ⇒ ' + r_ + '³ = ' + G_ + Mm + T_ + '²/(4π²).'; }, function () { return T_ + ' = 2,359 · 10<sup>6</sup> s.'; }],
     loesung: function (p) { return r_ + ' = ∛' + FR(G_ + Mm + T_ + '²', '4π²') + ' ≈ ' + s(p.r) + ' km'; } },
 
@@ -1542,7 +1545,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.v = Math.sqrt(G * 6.42e23 / 9.38e6); p.Th = P2 * 9.38e6 / p.v / 3600; },
     bild: function () { return Bild.orbit({ farbeZ: '#f3c1c8', farbeK: '#d6cfc2', rz: 26, rk: 7, lr: '9380 km', lt: '', name: 'Phobos', nameZ: 'Mars' }); },
     text: function () { return 'Phobos umkreist den Mars (6,42 · 10<sup>23</sup> kg) im Abstand 9380 km vom Marsmittelpunkt. <b>Bestimmen Sie</b> seine Umlaufdauer in Stunden und <b>vergleichen Sie</b> mit einem Marstag (24,6 h).'; },
-    felder: [{ label: 'T', unit: 'h', wert: function (p) { return p.Th; } }],
+    felder: [{ label: 'T', unit: 'h', wert: function (p) { return p.Th; }, fehler: [{ w: function (p) { return p.Th * 3600; }, t: 'Das ist in Sekunden. Gefragt ist Stunden: durch 3600.' }] }],
     tipps: [function () { return v_ + ' = √(' + G_ + Mm + '/' + r_ + '), ' + T_ + ' = 2π' + r_ + '/' + v_ + '.'; }, function () { return r_ + ' = 9,38 · 10<sup>6</sup> m.'; }],
     loesung: function (p) { return v_ + ' = ' + s(p.v) + ' m/s;&ensp; ' + T_ + ' = ' + s(p.Th) + ' h, schneller als ein Marstag: Phobos geht im Westen auf!'; } },
 
@@ -1752,6 +1755,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -1788,6 +1792,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -1815,6 +1820,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -1892,6 +1899,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -2480,5 +2491,28 @@ var AUFGABEN = (function () {
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

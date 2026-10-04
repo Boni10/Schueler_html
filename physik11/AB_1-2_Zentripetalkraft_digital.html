@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -1201,7 +1204,7 @@ var AUFGABEN = (function () {
   // =========================================================== TEIL 1: F_Z berechnen
   { id: '1P1', teil: 1, stufe: 'P', papier: true, titel: 'Übung 1 · Kind auf dem Karussell',
     fest: { m: 28, r: 2.5, T: 6.0 },
-    zufall: function () { return { m: r(20, 45, 1), r: r(1.5, 3.5, 0.5), T: r(4, 8, 0.5) }; },
+    zufall: function () { return { m: r(20, 45, 1), r: r(1.5, 3, 0.5), T: r(5, 8, 0.5) }; },
     calc: function (p) { p.w = P2 / p.T; p.F = p.m * qu(p.w) * p.r; },
     bild: function (p) { return Bild.kinder(M('r') + ' = ' + f(p.r, 1) + ' m', M('m') + ' = ' + p.m + ' kg', M('T') + ' = ' + f(p.T, 1) + ' s').replace(/<circle cx="138"[^>]*\/>/, '').replace(/>A</, '><'); },
     text: function (p) { return 'Ein Kind (' + m_ + ' = ' + p.m + ' kg) sitzt ' + f(p.r, 1) + ' m von der Achse eines Karussells entfernt, das sich mit ' + T_ + ' = ' + f(p.T, 1) + ' s dreht. <b>Berechnen Sie</b> die nötige Zentripetalkraft.'; },
@@ -1219,7 +1222,7 @@ var AUFGABEN = (function () {
     bild: function (p) { return Bild.trommel(M('r') + ' = ' + p.rc + ' cm', p.n + ' 1/min'); },
     text: function (p) { return 'Eine Wäscheschleuder (Trommelradius ' + p.rc + ' cm) läuft mit ' + p.n + ' 1/min. <b>Berechnen Sie</b> die Zentripetalbeschleunigung an der Trommelwand und <b>geben Sie</b> sie als Vielfaches von ' + M('g') + ' <b>an</b>.'; },
     felder: [{ label: 'a<sub>Z</sub>', unit: 'm/s²', wert: function (p) { return p.a; }, fehler: [{ w: function (p) { return p.a * 3600; }, t: 'Die Umdrehungszahl gilt pro Minute. Erst T = 60 s/n.' }, { w: function (p) { return p.a * 100; }, t: 'Radius in Metern einsetzen.' }] },
-             { label: 'Vielfaches von g', unit: '', wert: function (p) { return p.q; } }],
+             { label: 'Vielfaches von g', unit: '', wert: function (p) { return p.q; }, fehler: [{ w: function (p) { return p.q * 3600; }, t: 'Die Umdrehungszahl gilt pro Minute. Erst T = 60 s/n.' }, { w: function (p) { return p.q * 100; }, t: 'Radius in Metern einsetzen.' }] }],
     tipps: [function (p) { return T_ + ' = 60 s/' + p.n + ', ' + w_ + ' = 2π/' + T_ + ', ' + aZ + ' = ' + w_ + '² · ' + r_ + '.'; }, function () { return 'Vielfaches von ' + M('g') + ': ' + aZ + ' durch 9,81 m/s² teilen.'; }],
     loesung: function (p) { return T_ + ' = ' + s(p.T) + ' s;&ensp; ' + w_ + ' = ' + s(p.w) + ' 1/s;&ensp; ' + aZ + ' = ' + w_ + '² · ' + r_ + ' = ' + s(p.a) + ' m/s² ≈ ' + s(p.q) + ' · ' + M('g') + '. Deshalb bleibt die Wäsche an der Wand.'; } },
 
@@ -1234,7 +1237,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return FZ + ' = ' + f(p.m, 2) + ' kg · ' + FR('(' + f(p.v, 1) + ' m/s)²', f(p.r, 1) + ' m') + ' = ' + s(p.F, 2) + ' N'; } },
 
   { id: '1S12', teil: 1, stufe: 'S1', titel: 'Radfahrer in der Kurve',
-    zufall: function () { return { m: r(70, 95, 1), vk: r(15, 30, 1), r: r(4, 12, 1) }; },
+    zufall: function () { return { m: r(70, 95, 1), vk: r(12, 25, 1), r: r(8, 15, 1) }; },   // Radfahrer: a_Z höchstens 6 m/s²
     calc: function (p) { p.v = p.vk / 3.6; p.F = p.m * qu(p.v) / p.r; },
     bild: function (p) { return Bild.radkurve(M('m') + ' = ' + p.m + ' kg', p.vk + ' km/h', M('r') + ' = ' + p.r + ' m'); },
     text: function (p) { return 'Ein Radfahrer (mit Rad ' + p.m + ' kg) fährt mit ' + p.vk + ' km/h durch eine Kurve mit ' + r_ + ' = ' + p.r + ' m. <b>Berechnen Sie</b> die nötige Zentripetalkraft.'; },
@@ -1253,7 +1256,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return FZ + ' = 7,26 kg · ' + FR('4π² · ' + f(p.r, 2) + ' m', '(' + f(p.T, 2) + ' s)²') + ' = ' + s(p.F) + ' N ≈ ' + s(p.F / 1000, 2) + ' kN;&ensp; ' + FG + ' = 71,2 N, also rund ' + s(p.q, 2) + '-mal so groß'; } },
 
   { id: '1S22', teil: 1, stufe: 'S2', titel: 'ICE in der Kurve',
-    zufall: function () { return { mt: r(380, 460, 20), vk: r(160, 280, 10), r: r(1800, 4000, 200) }; },
+    zufall: function () { return { mt: r(380, 460, 20), vk: r(200, 280, 10), r: r(3400, 5000, 200) }; },   // ICE: a_Z höchstens 1,8 m/s²
     calc: function (p) { p.v = p.vk / 3.6; p.a = qu(p.v) / p.r; p.F = p.mt * 1000 * p.a; },
     bild: function (p) { return Bild.zug(M('m') + ' = ' + p.mt + ' t', p.vk + ' km/h', M('r') + ' = ' + f(p.r, 0) + ' m'); },
     text: function (p) { return 'Ein ICE (' + m_ + ' = ' + p.mt + ' t) durchfährt mit ' + p.vk + ' km/h eine Kurve mit ' + r_ + ' = ' + f(p.r, 0) + ' m. <b>Berechnen Sie</b> die Zentripetalbeschleunigung und die Zentripetalkraft in kN, die die Schienen aufbringen müssen.'; },
@@ -1286,7 +1289,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.w = P2 * p.n / 60; p.F = p.m * qu(p.w) * p.rc / 100; p.q = p.F / (p.m * g); },
     bild: function (p) { return Bild.trommel(M('r') + ' = ' + p.rc + ' cm', p.n + ' 1/min'); },
     text: function (p) { return 'Ein nasser Wollpullover (' + f(p.m, 1) + ' kg) liegt beim Schleudern mit ' + p.n + ' 1/min an der Trommelwand (' + r_ + ' = ' + p.rc + ' cm). <b>Berechnen Sie</b> die Kraft, die die Trommel auf ihn ausüben muss, und <b>vergleichen Sie</b> mit seiner Gewichtskraft.'; },
-    felder: [{ label: 'F<sub>Z</sub>', unit: 'N', wert: function (p) { return p.F; } }, { label: 'F<sub>Z</sub> : F<sub>G</sub>', unit: '', wert: function (p) { return p.q; } }],
+    felder: [{ label: 'F<sub>Z</sub>', unit: 'N', wert: function (p) { return p.F; }, fehler: [{ w: function (p) { return p.F * 3600; }, t: 'Die Umdrehungszahl gilt pro Minute: n in 1/s umrechnen.' }, { w: function (p) { return p.F * 100; }, t: 'Radius in Metern einsetzen.' }, { w: function (p) { return p.m * p.w * p.rc / 100; }, t: 'Die Winkelgeschwindigkeit muss quadriert werden: F<sub>Z</sub> = m · ω² · r.' }] }, { label: 'F<sub>Z</sub> : F<sub>G</sub>', unit: '', wert: function (p) { return p.q; } }],
     tipps: [function () { return w_ + ' = 2π · ' + n_ + ' mit ' + n_ + ' in 1/s.'; }, function () { return FZ + ' = ' + m_ + ' · ' + w_ + '² · ' + r_ + '; ' + FG + ' = ' + m_ + ' · ' + M('g') + '.'; }],
     loesung: function (p) { return w_ + ' = ' + s(p.w) + ' 1/s;&ensp; ' + FZ + ' = ' + s(p.F) + ' N;&ensp; das ' + s(p.q) + '-fache der Gewichtskraft'; } },
 
@@ -1302,7 +1305,7 @@ var AUFGABEN = (function () {
   // =========================================================== TEIL 2: Umkehraufgaben
   { id: '2P1', teil: 2, stufe: 'P', papier: true, titel: 'Übung 3 · Wann reißt die Schnur?',
     fest: { F: 120, m: 0.45, r: 0.80 },
-    zufall: function () { return { F: r(80, 200, 10), m: r(0.2, 0.8, 0.05), r: pick([1.2, 1.3, 1.5, 1.6]) }; },
+    zufall: function () { return { F: r(80, 150, 10), m: r(0.3, 0.8, 0.05), r: pick([1.2, 1.3, 1.5, 1.6]) }; },
     calc: function (p) { p.v = Math.sqrt(p.F * p.r / p.m); p.vk = p.v * 3.6; },
     bild: function (p) { return Bild.schnur(M('m') + ' = ' + f(p.m, 2) + ' kg', M('r') + ' = ' + f(p.r, 2) + ' m', M('v') + ' = ?', 'max. ' + p.F + ' N'); },
     text: function (p) { return 'Eine Schnur reißt bei einer Zugkraft von ' + p.F + ' N. An ihr kreist ein Körper der Masse ' + f(p.m, 2) + ' kg auf einem Radius von ' + f(p.r, 2) + ' m. <b>Bestimmen Sie</b> die größtmögliche Bahngeschwindigkeit.'; },
@@ -1326,7 +1329,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return T_ + ' = ' + f(p.T, 2) + ' s;&ensp; ' + FZ + ' = 0,025 kg · ' + FR('4π² · ' + f(p.rr, 2) + ' m', '(' + f(p.T, 2) + ' s)²') + ' = ' + s(p.F) + ' N;&ensp; Abweichung ' + f(p.dp, 1) + ' %. Etwas zu klein: Reibung in der Hülse, eine systematische Abweichung.'; } },
 
   { id: '2S11', teil: 2, stufe: 'S1', titel: 'Welcher Radius?',
-    zufall: function () { var o; do { o = { F: r(1, 5, 0.5), m: r(0.1, 0.4, 0.05), v: r(2, 5, 0.5) }; } while (Math.abs(o.m * o.v * o.v / o.F - 1) < 0.15); return o; },
+    zufall: function () { var o; do { o = { F: r(1, 5, 0.5), m: r(0.1, 0.4, 0.05), v: r(2, 5, 0.5) }; } while (Math.abs(o.m * o.v * o.v / o.F - 1) < 0.15 || o.m * o.v * o.v / o.F > 3 || o.m * o.v * o.v / o.F < 0.12); return o; },   // Bahnradius 0,12 bis 3 m
     calc: function (p) { p.r = p.m * qu(p.v) / p.F; },
     bild: function (p) { return Bild.schnur(M('m') + ' = ' + f(p.m, 2) + ' kg', M('r') + ' = ?', f(p.v, 1) + ' m/s', f(p.F, 1) + ' N'); },
     text: function (p) { return 'Auf einen Körper (' + m_ + ' = ' + f(p.m, 2) + ' kg), der mit ' + v_ + ' = ' + f(p.v, 1) + ' m/s kreist, wirkt die Zentripetalkraft ' + f(p.F, 1) + ' N. <b>Bestimmen Sie</b> den Bahnradius.'; },
@@ -1336,7 +1339,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return r_ + ' = ' + FR(m_ + v_ + '²', FZ) + ' = ' + FR(f(p.m, 2) + ' kg · (' + f(p.v, 1) + ' m/s)²', f(p.F, 1) + ' N') + ' = ' + s(p.r) + ' m'; } },
 
   { id: '2S12', teil: 2, stufe: 'S1', titel: 'Wie schwer ist die Gondel?',
-    zufall: function () { return { F: r(300, 900, 50), v: r(4, 10, 1), r: r(8, 20, 1) }; },
+    zufall: function () { var o; do { o = { F: r(300, 900, 50), v: r(4, 10, 1), r: r(8, 20, 1) }; } while (o.F * o.r / (o.v * o.v) < 150 || o.F * o.r / (o.v * o.v) > 700); return o; },   // Gondel samt Fahrgast 150 bis 700 kg
     calc: function (p) { p.m = p.F * p.r / qu(p.v); },
     bild: function (p) { return Bild.kettenkarussell(M('r') + ' = ' + p.r + ' m', f(p.v, 0) + ' m/s', ''); },
     text: function (p) { return 'Auf eine Karussellgondel, die mit ' + p.v + ' m/s auf einem Kreis mit ' + r_ + ' = ' + p.r + ' m fährt, wirkt die Zentripetalkraft ' + p.F + ' N. <b>Bestimmen Sie</b> die Masse der Gondel samt Fahrgast.'; },
@@ -1374,7 +1377,7 @@ var AUFGABEN = (function () {
     loesung: function (p) { return 'Stein ' + s(p.F[0]) + ' N · Ball ' + s(p.F[1]) + ' N · Kuli ' + s(p.F[2]) + ' N. ' + (p.ok[1] ? 'Nur beim Ball wird die Grenze überschritten.' : 'Keine der Kräfte liegt über ' + p.Fg + ' N.'); } },
 
   { id: '2S32', teil: 2, stufe: 'S3', titel: 'Kettenkarussell: zwei Passagiere',
-    zufall: function () { return { F: r(800, 1200, 50), w: r(2.0, 2.5, 0.1), m1: r(25, 35, 5), m2: r(60, 90, 5) }; },   // Kind und Erwachsener, Radien 3 bis 12 m (bis 04.10.: 8 kg, 17 m)
+    zufall: function () { return { F: r(800, 1100, 50), w: r(2.0, 2.5, 0.1), m1: r(30, 40, 5), m2: r(60, 90, 5) }; },   // Kind und Erwachsener, Radien 1,4 bis 9 m
     calc: function (p) { p.r1 = p.F / (p.m1 * qu(p.w)); p.r2 = p.F / (p.m2 * qu(p.w)); },
     bild: function (p) { return Bild.kettenkarussell(M('r') + ' = ?', M('ω') + ' = ' + f(p.w, 1) + ' 1/s', ''); },
     text: function (p) { return 'Eine Halterung hält höchstens ' + p.F + ' N aus. Das Karussell dreht sich mit ' + w_ + ' = ' + f(p.w, 1) + ' 1/s. <b>Bestimmen Sie</b>, wie weit außen ein Körper mit ' + p.m1 + ' kg bzw. mit ' + p.m2 + ' kg höchstens sitzen darf, und <b>begründen Sie</b>, warum der schwerere weiter innen sitzen muss.'; },
@@ -1388,7 +1391,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.w = Math.sqrt(p.q * g / (p.rc / 100)); p.n = p.w / P2 * 60; },
     bild: function (p) { return Bild.trommel(M('r') + ' = ' + p.rc + ' cm', M('n') + ' = ?'); },
     text: function (p) { return 'An der Wand einer Wäschetrommel (' + r_ + ' = ' + p.rc + ' cm) soll die Zentripetalbeschleunigung höchstens das ' + p.q + '-fache von ' + M('g') + ' betragen. <b>Bestimmen Sie</b> die größte Umdrehungszahl in 1/min.'; },
-    felder: [{ label: 'n', unit: '1/min', wert: function (p) { return p.n; }, tol: 0.03 }],
+    felder: [{ label: 'n', unit: '1/min', wert: function (p) { return p.n; }, tol: 0.03, fehler: [{ w: function (p) { return p.n / 60; }, t: 'Das ist die Umdrehungszahl pro Sekunde. Gefragt ist 1/min: mal 60.' }, { w: function (p) { return p.w * 60; }, t: 'Das ist noch ω. Die Umdrehungszahl ist n = ω/(2π).' }, { w: function (p) { return p.n / 10; }, t: 'Radius in Metern einsetzen: cm durch 100.' }] }],
     tipps: [function () { return aZ + ' = ' + w_ + '² · ' + r_ + ' ⇒ ' + w_ + ' = √(' + aZ + '/' + r_ + ').'; }, function () { return n_ + ' = ' + w_ + '/(2π) in 1/s, dann mal 60.'; }],
     loesung: function (p) { return w_ + ' = √' + FR(p.q + ' · 9,81 m/s²', f(p.rc / 100, 2) + ' m') + ' = ' + s(p.w) + ' 1/s;&ensp; ' + n_ + ' = ' + s(p.n) + ' 1/min'; } },
 
@@ -1447,7 +1450,7 @@ var AUFGABEN = (function () {
     muster: function () { return 'Von außen: Die Trommelwand drückt die Wäsche nach innen und hält sie so auf der Kreisbahn. An einem Loch fehlt diese Kraft für das Wasser: Es bewegt sich geradeaus weiter, tangential, und verlässt dabei die Trommel. Aus Sicht der Wäsche: Eine Zentrifugalkraft zieht alles nach außen; die Wand hält die Wäsche dagegen, das Wasser findet an den Löchern keinen Halt und wird hinausgezogen.'; } },
 
   { id: '3S22', teil: 3, stufe: 'S2', titel: 'Zentrifugalkraft ausrechnen?',
-    zufall: function () { return { m: r(55, 80, 1), r: r(3, 6, 0.5), T: r(3, 5, 0.5) }; },
+    zufall: function () { return { m: r(55, 80, 1), r: r(2, 3.5, 0.5), T: r(4, 6, 0.5) }; },   // Drehteller: a_Z höchstens 0,9 g
     calc: function (p) { p.F = p.m * 4 * Math.PI * Math.PI * p.r / qu(p.T); },
     bild: function (p) { return Bild.kinder(M('r') + ' = ' + f(p.r, 1) + ' m', p.m + ' kg', M('T') + ' = ' + f(p.T, 1) + ' s').replace(/<circle cx="138"[^>]*\/>/, '').replace(/>A</, '><'); },
     text: function (p) { return 'Jan (' + p.m + ' kg) steht auf einem Drehteller am Rand, ' + f(p.r, 1) + ' m von der Achse, eine Runde dauert ' + f(p.T, 1) + ' s. Er sagt: „Ich spüre, wie mich eine Kraft nach außen zieht.“ <b>Berechnen Sie</b> den Betrag der Kraft, die ihn auf der Kreisbahn hält, und <b>geben Sie an</b>, welche Richtung sie hat.'; },
@@ -1486,7 +1489,7 @@ var AUFGABEN = (function () {
 
   { id: 'HA2', teil: 0, stufe: 'HA', titel: 'Hausaufgabe 2 · Im Kreisverkehr', startFest: true,
     fest: { m: 60, r: 15, vk: 30 },
-    zufall: function () { return { m: r(50, 90, 5), r: r(12, 25, 1), vk: r(20, 35, 5) }; },
+    zufall: function () { return { m: r(50, 90, 5), r: r(15, 25, 1), vk: r(15, 30, 5) }; },
     calc: function (p) { p.v = p.vk / 3.6; p.F = p.m * qu(p.v) / p.r; },
     bild: function (p) { return Bild.kreisverkehr(M('r') + ' = ' + p.r + ' m', p.vk + ' km/h'); },
     text: function (p) { return 'Eine Autofahrerin (' + p.m + ' kg) fährt mit ' + p.vk + ' km/h durch einen Kreisverkehr (' + r_ + ' = ' + p.r + ' m). <b>Berechnen Sie</b> die Zentripetalkraft auf die Fahrerin und <b>geben Sie an</b>, welcher Körper sie ausübt.'; },
@@ -1620,6 +1623,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -1656,6 +1660,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -1683,6 +1688,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -1760,6 +1767,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -1939,5 +1950,28 @@ document.querySelectorAll('.werkzeug[data-wegfinder]').forEach(function(W){
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

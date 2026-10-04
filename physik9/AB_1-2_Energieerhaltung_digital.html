@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -887,10 +890,10 @@ var AUFGABEN = (function () {
     fragen: [{ opt: [B.konten([['Sp', 1], ['H', 0], ['kin', 0]]), B.konten([['Sp', 0], ['H', 0], ['kin', 1]]), B.konten([['Sp', .5], ['H', .5], ['kin', 0]])], fe: [null, 'Im Bogen ist der Pfeil noch in Ruhe.', 'Vor dem Abschuss ist er noch auf Abschusshöhe.'] },
              { opt: [B.konten([['Sp', 0], ['H', .7], ['kin', .3]]), B.konten([['Sp', 0], ['H', 1], ['kin', 0]]), B.konten([['Sp', .3], ['H', .7], ['kin', 0]])], fe: [null, 'Beim schrägen Schuss fliegt der Pfeil oben waagerecht weiter: E<sub>kin</sub> ist nicht null.', 'Der Bogen ist längst entspannt.'] }],
     loes: 'Im Bogen: nur Spannenergie. Am höchsten Punkt: viel Höhenenergie, aber noch etwas Bewegungsenergie, weil der Pfeil waagerecht weiterfliegt.' }], tipps: tippK }),
-  { id: '1S22', teil: 1, stufe: 'S2', titel: 'Die Skaterin',
+  { id: '1S22', teil: 1, stufe: 'S2', titel: 'Die Wasserrutsche',
     zufall: function () { return { E: r(1500, 3000, 100), pz: pick([30, 40, 60, 70, 80]) }; }, calc: function (p) { p.H = p.E * p.pz / 100; p.k = p.E - p.H; },
     bild: function (p) { return B.bahn('E<sub>H</sub> = ' + f(p.E, 0) + ' J', p.pz + ' % der Starthöhe'); },
-    text: function (p) { return 'Eine Skaterin startet aus der Ruhe in (1) mit ' + f(p.E, 0) + ' J Höhenenergie (Nullniveau: tiefster Punkt). In (2) ist sie auf ' + p.pz + ' % der Starthöhe. <b>Berechne</b> ihre Bewegungsenergie in (2), ohne Reibung.'; },
+    text: function (p) { return 'Ein Kind startet oben auf der Wasserrutsche aus der Ruhe in (1) mit ' + f(p.E, 0) + ' J Höhenenergie (Nullniveau: tiefster Punkt). In (2) ist es auf ' + p.pz + ' % der Starthöhe. <b>Berechne</b> ihre Bewegungsenergie in (2), ohne Reibung.'; },
     felder: [{ label: 'E<sub>kin,2</sub>', unit: 'J', tol: 0.01, wert: function (p) { return p.k; }, fehler: [{ w: function (p) { return p.H; }, t: 'Das ist die Höhenenergie in (2). Gefragt ist der Rest.' }] }],
     tipps: [function (p) { return 'In (2) hat sie noch ' + p.pz + ' % der Höhenenergie.'; }, function (p) { return 'E<sub>H,2</sub> = ' + f(p.H, 0) + ' J; E<sub>kin,2</sub> = ' + f(p.E, 0) + ' J − ' + f(p.H, 0) + ' J.'; }], loesung: function (p) { return 'E<sub>H,2</sub> = ' + p.pz + ' % · ' + f(p.E, 0) + ' J = ' + f(p.H, 0) + ' J, also E<sub>kin,2</sub> = ' + f(p.k, 0) + ' J.'; } },
   MC({ id: '1S31', teil: 1, stufe: 'S3', titel: 'Das Trampolin', labels: ['tiefste Einsenkung'], faelle: [{ text: 'Ein Trampolinspringer drückt das Tuch nach unten. Welches Kontenbild passt zur <b>tiefsten Einsenkung</b> (Nullniveau: tiefste Einsenkung)?', bild: B.icon('🤸', 'Trampolin'),
@@ -917,12 +920,12 @@ var AUFGABEN = (function () {
     fragen: [{ opt: ['innere Energie von Bremsen, Rädern, Schienen und Luft', 'Sie ist verschwunden.', 'Höhenenergie des Zuges'], fe: [null, 'Energie verschwindet nie. Was wird warm?', 'Der Zug bleibt auf gleicher Höhe.'] }],
     loes: 'Die Bewegungsenergie wird in innere Energie von Bremsen, Rädern, Schienen und Luft umgewandelt. Im System Zug + Schienen + Luft bleibt E<sub>ges</sub> konstant.' }], tipps: tippS }),
   { id: '2S21', teil: 2, stufe: 'S2', titel: 'Das Pendel wird müde',
-    zufall: function () { return { m: r(0.05, 0.2, 0.01), h: r(0.15, 0.3, 0.01) }; }, calc: function (p) { p.E0 = p.m * 9.81 * p.h; p.Ei = p.E0 / 2; },
-    bild: function (p) { return B.icon('🔑', 'm = ' + f(p.m * 1000, 0) + ' g, h₀ = ' + f(p.h * 100, 0) + ' cm'); },
-    text: function (p) { return 'Ein Schlüsselbund (' + f(p.m * 1000, 0) + ' g) startet ' + f(p.h * 100, 0) + ' cm über dem tiefsten Punkt. Nach 20 Schwingungen erreicht er nur noch die halbe Starthöhe. <b>Berechne</b>, wie viel Energie in innere Energie von Luft und Aufhängung umgewandelt wurde (E<sub>H</sub> = m · g · h, g = 9,81 m/s²).'; },
-    felder: [{ label: 'E<sub>i</sub>', unit: 'J', wert: function (p) { return p.Ei; }, fehler: [{ w: function (p) { return p.E0; }, t: 'Das ist die ganze Startenergie. Verloren ist nur die Hälfte.' }, { w: function (p) { return p.m * 1000 * 9.81 * p.h / 2; }, t: 'Masse in kg einsetzen: ' + 'g durch 1000.' }, { w: function (p) { return p.m * 9.81 * p.h * 100 / 2; }, t: 'Höhe in m einsetzen: cm durch 100.' }] }],
-    tipps: [function () { return 'Startenergie E<sub>H</sub> = m · g · h mit m in kg und h in m. Die Hälfte davon fehlt am Ende.'; }, function (p) { return 'E<sub>H</sub> = ' + Z.f(p.m, 3) + ' kg · 9,81 m/s² · ' + Z.f(p.h, 2) + ' m = ' + Z.s(p.E0, 3) + ' J.'; }],
-    loesung: function (p) { return 'Start: E<sub>H</sub> = ' + Z.s(p.E0, 3) + ' J. Halbe Höhe heißt halbe Höhenenergie, also wurden ' + Z.s(p.Ei, 3) + ' J in innere Energie umgewandelt (System Pendel + Luft + Aufhängung).'; } },
+    zufall: function () { return { m: r(0.05, 0.2, 0.01), h: r(0.15, 0.3, 0.01) }; }, calc: function (p) { p.E0 = Math.round(p.m * 9.81 * p.h * 100) / 100; p.Ei = p.E0 / 2; },
+    bild: function (p) { return B.icon('🔑', 'Start: E<sub>H</sub> = ' + f(p.E0, 2) + ' J, h₀ = ' + f(p.h * 100, 0) + ' cm'); },
+    text: function (p) { return 'Ein Schlüsselbund startet ' + f(p.h * 100, 0) + ' cm über dem tiefsten Punkt und hat dort die Höhenenergie ' + f(p.E0, 2) + ' J. Nach 20 Schwingungen erreicht er nur noch die halbe Starthöhe. <b>Berechne</b>, wie viel Energie in innere Energie von Luft und Aufhängung umgewandelt wurde.'; },
+    felder: [{ label: 'E<sub>i</sub>', unit: 'J', wert: function (p) { return p.Ei; }, fehler: [{ w: function (p) { return p.E0; }, t: 'Das ist die ganze Startenergie. Verloren ist nur die Hälfte.' }, { w: function (p) { return p.E0 / 4; }, t: 'Halbe Höhe heißt halbe Höhenenergie, nicht ein Viertel.' }, { w: function (p) { return p.E0 * 1000; }, t: 'Die Energie ist schon in Joule angegeben, nichts umrechnen.' }] }],
+    tipps: [function () { return 'Die Höhenenergie ist proportional zur Höhe. Wie groß ist sie nach den 20 Schwingungen?'; }, function () { return 'Am Ende hat der Schlüsselbund nur noch die Hälfte der Höhenenergie. Was ist aus der anderen Hälfte geworden?'; }],
+    loesung: function (p) { return 'Am Start: E<sub>H</sub> = ' + Z.f(p.E0, 2) + ' J. Halbe Höhe heißt halbe Höhenenergie, also wurden ' + Z.f(p.Ei, 3) + ' J in innere Energie umgewandelt (System Pendel + Luft + Aufhängung).'; } },
   MC({ id: '2S22', teil: 2, stufe: 'S2', titel: 'Der Schubs', faelle: [{ text: 'Beim Pendelversuch schubst jemand den Schlüsselbund, danach schwingt er höher als am Start. Widerspricht das dem Energieerhaltungsprinzip?', bild: B.icon('👉🔑', 'Schubs'),
     fragen: [{ opt: ['Nein. Das System „Pendel“ ist nicht abgeschlossen; mit der Person im System gilt die Erhaltung wieder.', 'Ja, hier entsteht Energie aus dem Nichts.', 'Ja, das Prinzip gilt nur ohne Reibung.'], fe: [null, 'Woher kommt die zusätzliche Energie? Aus der Hand.', 'Mit dem Schubs hat die Reibung nichts zu tun.'] }],
     loes: 'Kein Widerspruch: Durch den Schubs kommt Energie von außen hinzu. Nimmt man die Person mit ins System, sinkt ihre chemische Energie um genau den Betrag, um den die Pendelenergie steigt.' }], tipps: tippS }),
@@ -1117,6 +1120,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -1153,6 +1157,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -1180,6 +1185,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -1257,6 +1264,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -1436,5 +1447,28 @@ document.querySelectorAll('.werkzeug[data-wegfinder]').forEach(function(W){
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

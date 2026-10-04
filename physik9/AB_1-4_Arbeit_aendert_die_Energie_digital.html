@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -880,6 +883,12 @@ var AUFGABEN = (function () {
     ['Ein Sprinter beschleunigt aus dem Startblock.', '🏃', 'ja, positiv', 'Seine Bewegungsenergie nimmt zu (Kraft in Bewegungsrichtung): W &gt; 0.'],
     ['Ein Schüler „arbeitet“ zwei Stunden an seinem Referat.', '📝', 'nein', 'Das ist Alltagssprache: Es wirkt keine Kraft entlang eines Weges auf ein System.'],
     ['Ein Kran zieht eine Last nach oben.', '🏗️', 'ja, positiv', 'Die Höhenenergie der Last nimmt zu.']];
+  var PRUEF_HA = [   // eigene Sätze für die Hausaufgabe (04.10.: nicht dieselben wie in 3S11 und 3T1)
+    ['Eine Skifahrerin wird vom Schlepplift den Hang hinaufgezogen.', '⛷️', 'ja, positiv', 'Die Höhenenergie der Skifahrerin nimmt zu: W &gt; 0.'],
+    ['Du hältst eine Hantel 10 Sekunden lang still über dem Kopf.', '🏋️', 'nein', 'Die Hantel bewegt sich nicht: W = 0 J. Die Anstrengung ist Umwandlung im Muskel.'],
+    ['Ein Auto bremst auf nasser Straße bis zum Stillstand.', '🚗', 'ja, negativ', 'Die Bremskraft wirkt gegen die Bewegung, E<sub>kin</sub> nimmt ab: W &lt; 0.'],
+    ['Du schiebst eine Kiste mit gleichmäßiger Kraft über den Boden und beschleunigst sie dabei.', '📦', 'ja, positiv', 'Die Bewegungsenergie der Kiste nimmt zu (Kraft in Bewegungsrichtung): W &gt; 0.'],
+    ['Eine Apfelsine liegt den ganzen Tag auf dem Küchentisch.', '🍊', 'nein', 'Sie bewegt sich nicht und ihre Energie ändert sich nicht: W = 0 J.']];
   function pruefFall(x) { var o = ['nein', 'ja, positiv', 'ja, negativ']; var falsch = o.filter(function (y) { return y !== x[2]; });
     return { text: x[0] + ' Wird am Gegenstand Arbeit verrichtet? Wenn ja, mit welchem Vorzeichen?', bild: B.icon(x[1], ''),
       fragen: [{ opt: [x[2], falsch[0], falsch[1]], fe: [null, 'Prüffrage: Ändert sich die Gesamtenergie des Gegenstands? In welche Richtung?', 'Prüffrage: Ändert sich die Gesamtenergie des Gegenstands? In welche Richtung?'] }], loes: x[2].charAt(0).toUpperCase() + x[2].slice(1) + '. ' + x[3] }; }
@@ -903,7 +912,7 @@ var AUFGABEN = (function () {
     bild: function (p) { return B.kraftweg(F_ + ' = ' + p.F + ' N', x_ + ' = ' + Z.f(p.x, 1) + ' m'); },
     text: function (p) { return 'Eine Kiste wird mit ' + p.F + ' N über ' + Z.f(p.x, 1) + ' m geschoben. <b>Berechne</b> die Arbeit.'; },
     geruest: function (p) { return W_ + ' = ' + F_ + ' · ' + x_ + ' = ' + p.F + ' N · ' + Z.f(p.x, 1) + ' m = ____ J'; },
-    felder: [{ label: W_, unit: 'J', wert: function (p) { return p.W; } }],
+    felder: [{ label: W_, unit: 'J', wert: function (p) { return p.W; }, fehler: [{ w: function (p) { return p.F / p.x; }, t: 'W = F · Δx: Kraft mal Weg, nicht geteilt.' }] }],
     tipps: [tW[0], function () { return '1 N · 1 m = 1 J.'; }], loesung: function (p) { return W_ + ' = ' + f(p.W, 0) + ' J.'; } },
   { id: '1S12', teil: 1, stufe: 'S1', titel: 'Hubarbeit',
     zufall: function () { return { m: r(5, 30, 1), h: r(0.5, 3, 0.1) }; }, calc: function (p) { p.W = p.m * g * p.h; },
@@ -917,7 +926,7 @@ var AUFGABEN = (function () {
     bild: function (p) { return B.kraftweg(F_ + '<sub>R</sub> = ' + p.F + ' N', x_ + ' = ' + p.x + ' m', '🛼', true); },
     text: function (p) { return 'Eine Inlineskaterin rollt aus. Ihre Bewegungsenergie beträgt anfangs ' + p.E + ' J, die Reibungskraft ' + p.F + ' N. <b>Berechne</b> die Arbeit der Reibung auf den nächsten ' + p.x + ' m (mit Vorzeichen) und die verbleibende Bewegungsenergie.'; },
     felder: [{ label: W_, unit: 'J', exakt: true, wert: function (p) { return p.W; }, fehler: [{ w: function (p) { return -p.W; }, t: 'Die Reibung wirkt gegen die Bewegung: W ist negativ.' }] }, { label: 'E<sub>kin,Ende</sub>', unit: 'J', exakt: true, wert: function (p) { return p.R; }, fehler: [{ w: function (p) { return p.E - p.W; }, t: 'E<sub>Ende</sub> = E<sub>Anfang</sub> + W, und W ist negativ.' }] }],
-    tipps: [function () { return 'Vorzeichen zuerst: Reibung gegen die Bewegung ⇒ W &lt; 0.'; }, function (p) { return 'W = −' + p.F + ' N · ' + p.x + ' m; E<sub>Ende</sub> = ' + p.E + ' J + W.'; }], loesung: function (p) { return 'W = −' + p.F + ' N · ' + p.x + ' m = ' + p.W + ' J; E<sub>kin,Ende</sub> = ' + p.E + ' J − ' + (-p.W) + ' J = ' + p.R + ' J.'; } },
+    tipps: [function () { return 'Vorzeichen zuerst: Reibung gegen die Bewegung ⇒ W &lt; 0.'; }, function (p) { return 'W = −' + p.F + ' N · ' + p.x + ' m; E<sub>Ende</sub> = ' + p.E + ' J + W.'; }], loesung: function (p) { return 'W = −' + p.F + ' N · ' + p.x + ' m = ' + String(p.W).replace('-', '−') + ' J; E<sub>kin,Ende</sub> = ' + p.E + ' J − ' + (-p.W) + ' J = ' + p.R + ' J.'; } },
   { id: '1S22', teil: 1, stufe: 'S2', titel: 'Über die Rampe',
     zufall: function () { return { m: r(40, 120, 10), h: r(0.5, 1.2, 0.1), L: r(3, 6, 0.5) }; }, calc: function (p) { p.W = p.m * g * p.h; p.F = p.W / p.L; },
     bild: function (p) { return B.icon('🛒↗️', 'Rampe ' + Z.f(p.L, 1) + ' m lang, ' + Z.f(p.h, 1) + ' m hoch'); },
@@ -963,7 +972,7 @@ var AUFGABEN = (function () {
     felder: [{ label: h_, unit: 'm', wert: function (p) { return p.h; }, fehler: [{ w: function (p) { return p.W / (p.m * g); }, t: 'kJ erst in J (mal 1000).' }] }],
     tipps: [function () { return 'Hubarbeit: W = m g Δh ⇒ Δh = W : (m g).'; }, function (p) { return p.W + ' kJ = ' + f(p.W * 1000, 0) + ' J.'; }], loesung: function (p) { return h_ + ' = ' + s(p.h, 3) + ' m.'; } },
   { id: '2S21', teil: 2, stufe: 'S2', titel: 'Der Bobstart',
-    zufall: function () { return { E: r(8, 20, 1), x: r(12, 25, 1), v: r(30, 50, 5) }; }, calc: function (p) { p.F = p.E * 1000 / p.x; p.m = 2 * p.E * 1000 / qu(p.v / 3.6); },
+    zufall: function () { return { E: r(14, 20, 1), x: r(12, 25, 1), v: r(35, 45, 5) }; }, calc: function (p) { p.F = p.E * 1000 / p.x; p.m = 2 * p.E * 1000 / qu(p.v / 3.6); },   // Bob samt Athleten 180 bis 480 kg
     bild: function (p) { return B.kraftweg('F = ?', 'Δx = ' + p.x + ' m', '🛷'); },
     text: function (p) { return 'Ein Bob wird über ' + p.x + ' m angeschoben und gewinnt dabei ' + p.E + ' kJ Bewegungsenergie. Am Ende fährt er ' + p.v + ' km/h. <b>Berechne</b> die Schubkraft und die Masse von Bob und Athleten.'; },
     felder: [{ label: F_, unit: 'N', wert: function (p) { return p.F; }, fehler: [{ w: function (p) { return p.E / p.x; }, t: 'kJ erst in J.' }] }, { label: m_, unit: 'kg', wert: function (p) { return p.m; }, fehler: [{ w: function (p) { return 2 * p.E * 1000 / qu(p.v); }, t: 'km/h erst durch 3,6.' }] }],
@@ -1021,15 +1030,15 @@ var AUFGABEN = (function () {
     zufall: function () { return { m: r(4, 10, 0.5), h: r(3, 12, 0.5) }; }, calc: function (p) { p.W = p.m * g * p.h; },
     bild: function (p) { return B.treppe(m_ + ' = ' + Z.f(p.m, 1) + ' kg', h_ + ' = ' + Z.f(p.h, 1) + ' m'); },
     text: function (p) { return 'Du trägst deine Schultasche (' + Z.f(p.m, 1) + ' kg) vom Erdgeschoss ins Klassenzimmer, ' + Z.f(p.h, 1) + ' m höher. <b>Berechne</b> die an der Tasche verrichtete Arbeit.'; },
-    felder: [{ label: W_, unit: 'J', wert: function (p) { return p.W; } }],
+    felder: [{ label: W_, unit: 'J', wert: function (p) { return p.W; }, fehler: [{ w: function (p) { return p.m * p.h; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }],
     tipps: [tW[0], function (p) { return Z.f(p.m, 1) + ' · 9,81 · ' + Z.f(p.h, 1); }], loesung: function (p) { return W_ + ' = ' + s(p.W, 3) + ' J.'; } },
   { id: 'HA11', teil: 0, stufe: 'HA', startFest: true, titel: 'Hausaufgabe 11 · Umstellen', fest: { W: 1200, F: 150 },
     zufall: function () { return { W: r(500, 3000, 100), F: r(50, 300, 10) }; }, calc: function (p) { p.x = p.W / p.F; },
     bild: function (p) { return B.kraftweg(F_ + ' = ' + p.F + ' N', x_ + ' = ?'); },
     text: function (p) { return 'Mit einer Kraft von ' + p.F + ' N werden ' + f(p.W, 0) + ' J Arbeit verrichtet. <b>Berechne</b> den Weg.'; },
-    felder: [{ label: x_, unit: 'm', wert: function (p) { return p.x; } }],
+    felder: [{ label: x_, unit: 'm', wert: function (p) { return p.x; }, fehler: [{ w: function (p) { return p.W * p.F; }, t: 'Aus W = F · Δx folgt Δx = W : F, also teilen.' }, { w: function (p) { return p.F / p.W; }, t: 'Aus W = F · Δx folgt Δx = W : F, nicht F : W.' }] }],
     tipps: [function () { return 'Δx = W : F.'; }, function (p) { return f(p.W, 0) + ' : ' + p.F; }], loesung: function (p) { return x_ + ' = ' + s(p.x, 3) + ' m.'; } },
-  MC({ id: 'HA12', teil: 0, stufe: 'HA', startFest: true, titel: 'Hausaufgabe 12 · Alltagssätze', mischen: true, faelle: PRUEF.map(pruefFall), tipps: tP })
+  MC({ id: 'HA12', teil: 0, stufe: 'HA', startFest: true, titel: 'Hausaufgabe 12 · Alltagssätze', mischen: true, faelle: PRUEF_HA.map(pruefFall), tipps: tP })
   ];
 })();
 
@@ -1146,6 +1155,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -1182,6 +1192,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -1209,6 +1220,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -1286,6 +1299,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -1465,5 +1482,28 @@ document.querySelectorAll('.werkzeug[data-wegfinder]').forEach(function(W){
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

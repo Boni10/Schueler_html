@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -1519,6 +1522,7 @@ var HAUSI = (function () {
    Pflicht = Übungen 1 bis 6 des Papier-ABs (AB_M6b_1-4_Vergleichen). */
 var AUFGABEN = (function () {
   var M = M6, A = M.A, F = M.F, FS = M.FS, ri = M.ri, pick = M.pick, fb = M.fb, fz = M.fz, fw = M.fw;
+  function pl(n, e, m) { return n + ' ' + (n === 1 ? e : m); }   // Einzahl bei 1 (Qualitätscheck 04.10.: „1 Teile“)
   var ZEI = ['<', '>', '='];
   function vgl(a, b) { var d = a[0] * b[1] - b[0] * a[1]; return d < 0 ? 0 : (d > 0 ? 1 : 2); }
   function zeichen(label, a, b, fe) { var f = fw(label, ZEI, function (p) { return vgl(a(p), b(p)); }, fe || ['', '', 'Die beiden Brüche sind nicht gleich groß.']); f.fest = true; return f; }
@@ -1561,7 +1565,7 @@ var AUFGABEN = (function () {
     text: function (p) { return 'Für wie viele natürliche Zahlen x gilt ' + F(1, p.n) + ' &lt; ' + FS('x', p.n) + ' &lt; ' + F(p.a, p.n) + ' und zusätzlich ' + FS(p.a, 'x') + ' &gt; ' + F(p.a, p.n) + '? <b>Gib</b> die Anzahl <b>an</b>.'; },
     felder: [fz('Anzahl', function (p) { var c = 0; for (var x = 2; x < p.a; x++) if (x < p.n) c++; return c; })],
     tipps: ['Erste Bedingung: gleicher Nenner, also 1 &lt; x &lt; a.', 'Zweite Bedingung: gleicher Zähler, also x &lt; Nenner. Das gilt hier schon.'],
-    loesung: function (p) { return 'x = 2, …, ' + (p.a - 1) + ': das sind ' + (p.a - 2) + ' Zahlen.'; } }),
+    loesung: function (p) { return 'x = 2, …, ' + (p.a - 1) + ': das sind ' + (p.a - 2) + ((p.a - 2) === 1 ? ' Zahl.' : ' Zahlen.'); } }),
   A({ id: '1T1', teil: 1, stufe: 'T', niveau: 'S1', serie: 5, titel: 'Serie: &lt; oder &gt;?',
     zufall: function () { var gl = Math.random() < .5, a = ri(1, 12), b = ri(2, 15), c = ri(1, 12); while (c === a) c = ri(1, 12); return gl ? { l: [a, b], r: [c, b] } : { l: [a, b + 1], r: [a, b + 1 + ri(1, 6)] }; },
     text: function (p) { return F(p.l[0], p.l[1]) + ' □ ' + F(p.r[0], p.r[1]); },
@@ -1662,7 +1666,7 @@ var AUFGABEN = (function () {
   A({ id: '1S13', teil: 1, stufe: 'S1', titel: 'Zwei Pizzen',
     zufall: function () { var n = pick([4, 5, 6, 8, 10]), a = ri(1, n - 1), b = ri(1, n - 1); while (b === a) b = ri(1, n - 1); return { n: n, a: a, b: b }; },
     bild: function (p) { return B7.paar(B6.kreis(p.a, p.n), B6.kreis(p.b, p.n), 'Lea', 'Tom'); },
-    text: function (p) { return 'Lea isst ' + p.a + ' Stücke einer Pizza, Tom ' + p.b + ' Stücke einer gleich großen Pizza. Beide Pizzen sind in ' + p.n + ' gleiche Stücke geschnitten. <b>Wer</b> hat mehr gegessen? Setze das Zeichen für ' + F(p.a, p.n) + ' □ ' + F(p.b, p.n) + '.'; },
+    text: function (p) { return 'Lea isst ' + pl(p.a, 'Stück', 'Stücke') + ' einer Pizza, Tom ' + pl(p.b, 'Stück', 'Stücke') + ' einer gleich großen Pizza. Beide Pizzen sind in ' + p.n + ' gleiche Stücke geschnitten. <b>Wer</b> hat mehr gegessen? Setze das Zeichen für ' + F(p.a, p.n) + ' □ ' + F(p.b, p.n) + '.'; },
     felder: [fw('Mehr gegessen hat', ['Lea', 'Tom'], function (p) { return p.a > p.b ? 0 : 1; }), zeichen('Zeichen', function (p) { return [p.a, p.n]; }, function (p) { return [p.b, p.n]; })], tipps: t1, loesung: function (p) { return F(p.a, p.n) + (p.a < p.b ? ' &lt; ' : ' &gt; ') + F(p.b, p.n) + '.'; } }),
   A({ id: '1S14', teil: 1, stufe: 'S1', titel: 'Zwei Punkte auf der Zahlengeraden',
     zufall: function () { var n = pick([4, 5, 6, 8]), a = ri(1, n - 1), b = ri(1, n - 1); while (b === a) b = ri(1, n - 1); return { n: n, a: a, b: b }; },
@@ -1672,7 +1676,7 @@ var AUFGABEN = (function () {
   A({ id: '1S15', teil: 1, stufe: 'S1', titel: 'Gleicher Zähler (Balken)',
     zufall: function () { var z = ri(1, 4), n1 = ri(z + 2, 10), n2 = ri(z + 2, 10); while (n2 === n1) n2 = ri(z + 2, 10); return { z: z, n1: n1, n2: n2 }; },
     bild: function (p) { return B6.balken([[p.z, p.n1, 'A'], [p.z, p.n2, 'B', '#f6c9b0']]); },
-    text: function (p) { return 'Beide Balken zeigen ' + p.z + ' gefärbte Teile, aber A ist in ' + p.n1 + ' und B in ' + p.n2 + ' Teile geteilt. Setze das Zeichen für ' + F(p.z, p.n1) + ' □ ' + F(p.z, p.n2) + '.'; },
+    text: function (p) { return 'Beide Balken zeigen ' + pl(p.z, 'gefärbtes Teil', 'gefärbte Teile') + ', aber A ist in ' + p.n1 + ' und B in ' + p.n2 + ' Teile geteilt. Setze das Zeichen für ' + F(p.z, p.n1) + ' □ ' + F(p.z, p.n2) + '.'; },
     felder: [zeichen('Zeichen', function (p) { return [p.z, p.n1]; }, function (p) { return [p.z, p.n2]; }, ['Bei gleichem Zähler: Welche Teile sind größer?', 'Bei gleichem Zähler: Welche Teile sind größer?', ''])], tipps: t1, loesung: function (p) { return 'Gleicher Zähler: je kleiner der Nenner, desto größer der Bruch: ' + F(p.z, p.n1) + (p.n1 > p.n2 ? ' &lt; ' : ' &gt; ') + F(p.z, p.n2) + '.'; } }),
   A({ id: '1S22', teil: 1, stufe: 'S2', titel: 'Wer bekommt mehr?',
     zufall: function () { var a = ri(3, 8), b = ri(3, 8); while (a === b) b = ri(3, 8); return { a: a, b: b }; },
@@ -1712,11 +1716,11 @@ var AUFGABEN = (function () {
   A({ id: '1S42', teil: 1, stufe: 'S4', titel: 'Wie viele Nenner passen?',
     zufall: function () { var z = ri(2, 5), n1 = ri(8, 16), n2 = ri(z + 2, n1 - 4); return { z: z, n1: n1, n2: n2 }; },
     text: function (p) { return 'Für wie viele natürliche Zahlen n gilt ' + F(p.z, p.n1) + ' &lt; ' + F(p.z, 'n') + ' &lt; ' + F(p.z, p.n2) + '? <b>Gib</b> die Anzahl <b>an</b>.'; },
-    felder: [fz('Anzahl', function (p) { return p.n1 - p.n2 - 1; })], tipps: ['Gleicher Zähler: Der Nenner muss zwischen ' + 'den beiden Nennern liegen (aber umgekehrt sortiert).', 'Zähle die ganzen Zahlen zwischen den beiden Nennern.'], loesung: function (p) { return 'n = ' + (p.n2 + 1) + ', …, ' + (p.n1 - 1) + ': ' + (p.n1 - p.n2 - 1) + ' Zahlen.'; } }),
+    felder: [fz('Anzahl', function (p) { return p.n1 - p.n2 - 1; })], tipps: ['Gleicher Zähler: Der Nenner muss zwischen ' + 'den beiden Nennern liegen (aber umgekehrt sortiert).', 'Zähle die ganzen Zahlen zwischen den beiden Nennern.'], loesung: function (p) { return 'n = ' + (p.n2 + 1) + ', …, ' + (p.n1 - 1) + ': ' + pl(p.n1 - p.n2 - 1, 'Zahl', 'Zahlen') + '.'; } }),
   A({ id: '1S43', teil: 1, stufe: 'S4', titel: 'Wie viele Zähler passen?',
     zufall: function () { var n = ri(7, 16), a = ri(1, 3), b = ri(a + 4, n + 3); return { n: n, a: a, b: b }; },
     text: function (p) { return 'Für wie viele natürliche Zahlen x gilt ' + F(p.a, p.n) + ' &lt; ' + FS('x', p.n) + ' &lt; ' + F(p.b, p.n) + '? <b>Gib</b> die Anzahl <b>an</b>.'; },
-    felder: [fz('Anzahl', function (p) { return p.b - p.a - 1; })], tipps: ['Gleicher Nenner: Es kommt nur auf die Zähler an.', 'Zähle die ganzen Zahlen zwischen ' + 'den beiden Zählern.'], loesung: function (p) { return 'x = ' + (p.a + 1) + ', …, ' + (p.b - 1) + ': ' + (p.b - p.a - 1) + ' Zahlen.'; } }),
+    felder: [fz('Anzahl', function (p) { return p.b - p.a - 1; })], tipps: ['Gleicher Nenner: Es kommt nur auf die Zähler an.', 'Zähle die ganzen Zahlen zwischen ' + 'den beiden Zählern.'], loesung: function (p) { return 'x = ' + (p.a + 1) + ', …, ' + (p.b - 1) + ': ' + pl(p.b - p.a - 1, 'Zahl', 'Zahlen') + '.'; } }),
   A({ id: '1T2', teil: 1, stufe: 'T', niveau: 'S1', serie: 5, titel: 'Serie: Balken vergleichen',
     zufall: function () { var n = ri(4, 12), a = ri(1, n - 1), b = ri(1, n - 1); while (b === a) b = ri(1, n - 1); return { n: n, a: a, b: b }; }, bild: function (p) { return B6.balken([[p.a, p.n, 'A'], [p.b, p.n, 'B', '#f6c9b0']]); },
     text: 'A □ B', felder: [zeichen('Zeichen', function (p) { return [p.a, p.n]; }, function (p) { return [p.b, p.n]; })], tipps: t1, loesung: function (p) { return p.a < p.b ? '&lt;' : '&gt;'; } }),
@@ -1807,7 +1811,7 @@ var AUFGABEN = (function () {
     zufall: function () { var n = ri(3, 12), z = ri(1, n - 1); while (2 * z === n) z = ri(1, n - 1); return { n: n, z: z }; },
     bild: function (p) { return B6.balken([[p.z, p.n, p.z + '/' + p.n], [p.n - p.z, p.n, '?', '#f3c1c8']], { w: 220 }); },
     text: function (p) { return 'Der Balken zeigt ' + F(p.z, p.n) + '. <b>Welcher</b> Bruch fehlt noch bis zu einem Ganzen?'; },
-    felder: [fb('fehlt', function (p) { return M.K(p.n - p.z, p.n); }, 'gekuerzt', [{ w: function (p) { return [p.z, p.n]; }, t: 'Das ist der gefärbte Teil. Gesucht ist der Rest.' }])], tipps: ['Ein Ganzes sind ' + 'n von n Teilen.', 'Der Rest hat den Zähler n minus z.'], loesung: function (p) { return F(p.n, p.n) + ' − ' + F(p.z, p.n) + ' = ' + F(p.n - p.z, p.n) + '.'; } }),
+    felder: [fb('fehlt', function (p) { return M.K(p.n - p.z, p.n); }, 'gekuerzt', [{ w: function (p) { return [p.z, p.n]; }, t: 'Das ist der gefärbte Teil. Gesucht ist der Rest.' }])], tipps: ['Ein Ganzes sind ' + 'n von n Teilen.', 'Der Rest hat den Zähler n minus z.'], loesung: function (p) { return 'Ein Ganzes sind ' + p.n + ' von ' + p.n + ' Teilen, ' + (p.z === 1 ? '1 ist gefärbt' : p.z + ' sind gefärbt') + ', also ' + (p.n - p.z === 1 ? 'fehlt 1 Teil' : 'fehlen ' + (p.n - p.z) + ' Teile') + ': ' + F(p.n - p.z, p.n) + '.'; } }),
   A({ id: '3S14', teil: 3, stufe: 'S1', titel: 'Welcher Bruch ist größer?',
     zufall: function () { var n = ri(3, 12), z = ri(1, n - 1), m = ri(3, 12), y = m + ri(1, m); return { n: n, z: z, m: m, y: y }; },
     bild: function (p) { return B6.zg({ von: 0, bis: 2, teile: 1, px: 130, punkte: [{ x: p.z / p.n, lab: 'A' }, { x: p.y / p.m, lab: 'B', farbe: '#4f7fc4' }], fmt: function (x) { return String(x); } }); },
@@ -1826,7 +1830,7 @@ var AUFGABEN = (function () {
     zufall: function () { var n = ri(4, 9), a = ri(1, Math.floor((n - 1) / 2)), m = ri(4, 9), b = Math.floor(m / 2) + ri(1, Math.max(1, m - Math.floor(m / 2) - 1)); return { n: n, a: a, m: m, b: Math.min(b, m - 1) }; },
     calc: function (p) { if (2 * p.a >= p.n) p.a = 1; if (2 * p.b <= p.m) p.b = p.m - 1; },
     bild: function (p) { return B7.paar(B6.kreis(p.a, p.n), B6.kreis(p.b, p.m), 'Pizza', 'Torte'); },
-    text: function (p) { return 'Von der Pizza (in ' + p.n + ' Stücke geteilt) wurden ' + p.a + ' Stücke gegessen, von der Torte (in ' + p.m + ' Stücke geteilt) ' + p.b + ' Stücke. <b>Wovon</b> wurde mehr gegessen? Nutze ½ als Vergleichszahl.'; },
+    text: function (p) { return 'Von der Pizza (in ' + p.n + ' Stücke geteilt) wurden ' + pl(p.a, 'Stück', 'Stücke') + ' gegessen, von der Torte (in ' + p.m + ' Stücke geteilt) ' + pl(p.b, 'Stück', 'Stücke') + '. <b>Wovon</b> wurde mehr gegessen? Nutze ½ als Vergleichszahl.'; },
     felder: [fw('Mehr gegessen wurde von der', ['Torte', 'Pizza'], function () { return 0; }, ['', 'Die Pizza wurde weniger als zur Hälfte gegessen, die Torte mehr als zur Hälfte.'])], tipps: t3, loesung: function (p) { return F(p.a, p.n) + ' &lt; ½ &lt; ' + F(p.b, p.m) + '.'; } }),
   A({ id: '3S32', teil: 3, stufe: 'S3', titel: 'Begründen mit der Vergleichszahl',
     zufall: function () { return pick([{ a: 3, n: 8, b: 5, m: 9 }, { a: 2, n: 5, b: 4, m: 7 }, { a: 4, n: 11, b: 6, m: 10 }, { a: 3, n: 7, b: 3, m: 4 }]); },
@@ -1970,6 +1974,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -2006,6 +2011,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -2033,6 +2039,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -2110,6 +2118,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -2252,5 +2264,28 @@ var AUFGABEN = (function () {
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

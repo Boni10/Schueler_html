@@ -145,6 +145,9 @@ details.nachlesen .heft,details.nachlesen .vorgehen{margin-top:16px}
 .hausi-f{color:#b3402a;font-size:16px}
 .knopf-leise{font:inherit;font-size:15px;margin-top:10px;padding:6px 14px;border-radius:999px;border:1.5px solid #6a9bd8;background:transparent;color:#2f5f9e;cursor:pointer}
 .hint{font-size:15px;color:var(--muted)}
+/* iPad: Tippflächen mindestens 40 px (Qualitätscheck 04.10.) */
+.knopf-leise,.trotzdem,#code-kopieren{min-height:44px}
+details.nachlesen summary,details.training summary{padding:8px 0}
 /* Pflicht */
 .pflicht{background:var(--p-bg);border:3px solid var(--p-bd);border-radius:22px;padding:14px 14px 6px;margin:22px 0 0}
 .bereich-kopf{display:flex;align-items:center;gap:12px;margin:0 4px 6px}
@@ -261,7 +264,7 @@ details.training summary{cursor:pointer;font-family:var(--hand);font-size:24px;c
 .eing.wahl{flex-direction:column;align-items:flex-start;gap:6px;width:100%}
 .eing.wahl label{font-style:normal}
 .optionen{display:flex;flex-wrap:wrap;gap:8px}
-.optionen button{font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.optionen button{min-width:44px;min-height:44px;font:inherit;font-size:16px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fffaf0;color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
 .optionen button.an{border-color:#6a9bd8;background:#e4eefb}
 .optionen button.richtig{border-color:#63b58a;background:var(--ok-bg)}
 .optionen button.falsch{border-color:#d88a80;background:var(--no-bg)}
@@ -862,9 +865,10 @@ var AUFGABEN = (function () {
   var GER = [['Wasserkocher', '🫖', 2000, 'W'], ['Föhn', '💨', 1800, 'W'], ['LED-Lampe', '💡', 8, 'W'], ['Laptop', '💻', 60, 'W'], ['Heizlüfter', '🔥', 2000, 'W'], ['Fernseher', '📺', 100, 'W'], ['Staubsauger', '🧹', 900, 'W']];
   var GR = [['F', 'N', 'Kraft'], ['W', 'J', 'Arbeit'], ['E', 'J', 'Energie'], ['P', 'W', 'Leistung']];
   var ANG = [['„Der Motor schafft 150 kW.“', 'Leistung'], ['„Der Akku speichert 500 Wh.“', 'Energie'], ['„Die Kiste wiegt 200 N.“', 'Kraft'], ['„Beim Hochtragen wurden 600 J verrichtet.“', 'Arbeit'], ['„Stromverbrauch im Jahr: 3200 kWh“', 'Energie'], ['„Der Staubsauger hat 900 W.“', 'Leistung'], ['„Die Seilspannung beträgt 1,2 kN.“', 'Kraft']];
+  var ANG_HA = [['„Das Ladegerät hat 20 W.“', 'Leistung'], ['„Die Powerbank speichert 40 Wh.“', 'Energie'], ['„Der Hubmagnet hält mit 400 N.“', 'Kraft'], ['„Beim Schieben wurden 1,5 kJ verrichtet.“', 'Arbeit'], ['„Die Heizung hat 12 kW.“', 'Leistung'], ['„Im Tank stecken 1,8 GJ.“', 'Energie']];   // eigene Angaben für die Hausaufgabe (04.10.: nicht dieselben wie in 3S11 und 3T1)
   function angFall(x) { var o = ['Kraft', 'Arbeit', 'Energie', 'Leistung'], rest = o.filter(function (y) { return y !== x[1]; });
     return { text: 'Welche Größe steckt in der Angabe ' + x[0] + '?', bild: B.icon('🏷️', ''), fragen: [{ opt: [x[1]].concat(rest), fe: [null, 'Schau auf die Einheit: N, J, Wh/kWh oder W?', 'Schau auf die Einheit: N, J, Wh/kWh oder W?', 'Schau auf die Einheit: N, J, Wh/kWh oder W?'] }], loes: x[0] + ' ist eine Angabe der ' + x[1] + '.' }; }
-  var tG = ['N = Kraft · J = Energie oder Arbeit · W = Leistung · Wh und kWh = Energie.', 'Leistung ist Energie pro Zeit: wie schnell etwas umgesetzt wird.'];
+  var tG = ['Schau in den Merkkasten „Die vier Größen“: Welche Einheit gehört zu welcher Größe?', 'N = Kraft · J = Energie oder Arbeit · W = Leistung · Wh und kWh = Energie. Leistung ist Energie pro Zeit: wie schnell etwas umgesetzt wird.'];
   return [
   // =========================================================== TEIL 1
   { id: '1P1', teil: 1, stufe: 'P', papier: true, titel: 'Übung 1 · Die Pumpe', fest: { m: 150, h: 4, t: 30 },
@@ -891,7 +895,7 @@ var AUFGABEN = (function () {
     bild: function (p) { return B.hoehe(m_ + ' = ' + p.m + ' kg, ' + t_ + ' = ' + p.t + ' s', h_ + ' = ' + p.h + ' m', '🧗'); },
     text: function (p) { return 'Ein Kletterer (' + p.m + ' kg) steigt eine ' + p.h + ' m hohe Wand in ' + p.t + ' s hoch. <b>Berechne</b> seine Leistung.'; },
     geruest: function (p) { return E_ + ' = ' + m_ + ' · g · ' + h_ + ' = ____ J; ' + P_ + ' = ' + E_ + ' : ' + p.t + ' s = ____ W'; },
-    felder: [{ label: E_, unit: 'J', wert: function (p) { return p.E; } }, { label: P_, unit: 'W', wert: function (p) { return p.P; } }],
+    felder: [{ label: E_, unit: 'J', wert: function (p) { return p.E; }, fehler: [{ w: function (p) { return p.m * p.h; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }, { label: P_, unit: 'W', wert: function (p) { return p.P; }, fehler: [{ w: function (p) { return p.E; }, t: 'Das ist die Energie. Noch durch die Zeit teilen.' }, { w: function (p) { return p.m * p.h / p.t; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }],
     tipps: [tP1[0], function (p) { return p.m + ' · 9,81 · ' + p.h; }], loesung: function (p) { return E_ + ' = ' + s(p.E, 3) + ' J; ' + P_ + ' = ' + s(p.P, 3) + ' W.'; } },
   { id: '1S21', teil: 1, stufe: 'S2', titel: 'Die Kugelstoßerin',
     zufall: function () { return { m: pick([3, 4, 5, 7.26]), v: r(10, 14, 0.5), t: r(0.6, 1.2, 0.1) }; }, calc: function (p) { p.E = 0.5 * p.m * qu(p.v); p.P = p.E / p.t; },
@@ -910,7 +914,7 @@ var AUFGABEN = (function () {
     calc: function (p) { p.P1 = p.m1 * g * p.h / p.t1; p.P2 = p.m2 * g * p.h / p.t2; if (Math.abs(p.P1 - p.P2) < 0.04 * p.P1) { p.t2 += 0.8; p.P2 = p.m2 * g * p.h / p.t2; } p.mehr = p.P2 > p.P1 ? 1 : 0; },
     bild: function (p) { return B.treppe('Emma ' + p.m1 + ' kg, ' + Z.f(p.t1, 1) + ' s', h_ + ' = ' + Z.f(p.h, 1) + ' m', 'Jonas ' + p.m2 + ' kg, ' + Z.f(p.t2, 1) + ' s'); },
     text: function (p) { return 'Emma (' + p.m1 + ' kg) läuft ein Stockwerk (' + Z.f(p.h, 1) + ' m) in ' + Z.f(p.t1, 1) + ' s hoch, Jonas (' + p.m2 + ' kg) braucht ' + Z.f(p.t2, 1) + ' s. <b>Berechne</b> beide Leistungen. Wer leistet mehr?'; },
-    felder: [{ label: 'P<sub>Emma</sub>', unit: 'W', wert: function (p) { return p.P1; } }, { label: 'P<sub>Jonas</sub>', unit: 'W', wert: function (p) { return p.P2; } }, { typ: 'wahl', label: 'Mehr leistet', optionen: ['Emma', 'Jonas'], richtig: function (p) { return p.mehr; } }],
+    felder: [{ label: 'P<sub>Emma</sub>', unit: 'W', wert: function (p) { return p.P1; }, fehler: [{ w: function (p) { return p.m1 * g * p.h; }, t: 'Das ist die Energie. Noch durch die Zeit teilen.' }, { w: function (p) { return p.m1 * p.h / p.t1; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }, { label: 'P<sub>Jonas</sub>', unit: 'W', wert: function (p) { return p.P2; }, fehler: [{ w: function (p) { return p.m2 * g * p.h; }, t: 'Das ist die Energie. Noch durch die Zeit teilen.' }, { w: function (p) { return p.m2 * p.h / p.t2; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }, { typ: 'wahl', label: 'Mehr leistet', optionen: ['Emma', 'Jonas'], richtig: function (p) { return p.mehr; } }],
     tipps: [function () { return 'Für jede Person: P = m · g · Δh : Δt.'; }, function () { return 'Schneller heißt nicht automatisch mehr Leistung: Die Masse zählt mit.'; }], loesung: function (p) { return 'Emma: ' + s(p.P1, 3) + ' W, Jonas: ' + s(p.P2, 3) + ' W. Mehr leistet ' + (p.mehr ? 'Jonas' : 'Emma') + '.'; } },
   { id: '1S32', teil: 1, stufe: 'S3', titel: 'Der Aufzug und sein Motor',
     zufall: function () { return { m: r(400, 700, 20), h: r(10, 20, 1), t: r(8, 14, 1), Pm: r(10, 14, 1) }; }, calc: function (p) { p.P = p.m * g * p.h / p.t; if (p.P / 1000 > 0.9 * p.Pm) p.Pm = Math.ceil(p.P / 1000 / 0.8); p.a = p.P / (p.Pm * 1000) * 100; },
@@ -922,7 +926,7 @@ var AUFGABEN = (function () {
     zufall: function () { return { m: r(20, 200, 10), h: r(1, 10, 0.5), t: r(2, 30, 1) }; }, calc: function (p) { p.P = p.m * g * p.h / p.t; },
     bild: function (p) { return B.hoehe(p.m + ' kg, ' + p.t + ' s', Z.f(p.h, 1) + ' m'); },
     text: function (p) { return p.m + ' kg werden in ' + p.t + ' s um ' + Z.f(p.h, 1) + ' m gehoben. P = ? (in W)'; },
-    felder: [{ label: P_, unit: 'W', wert: function (p) { return p.P; } }],
+    felder: [{ label: P_, unit: 'W', wert: function (p) { return p.P; }, fehler: [{ w: function (p) { return p.m * g * p.h; }, t: 'Das ist die Energie. Noch durch die Zeit teilen.' }, { w: function (p) { return p.m * p.h / p.t; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }],
     tipps: [tP1[0], function () { return 'g = 9,81 m/s².'; }], loesung: function (p) { return P_ + ' = ' + s(p.P, 3) + ' W.'; } },
 
   // =========================================================== TEIL 2: Umkehraufgaben und kWh
@@ -946,24 +950,24 @@ var AUFGABEN = (function () {
     geruest: function (p) { return t_ + ' = ' + E_ + ' : ' + P_ + ' = ' + f(p.E * 1000, 0) + ' J : ' + p.P + ' W = ____ s'; },
     felder: [{ label: t_, unit: 's', wert: function (p) { return p.t; }, fehler: [{ w: function (p) { return p.E / p.P; }, t: 'kJ erst in J.' }] }],
     tipps: [function () { return t_ + ' = ' + E_ + ' : ' + P_ + '.'; }, function (p) { return p.E + ' kJ = ' + f(p.E * 1000, 0) + ' J.'; }], loesung: function (p) { return t_ + ' = ' + s(p.t, 3) + ' s.'; } },
-  { id: '2S21', teil: 2, stufe: 'S2', titel: 'Wasserkocher in kWh',
-    zufall: function () { return { P: r(1.6, 2.4, 0.2), t: r(3, 6, 0.5) }; }, calc: function (p) { p.kJ = p.P * 1000 * p.t * 60 / 1000; p.kWh = p.P * p.t / 60; },
-    bild: function (p) { return B.geraet('🫖', P_ + ' = ' + Z.f(p.P, 1) + ' kW', t_ + ' = ' + Z.f(p.t, 1) + ' min'); },
-    text: function (p) { return 'Ein Wasserkocher (' + Z.f(p.P, 1) + ' kW) läuft ' + Z.f(p.t, 1) + ' min. <b>Berechne</b> die Energie in kJ und in kWh.'; },
+  { id: '2S21', teil: 2, stufe: 'S2', titel: 'Backofen in kWh',
+    zufall: function () { return { P: r(2.0, 3.0, 0.2), t: r(10, 25, 1) }; }, calc: function (p) { p.kJ = p.P * 1000 * p.t * 60 / 1000; p.kWh = p.P * p.t / 60; },
+    bild: function (p) { return B.geraet('🍞', P_ + ' = ' + Z.f(p.P, 1) + ' kW', t_ + ' = ' + Z.f(p.t, 1) + ' min'); },
+    text: function (p) { return 'Ein Backofen (' + Z.f(p.P, 1) + ' kW) heizt ' + Z.f(p.t, 0) + ' min lang. <b>Berechne</b> die Energie in kJ und in kWh.'; },
     felder: [{ label: E_, unit: 'kJ', wert: function (p) { return p.kJ; }, fehler: [{ w: function (p) { return p.P * p.t; }, t: 'Minuten in Sekunden umrechnen.' }] }, { label: E_, unit: 'kWh', wert: function (p) { return p.kWh; }, fehler: [{ w: function (p) { return p.P * p.t; }, t: 'Minuten in Stunden: durch 60.' }] }],
     tipps: [function () { return 'kJ: kW · s. kWh: kW · h.'; }, function (p) { return Z.f(p.t, 1) + ' min = ' + f(p.t * 60, 0) + ' s = ' + Z.f(p.t / 60, 3) + ' h.'; }], loesung: function (p) { return E_ + ' = ' + s(p.kJ, 3) + ' kJ = ' + s(p.kWh, 2) + ' kWh.'; } },
-  { id: '2S22', teil: 2, stufe: 'S2', titel: 'Wie hoch fährt der Aufzug?',
+  { id: '2S22', teil: 2, stufe: 'S2', titel: 'Wie hoch zieht die Seilwinde?',
     zufall: function () { return { P: r(4, 8, 0.5), t: r(8, 16, 1), m: r(500, 900, 50) }; }, calc: function (p) { p.h = p.P * 1000 * p.t / (p.m * g); },
-    bild: function (p) { return B.hoehe(P_ + ' = ' + Z.f(p.P, 1) + ' kW, ' + p.t + ' s, ' + p.m + ' kg', h_ + ' = ?', '🛗'); },
-    text: function (p) { return 'Ein Aufzugmotor mit der mittleren Leistung ' + Z.f(p.P, 1) + ' kW fährt ' + p.t + ' s lang. Die Kabine wiegt samt Fahrgästen ' + p.m + ' kg. <b>Berechne</b> die Höhendifferenz.'; },
+    bild: function (p) { return B.hoehe(P_ + ' = ' + Z.f(p.P, 1) + ' kW, ' + p.t + ' s, ' + p.m + ' kg', h_ + ' = ?', '🏗️'); },
+    text: function (p) { return 'Eine Seilwinde mit der mittleren Leistung ' + Z.f(p.P, 1) + ' kW zieht ' + p.t + ' s lang. Die Last hat die Masse ' + p.m + ' kg. <b>Berechne</b> die Höhendifferenz.'; },
     felder: [{ label: h_, unit: 'm', wert: function (p) { return p.h; }, fehler: [{ w: function (p) { return p.P * p.t / (p.m * g); }, t: 'kW erst in W.' }] }],
     tipps: [function () { return 'Erst W = P · Δt, dann Δh = W : (m g).'; }, function (p) { return W_ + ' = ' + f(p.P * 1000, 0) + ' W · ' + p.t + ' s = ' + f(p.P * 1000 * p.t, 0) + ' J.'; }], loesung: function (p) { return W_ + ' = ' + f(p.P * 1000 * p.t, 0) + ' J; ' + h_ + ' = ' + s(p.h, 3) + ' m.'; } },
   { id: '2S31', teil: 2, stufe: 'S3', titel: 'Lohnt sich das Abschalten?',
     zufall: function () { return { P1: r(1.5, 2.5, 0.5), t1: r(15, 40, 5), P2: r(6, 12, 1), t2: r(3, 8, 1) }; }, calc: function (p) { p.E1 = p.P1 * p.t1 / 60 * 30; p.E2 = p.P2 / 1000 * p.t2 * 30; },
-    bild: function (p) { return B.icon('🔥 💡', 'Heizlüfter ' + Z.f(p.P1, 1) + ' kW, ' + p.t1 + ' min/Tag · LED ' + p.P2 + ' W, ' + p.t2 + ' h/Tag'); },
-    text: function (p) { return 'Ein Heizlüfter (' + Z.f(p.P1, 1) + ' kW) läuft ' + p.t1 + ' min am Tag, eine LED-Lampe (' + p.P2 + ' W) ' + p.t2 + ' h am Tag. <b>Berechne</b> für 30 Tage jeweils die Energie in kWh.'; },
-    felder: [{ label: 'Heizlüfter', unit: 'kWh', wert: function (p) { return p.E1; }, fehler: [{ w: function (p) { return p.P1 * p.t1 * 30; }, t: 'Minuten in Stunden umrechnen (durch 60).' }] }, { label: 'LED', unit: 'kWh', wert: function (p) { return p.E2; }, fehler: [{ w: function (p) { return p.P2 * p.t2 * 30; }, t: 'W erst in kW (durch 1000).' }] }],
-    tipps: [function () { return 'E = P · Δt, P in kW, Δt in h, dann mal 30.'; }, function (p) { return 'Heizlüfter: ' + Z.f(p.P1, 1) + ' kW · ' + Z.f(p.t1 / 60, 2) + ' h · 30.'; }], loesung: function (p) { return 'Heizlüfter ' + s(p.E1, 3) + ' kWh, LED ' + s(p.E2, 3) + ' kWh. Abschalten lohnt sich beim Heizlüfter mehr: Es zählt Leistung mal Zeit.'; } },
+    bild: function (p) { return B.icon('👕 💡', 'Bügeleisen ' + Z.f(p.P1, 1) + ' kW, ' + p.t1 + ' min/Tag · LED ' + p.P2 + ' W, ' + p.t2 + ' h/Tag'); },
+    text: function (p) { return 'Ein Bügeleisen (' + Z.f(p.P1, 1) + ' kW) läuft ' + p.t1 + ' min am Tag, eine LED-Lampe (' + p.P2 + ' W) ' + p.t2 + ' h am Tag. <b>Berechne</b> für 30 Tage jeweils die Energie in kWh.'; },
+    felder: [{ label: 'Bügeleisen', unit: 'kWh', wert: function (p) { return p.E1; }, fehler: [{ w: function (p) { return p.P1 * p.t1 * 30; }, t: 'Minuten in Stunden umrechnen (durch 60).' }] }, { label: 'LED', unit: 'kWh', wert: function (p) { return p.E2; }, fehler: [{ w: function (p) { return p.P2 * p.t2 * 30; }, t: 'W erst in kW (durch 1000).' }] }],
+    tipps: [function () { return 'E = P · Δt, P in kW, Δt in h, dann mal 30.'; }, function (p) { return 'Bügeleisen: ' + Z.f(p.P1, 1) + ' kW · ' + Z.f(p.t1 / 60, 2) + ' h · 30.'; }], loesung: function (p) { return 'Bügeleisen ' + s(p.E1, 3) + ' kWh, LED ' + s(p.E2, 3) + ' kWh. Abschalten lohnt sich beim Bügeleisen mehr: Es zählt Leistung mal Zeit.'; } },
   MC({ id: '2S32', teil: 2, stufe: 'S3', titel: 'kWh: Energie oder Leistung?', faelle: [{ text: 'Auf der Stromrechnung steht „3200 kWh“. Nachbar Huber sagt: „Unser Haus hat 3200 Kilowattstunden Leistung.“ Was stimmt?', bild: B.icon('🧾', '3200 kWh'),
     fragen: [{ opt: ['kWh ist eine Energie (Leistung mal Zeit); es ist die im Jahr umgesetzte Energiemenge.', 'Huber hat recht, kWh ist eine Leistung.', 'kWh ist eine Kraft.'], fe: [null, 'Leistung wird in W bzw. kW gemessen.', 'Kraft misst man in N.'] }],
     loes: '1 kWh = 1 kW · 1 h = 3,6 MJ ist eine Energie. Auf der Rechnung steht die im Jahr umgesetzte Energie.' }], tipps: tG }),
@@ -1005,7 +1009,7 @@ var AUFGABEN = (function () {
     zufall: function () { return { m: r(40, 75, 1), h: r(3, 3.6, 0.1), t: r(3, 9, 0.5) }; }, calc: function (p) { p.P = p.m * g * p.h / p.t; },
     bild: function (p) { return B.treppe(m_ + ' = ' + p.m + ' kg', h_ + ' = ' + Z.f(p.h, 1) + ' m', t_ + ' = ' + Z.f(p.t, 1) + ' s'); },
     text: function (p) { return 'Setze deine Messwerte aus dem Treppenversuch ein (oder diese hier): ' + p.m + ' kg, ' + Z.f(p.h, 1) + ' m, ' + Z.f(p.t, 1) + ' s. <b>Berechne</b> die Leistung.'; },
-    felder: [{ label: P_, unit: 'W', wert: function (p) { return p.P; } }],
+    felder: [{ label: P_, unit: 'W', wert: function (p) { return p.P; }, fehler: [{ w: function (p) { return p.m * g * p.h; }, t: 'Das ist die Energie. Noch durch die Zeit teilen.' }, { w: function (p) { return p.m * p.h / p.t; }, t: 'Das g = 9,81 m/s² fehlt (Gewichtskraft = m · g).' }] }],
     tipps: [tP1[0], function (p) { return p.m + ' · 9,81 · ' + Z.f(p.h, 1) + ' : ' + Z.f(p.t, 1); }], loesung: function (p) { return P_ + ' = ' + s(p.P, 3) + ' W.'; } },
   { id: 'HA14', teil: 0, stufe: 'HA', startFest: true, titel: 'Hausaufgabe 14 · Ein Gerät zuhause', fest: { P: 2000, t: 1 },
     zufall: function () { var d = pick(GER); return { P: d[2], t: r(0.5, 3, 0.5) }; }, calc: function (p) { p.kWh = p.P / 1000 * p.t; p.kJ = p.P * p.t * 3600 / 1000; },
@@ -1013,7 +1017,7 @@ var AUFGABEN = (function () {
     text: function (p) { return 'Ein Gerät mit ' + f(p.P, 0) + ' W läuft ' + Z.f(p.t, 1) + ' h. <b>Berechne</b> die Energie in kWh und in kJ.'; },
     felder: [{ label: E_, unit: 'kWh', wert: function (p) { return p.kWh; } }, { label: E_, unit: 'kJ', wert: function (p) { return p.kJ; } }],
     tipps: [function () { return 'kWh: kW · h. kJ: kW · s.'; }, function (p) { return Z.f(p.t, 1) + ' h = ' + f(p.t * 3600, 0) + ' s.'; }], loesung: function (p) { return s(p.kWh, 3) + ' kWh = ' + s(p.kJ, 3) + ' kJ.'; } },
-  MC({ id: 'HA15', teil: 0, stufe: 'HA', startFest: true, titel: 'Hausaufgabe 15 · Typenschilder', mischen: true, faelle: ANG.map(angFall), tipps: tG })
+  MC({ id: 'HA15', teil: 0, stufe: 'HA', startFest: true, titel: 'Hausaufgabe 15 · Typenschilder', mischen: true, faelle: ANG_HA.map(angFall), tipps: tG })
   ];
 })();
 
@@ -1130,6 +1134,7 @@ var AUFGABEN = (function () {
         var fe2 = (f.fehler || []).filter(function (e) { var w = e.w(p); return MB.gleich([b.z, b.n], w); })[0];
         if (fe2) return { ok: false, t: fehlerText(fe2, p) };
         if (b.z * soll[0] < 0 && MB.gleich([-b.z, b.n], soll)) return { ok: false, t: 'Der Betrag stimmt, aber das Vorzeichen nicht.' };
+        if (b.z !== 0 && soll[0] !== soll[1] && MB.gleich([b.n, b.z], soll)) return { ok: false, t: 'Zähler und Nenner sind vertauscht.' };
         return { ok: false, t: 'Das stimmt noch nicht. ' + (cur_versuche() > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')) };
       }
       if (b.dezimal && f.form !== 'dezimal' && !f.dezimalOk) return { ok: false, form: true, t: 'Der Wert stimmt. Gefragt ist aber ein Bruch.' };
@@ -1166,6 +1171,7 @@ var AUFGABEN = (function () {
     a.calc(p); return p;
   }
   function karte(a) {
+    function aufgText(p) { try { return String(typeof a.text === 'function' ? a.text(p) : a.text); } catch (e) { return ''; } }
     var box = document.getElementById('c-' + a.teil + '-' + a.stufe); if (!box) return;
     var k = document.createElement('div'); k.className = 'karte aufg st-' + a.stufe; k.id = 'a-' + a.id; box.appendChild(k);
     var s = st[a.id] || (st[a.id] = { ok: false, n: 0, hilfe: false });
@@ -1193,6 +1199,8 @@ var AUFGABEN = (function () {
             return '<div class="eing wahl" data-i="' + i + '"><label>' + f.label + '</label><div class="optionen">' + kn.join('') + '</div></div>';
           }
           var im = (f.typ === 'term' || f.typ === 'text' || f.typ === 'frei') ? 'text' : (f.typ === 'bruch' ? 'text' : 'decimal');
+          /* Negative Lösung: die Zifferntastatur des iPads bietet nicht sicher ein Minus, deshalb die normale Tastatur (Qualitätscheck 04.10.) */
+          if (im === 'decimal') { try { var wv = f.wert && f.wert(p); if (typeof wv === 'number' && wv < 0) im = 'text'; } catch (e) {} }
           var ph = f.ph || (f.typ === 'bruch' ? (f.form === 'gemischt' ? 'z. B. 1 3/4' : 'z. B. 3/4') : (f.typ === 'term' ? 'z. B. 3x + 2' : ''));
           return '<div class="eing" data-i="' + i + '"><label>' + f.label + (f.ohneGleich ? '' : ' =') + '</label><input inputmode="' + im + '" autocomplete="off" autocapitalize="off" spellcheck="false"' + (ph ? ' placeholder="' + ph + '"' : '') + ((f.typ === 'term' || f.breit) ? ' class="breit"' : '') + ' aria-label="' + f.label.replace(/<[^>]+>/g, '') + '"><span class="einheit">' + (f.unit || '') + '</span></div>'; }).join('') + '</div>' +
         (a.muster ? '<div class="frei nichtdruck"><textarea placeholder="' + S('Ihre Begründung (oder ins Rechenfeld schreiben)', 'Deine Begründung (oder ins Rechenfeld schreiben)') + '"></textarea></div>' : '') +
@@ -1270,6 +1278,10 @@ var AUFGABEN = (function () {
           if (typ) msg.push(L + ': ' + (typeof typ.t === 'function' ? typ.t(p) : typ.t));
           else if (soll !== 0 && f.unit && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + S('Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfen Sie Exponent und Einheit. Gefragt ist ', 'Die Ziffern stimmen, aber die Zehnerpotenz nicht. Prüfe Exponent und Einheit. Gefragt ist ') + f.unit + '.');
           else if (!MATHE && (nah(x * 3.6, soll, 0.03) || nah(x / 3.6, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie m/s und km/h (Faktor 3,6).', 'Fast. Prüfe m/s und km/h (Faktor 3,6).'));
+          else if (!MATHE && /Durchmesser/.test(aufgText(p)) && (nah(x * 2, soll, 0.03) || nah(x / 2, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie, ob Radius und Durchmesser verwechselt wurden: r = d/2.', 'Fast. Prüfe, ob du Radius und Durchmesser verwechselt hast: r = d/2.'));
+          else if (!MATHE && /\bmin\b|Minute/.test(aufgText(p)) && (nah(x * 60, soll, 0.03) || nah(x / 60, soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie Minuten und Sekunden (1 min = 60 s).', 'Fast. Prüfe Minuten und Sekunden (1 min = 60 s).'));
+          else if (!MATHE && soll !== 0 && (nah(x * 2 * Math.PI, soll, 0.03) || nah(x / (2 * Math.PI), soll, 0.03))) msg.push(L + ': ' + S('Fast. Prüfen Sie den Faktor 2π (ω = 2π/T, Umfang = 2π · r).', 'Fast. Prüfe den Faktor 2π (ω = 2π/T, Umfang = 2π · r).'));
+          else if (MATHE && soll !== 0 && !f.unit && (soll % 1 !== 0 || x % 1 !== 0) && [1000, 100, 10, 0.1, 0.01, 0.001].some(function (q) { return nah(x * q, soll, exakt(f) ? 1e-9 : 0.03); })) msg.push(L + ': ' + 'Die Ziffern stimmen, aber das Komma steht an der falschen Stelle. Prüfe Zehntel, Hundertstel und Tausendstel.');
           else if (soll !== 0 && Math.abs(x + soll) <= 1e-9 * Math.max(1, Math.abs(soll))) msg.push(L + ': ' + S('Der Betrag stimmt, das Vorzeichen nicht.', 'Der Betrag stimmt, aber das Vorzeichen nicht.'));
           else msg.push(L + ': Das stimmt noch nicht. ' + (cur.versuche > 1 ? S('Nutzen Sie einen Tipp.', 'Nutze einen Tipp.') : S('Rechnen Sie noch einmal nach.', 'Rechne noch einmal nach.')));
         });
@@ -1449,5 +1461,28 @@ document.querySelectorAll('.werkzeug[data-wegfinder]').forEach(function(W){
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>

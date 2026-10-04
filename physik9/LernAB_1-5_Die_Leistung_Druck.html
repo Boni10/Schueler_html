@@ -118,7 +118,7 @@ table.rechnung td[colspan]{font-style:normal;color:inherit;font-size:1em;width:a
 *{box-sizing:border-box}
 html,body{margin:0;background:#d9d4c9;font-family:var(--sans);color:#1d2733;font-size:14px;line-height:1.4}
 .leiste{position:sticky;top:0;z-index:5;background:#1d2330;color:#e9edf4;padding:8px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
-.leiste button{font:inherit;border-radius:999px;border:1.5px solid #3b82f6;background:#3b82f6;color:#fff;padding:5px 14px;cursor:pointer}
+.leiste button{font:inherit;border-radius:999px;border:1.5px solid #3b82f6;background:#3b82f6;color:#fff;padding:10px 16px;min-height:42px;cursor:pointer}
 .leiste button.leise{background:transparent;color:#9cc2ff}
 .seite{width:210mm;min-height:297mm;margin:14px auto;background:#fff;padding:13mm 14mm 12mm;box-shadow:0 4px 18px rgba(0,0,0,.18);position:relative}
 .kopf{display:flex;justify-content:space-between;border-bottom:1.5px solid #1d2733;padding-bottom:3px;font-size:12px;color:#4a5665}
@@ -146,7 +146,7 @@ table.mess th{background:#f3f5f8;-webkit-print-color-adjust:exact;print-color-ad
 table.mess td:first-child,table.mess th:first-child{text-align:left}
 .zeile{border-bottom:1px solid #7a8594;height:8mm}
 ol.dg{margin:3px 0;padding-left:1.3em}ol.dg li{margin:1px 0}
-.heft{font-size:14.5px;padding-top:8px!important;padding-bottom:6px!important}
+.heft{font-size:calc(14.5px * var(--hs,1));padding-top:8px!important;padding-bottom:6px!important}
 .heft .skizze svg{max-width:58mm}
 .heft svg.konto{max-height:30mm;width:auto}
 .heft svg.fluss{max-height:26mm;width:auto}
@@ -162,7 +162,7 @@ ol.dg{margin:3px 0;padding-left:1.3em}ol.dg li{margin:1px 0}
 .tk-kopf{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:3px}
 .tk-bst{display:inline-grid;place-items:center;width:9mm;height:9mm;border-radius:50%;background:#1d2733;color:#fff;font-size:17px;flex:none}
 .tk-inhalt{font-size:13px;line-height:1.38}.tk-inhalt p{margin:.2em 0}.tk-inhalt svg{max-height:32mm;width:auto;max-width:100%}
-.fuss{position:absolute;bottom:6mm;left:14mm;right:14mm;font-size:11px;color:#7a8594;display:flex;justify-content:space-between}
+.fuss{position:absolute;bottom:6mm;left:14mm;right:14mm;font-size:11px;color:#5b6676;display:flex;justify-content:space-between}
 /* Lücken sind für Handschrift ausgelegt (Bini, 01.10.: waren nur so breit wie getippter Text). Breite setzt luecken() im Script
    aus dem Lösungswort (etwa das Doppelte), hier die Mindestmaße und Zeilenhöhen: eine handgeschriebene Zeile braucht rund 8 mm. */
 .seite .gap{min-width:4em;padding:0 .45em;border-bottom:1.5px solid #4a5665}
@@ -204,13 +204,14 @@ function einpassenLA(){var w=document.documentElement.clientWidth||innerWidth,z=
 einpassenLA();addEventListener('resize',einpassenLA);addEventListener('orientationchange',function(){setTimeout(einpassenLA,200);});
 /* Lücken für Handschrift: so breit wie das Doppelte des Lösungsworts (in Zeichnungen höchstens das 1,5-Fache), Zeilen mit Lücken höher (--lh).
    Passt eine Seite dadurch nicht mehr auf A4, wird schrittweise enger gesetzt, bis sie passt (Maße in em, damit es auch bei verkleinerter Seite stimmt). */
-var SCHRITTE=[{lh:0,f:2.0,sv:1.3},{lh:1.7,f:1.8,sv:1.2},{lh:1.55,f:1.6,sv:1.1},{lh:1.45,f:1.4,sv:1},{lh:1.4,f:1.2,sv:1},{lh:1.35,f:1.0,sv:1}];
+var SCHRITTE=[{lh:0,f:2.0,sv:1.3},{lh:1.7,f:1.8,sv:1.2},{lh:1.55,f:1.6,sv:1.1},{lh:1.45,f:1.4,sv:1},{lh:1.4,f:1.2,sv:1},{lh:1.35,f:1.0,sv:1},{lh:1.35,f:1.0,sv:1,hs:.97}];   /* letzter Schritt: Hefteintrag 3 % kleiner, falls eine Schrift breiter ist als Segoe UI (z. B. Liberation Sans in der Cloud) und ein Absatz sonst umbricht */
 function luecken(){
   document.querySelectorAll('.seite .gap').forEach(function(g){var fs=parseFloat(getComputedStyle(g).fontSize)||14,r=document.createRange();r.selectNodeContents(g);g.dataset.nat=(r.getBoundingClientRect().width/fs).toFixed(3);});
   document.querySelectorAll('.seite').forEach(function(s){
     for(var i=0;i<SCHRITTE.length;i++){var st=SCHRITTE[i];
       if(st.lh)s.style.setProperty('--lh',st.lh);else s.style.removeProperty('--lh');
       s.style.setProperty('--sv',st.sv);
+      if(st.hs)s.style.setProperty('--hs',st.hs);else s.style.removeProperty('--hs');
       s.querySelectorAll('.gap').forEach(function(g){if(g.classList.contains('breit'))return;var svg=!!g.closest('foreignObject'),f=svg?Math.min(st.f,1.5):st.f;
         g.style.minWidth=Math.max(svg?2.4:3.2,(+g.dataset.nat)*f+(svg?.6:.9)).toFixed(2)+'em';});
       /* passt: Seite nicht höher als A4 und der letzte Block endet höchstens bei 281 mm (darunter steht die Fußzeile) */
@@ -258,5 +259,28 @@ function alleLuecken(){var g=document.querySelectorAll('.gap,.gap-svg');var zu=[
     if(document.documentElement.classList.contains('beamer-modus')) return;
     zu();
   });
+})();
+</script><script id="ua-kursiv">/* Formelzeichen mit Index kursiv setzen (Qualitätscheck 04.10.): steht vor <sub> ein einzelner Buchstabe (E<sub>kin</sub>, F<sub>Z</sub>, ω<sub>hinten</sub>, ΔE<sub>H</sub>),
+   wird er in <i> gesetzt, wenn er nicht schon kursiv ist. Handschrift (Hefteinträge) bleibt wie sie ist. Ändert keinen Text, nur die Auszeichnung. */
+(function () {
+  var BUCHST = /[A-Za-zωαβγλμφθσρτηνΩ]/, LATEIN = /[A-Za-zÄÖÜäöüß]/;
+  function lauf(wurzel) {
+    var subs = wurzel.querySelectorAll ? wurzel.querySelectorAll('sub') : [];
+    for (var k = 0; k < subs.length; k++) {
+      var s = subs[k], pv = s.previousSibling;
+      if (!pv || pv.nodeType !== 3 || !pv.textContent) continue;
+      var t = pv.textContent, c = t.slice(-1), davor = t.slice(-2, -1);
+      if (!BUCHST.test(c) || (davor && LATEIN.test(davor))) continue;   // Wortende, kein einzelnes Formelzeichen
+      var par = pv.parentElement; if (!par) continue;
+      var cs = getComputedStyle(par);
+      if (cs.fontStyle === 'italic' || cs.fontStyle === 'oblique' || /Hand/i.test(cs.fontFamily)) continue;
+      var i = document.createElement('i'); i.textContent = c;
+      pv.textContent = t.slice(0, -1); s.parentNode.insertBefore(i, s);
+    }
+  }
+  var geplant = false;
+  function plane() { if (geplant) return; geplant = true; requestAnimationFrame(function () { geplant = false; try { lauf(document.body); } catch (e) {} }); }
+  function start() { lauf(document.body); new MutationObserver(plane).observe(document.body, { childList: true, subtree: true }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
 </script></body></html>
