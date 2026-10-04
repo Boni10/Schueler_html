@@ -231,7 +231,7 @@ body.mathe .st-S2 .stufe-chip{color:#8a5a12}body.mathe .st-S3 .stufe-chip{color:
 .stift-bar button{font:inherit;font-size:16px;min-width:40px;height:36px;border-radius:10px;border:1.5px solid transparent;background:#fffaf0;cursor:pointer}
 .stift-bar button.an{border-color:var(--ink)}
 .stift-bar button.farbe{background:var(--c);min-width:30px;width:30px;border-radius:50%}
-.stift-cv{display:block;width:100%;height:auto;touch-action:pan-y;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+.stift-cv{display:block;width:100%;height:auto;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
 /* Werkzeug */
 .werkzeug{background:var(--card);border-radius:18px;border:1px solid var(--line);padding:12px 16px;margin:12px 0}
 .werkzeug>b{font-family:var(--hand);font-weight:400;font-size:26px;color:#2f5f9e}
@@ -316,19 +316,20 @@ var MB = (function () {
     if (m && erlaubt.dezimal !== false) { var st = m[3].length, zd = +(m[2] + m[3]) * (m[1] === '-' ? -1 : 1); return { z: zd, n: Math.pow(10, st), gemischt: false, dezimal: true }; }
     return null;
   }
-  /* Anzeige als HTML: Bruch, gemischte Zahl, ganze Zahl */
+  /* Anzeige als HTML: Bruch, gemischte Zahl, ganze Zahl. Bei der gemischten Zahl wird der Bruchteil gekürzt,
+     weil das AB gemischte Zahlen nur gekürzt als richtig wertet (Fehler bis 04.10.: Lösungsweg zeigte „8 8/12“). */
   function html(z, n, gem) {
     var r = norm(z, n); z = r[0]; n = r[1];
     var neg = z < 0; z = Math.abs(z);
     if (n === 1) return (neg ? '−' : '') + z;
-    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n; return (neg ? '−' : '') + g + (rz ? '<span class="frac"><span>' + rz + '</span><span>' + n + '</span></span>' : ''); }
+    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n, t = ggT(rz, n); return (neg ? '−' : '') + g + (rz ? '<span class="frac"><span>' + rz / t + '</span><span>' + n / t + '</span></span>' : ''); }
     return (neg ? '−' : '') + '<span class="frac"><span>' + z + '</span><span>' + n + '</span></span>';
   }
   function text(z, n, gem) {
     var r = norm(z, n); z = r[0]; n = r[1];
     var neg = z < 0; z = Math.abs(z);
     if (n === 1) return (neg ? '−' : '') + z;
-    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n; return (neg ? '−' : '') + g + (rz ? ' ' + rz + '/' + n : ''); }
+    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n, t = ggT(rz, n); return (neg ? '−' : '') + g + (rz ? ' ' + rz / t + '/' + n / t : ''); }
     return (neg ? '−' : '') + z + '/' + n;
   }
   return { ggT: ggT, kgV: kgV, kuerze: kuerze, gleich: gleich, lies: lies, html: html, text: text, norm: norm };

@@ -378,19 +378,20 @@ var MB = (function () {
     if (m && erlaubt.dezimal !== false) { var st = m[3].length, zd = +(m[2] + m[3]) * (m[1] === '-' ? -1 : 1); return { z: zd, n: Math.pow(10, st), gemischt: false, dezimal: true }; }
     return null;
   }
-  /* Anzeige als HTML: Bruch, gemischte Zahl, ganze Zahl */
+  /* Anzeige als HTML: Bruch, gemischte Zahl, ganze Zahl. Bei der gemischten Zahl wird der Bruchteil gekürzt,
+     weil das AB gemischte Zahlen nur gekürzt als richtig wertet (Fehler bis 04.10.: Lösungsweg zeigte „8 8/12“). */
   function html(z, n, gem) {
     var r = norm(z, n); z = r[0]; n = r[1];
     var neg = z < 0; z = Math.abs(z);
     if (n === 1) return (neg ? '−' : '') + z;
-    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n; return (neg ? '−' : '') + g + (rz ? '<span class="frac"><span>' + rz + '</span><span>' + n + '</span></span>' : ''); }
+    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n, t = ggT(rz, n); return (neg ? '−' : '') + g + (rz ? '<span class="frac"><span>' + rz / t + '</span><span>' + n / t + '</span></span>' : ''); }
     return (neg ? '−' : '') + '<span class="frac"><span>' + z + '</span><span>' + n + '</span></span>';
   }
   function text(z, n, gem) {
     var r = norm(z, n); z = r[0]; n = r[1];
     var neg = z < 0; z = Math.abs(z);
     if (n === 1) return (neg ? '−' : '') + z;
-    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n; return (neg ? '−' : '') + g + (rz ? ' ' + rz + '/' + n : ''); }
+    if (gem && z > n) { var g = Math.floor(z / n), rz = z % n, t = ggT(rz, n); return (neg ? '−' : '') + g + (rz ? ' ' + rz / t + '/' + n / t : ''); }
     return (neg ? '−' : '') + z + '/' + n;
   }
   return { ggT: ggT, kgV: kgV, kuerze: kuerze, gleich: gleich, lies: lies, html: html, text: text, norm: norm };
@@ -729,6 +730,9 @@ var B7 = (function () {
     return '<defs><marker id="' + id + '" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="' + col + '"/></marker></defs>' +
       '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + col + '" stroke-width="' + (w || 3) + '" stroke-linecap="round" marker-end="url(#' + id + ')"/>';
   }
+  /* Qualitätscheck 04.10.: Texte passen in ihre Kästen und ins Bild. len = sichtbare Zeichen, G = Schriftgröße für maxw Pixel */
+  function len(t) { return String(t || '').replace(/<[^>]+>/g, '').replace(/\^(\d+|[a-zA-Z])/g, '$1').replace(/&[a-z]+;/g, 'x').length; }
+  function G(t, base, maxw) { var n = len(t); return n ? Math.max(9, Math.min(base, maxw / (n * 0.62))) : base; }
   function zt(v) { return String(Math.round(v * 1e6) / 1e6).replace('-', '−').replace('.', ','); }
   function OK(x) { while (x && x.t === 'klammer') x = x.a; return x; }
   var ZEICHEN = { '+': '+', '-': '−', '*': '·', '/': ':', '^': '^' };
@@ -770,17 +774,20 @@ var B7 = (function () {
 
   /* ---------- Rechenkette (Eingabe → Schritte → Ausgabe): schritte = ['· 3', '+ 4'] */
   function kette(eingabe, schritte, ausgabe, o) {
-    o = o || {}; var n = schritte.length, bw = 64, gap = 30, W = 74 + n * (bw + gap) + gap + 82, y = 62, s = '', x = 14;
-    s += '<circle cx="' + (x + 30) + '" cy="' + y + '" r="30" fill="' + C.butter + '" stroke="' + C.ink + '" stroke-width="2.5"/>' + '<text class="hand" x="' + (x + 30) + '" y="' + (y + 7) + '" text-anchor="middle" font-size="21" font-weight="700" fill="' + C.ink + '">' + hoch(eingabe) + '</text>';
-    x += 60;
+    o = o || {}; var n = schritte.length, gap = 30, y = 62, s = '', x = 14;
+    var wi = Math.max(60, len(eingabe) * 11 + 18), wo = Math.max(68, len(ausgabe) * 11 + 18), bws = schritte.map(function (st) { return Math.max(64, len(st) * 12 + 18); });
+    var W = 14 + wi + bws.reduce(function (a, b) { return a + b + gap; }, 0) + gap + wo + 14;
+    s += '<rect x="' + x + '" y="' + (y - 30) + '" width="' + wi + '" height="60" rx="30" fill="' + C.butter + '" stroke="' + C.ink + '" stroke-width="2.5"/>' + '<text class="hand" x="' + (x + wi / 2) + '" y="' + (y + 7) + '" text-anchor="middle" font-size="21" font-weight="700" fill="' + C.ink + '">' + hoch(eingabe) + '</text>';
+    x += wi;
     schritte.forEach(function (st, i) {
+      var bw = bws[i];
       s += pfeil(x + 2, y, x + gap - 2, y, C.soft, 3); x += gap;
       s += '<rect x="' + x + '" y="' + (y - 24) + '" width="' + bw + '" height="48" rx="12" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2.5"/><text class="hand" x="' + (x + bw / 2) + '" y="' + (y + 8) + '" text-anchor="middle" font-size="23" font-weight="700" fill="' + C.ink + '">' + hoch(st) + '</text>';
       if (o.nr !== false) s += '<circle cx="' + (x + 8) + '" cy="' + (y - 24) + '" r="9" fill="' + C.ink + '"/><text x="' + (x + 8) + '" y="' + (y - 20) + '" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">' + (i + 1) + '</text>';
       x += bw;
     });
     s += pfeil(x + 2, y, x + gap - 2, y, C.soft, 3); x += gap;
-    s += '<circle cx="' + (x + 36) + '" cy="' + y + '" r="34" fill="' + C.mint + '" stroke="' + C.ink + '" stroke-width="2.5"/><text class="hand" x="' + (x + 36) + '" y="' + (y + 7) + '" text-anchor="middle" font-size="21" font-weight="700" fill="' + C.ink + '">' + hoch(ausgabe) + '</text>';
+    s += '<rect x="' + x + '" y="' + (y - 34) + '" width="' + wo + '" height="68" rx="34" fill="' + C.mint + '" stroke="' + C.ink + '" stroke-width="2.5"/><text class="hand" x="' + (x + wo / 2) + '" y="' + (y + 7) + '" text-anchor="middle" font-size="21" font-weight="700" fill="' + C.ink + '">' + hoch(ausgabe) + '</text>';
     if (o.titel) s += T(W / 2, 128, o.titel, C.soft, 14, 'middle');
     return svg(s, '0 0 ' + W + ' ' + (o.titel ? 138 : 112), Math.round(W * 1.3));
   }
@@ -805,29 +812,29 @@ var B7 = (function () {
   /* ---------- Figuren */
   function rechteck(a, b, o) {
     o = o || {}; var w = 170, h = 86;
-    return svg('<rect x="60" y="40" width="' + w + '" height="' + h + '" fill="' + (o.farbe || C.mint) + '" stroke="' + C.ink + '" stroke-width="3"/>' +
-      (o.innen ? T(60 + w / 2, 40 + h / 2 + 6, o.innen, C.ink, 17, 'middle') : '') +
-      T(60 + w / 2, 28, a, C.blue, 18, 'middle') + T(52, 40 + h / 2 + 6, b, C.red, 18, 'end'), '0 0 300 150');
+    return svg('<rect x="112" y="40" width="' + w + '" height="' + h + '" fill="' + (o.farbe || C.mint) + '" stroke="' + C.ink + '" stroke-width="3"/>' +
+      (o.innen ? T(112 + w / 2, 40 + h / 2 + 6, o.innen, C.ink, G(o.innen, 17, w - 10), 'middle') : '') +
+      T(112 + w / 2, 28, a, C.blue, G(a, 18, 260), 'middle') + T(104, 40 + h / 2 + 6, b, C.red, G(b, 18, 100), 'end'), '0 0 300 150');
   }
   function quadrat(a) { return svg('<rect x="95" y="30" width="100" height="100" fill="' + C.mint + '" stroke="' + C.ink + '" stroke-width="3"/>' + T(145, 20, a, C.blue, 18, 'middle') + T(86, 86, a, C.red, 18, 'end'), '0 0 300 150'); }
   function quader(a, b, h) {
-    return svg('<polygon points="60,70 170,70 170,150 60,150" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="3"/>' +
+    return svg('<g transform="translate(52,0)"><polygon points="60,70 170,70 170,150 60,150" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="3"/>' +
       '<polygon points="60,70 100,38 210,38 170,70" fill="' + C.butter + '" stroke="' + C.ink + '" stroke-width="3"/>' +
-      '<polygon points="170,70 210,38 210,118 170,150" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="3"/>' +
-      T(115, 168, a, C.blue, 17, 'middle') + T(236, 98, b, C.green, 17) + T(50, 116, h, C.red, 17, 'end'), '0 0 300 178');
+      '<polygon points="170,70 210,38 210,118 170,150" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="3"/></g>' +
+      T(167, 168, a, C.blue, G(a, 17, 200), 'middle') + T(270, 98, b, C.green, G(b, 17, 86)) + T(104, 116, h, C.red, G(h, 17, 100), 'end'), '0 0 360 178');
   }
   function trapez(unten, oben, h) {
     return svg('<polygon points="40,140 250,140 210,50 90,50" fill="' + C.lav + '" stroke="' + C.ink + '" stroke-width="3"/><line x1="90" y1="50" x2="90" y2="140" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/>' +
-      T(145, 163, unten, C.blue, 17, 'middle') + T(150, 40, oben, C.blue, 17, 'middle') + T(80, 102, h, C.red, 17, 'end'), '0 0 300 176');
+      T(145, 163, unten, C.blue, G(unten, 17, 280), 'middle') + T(150, 40, oben, C.blue, G(oben, 17, 280), 'middle') + T(97, 102, h, C.red, G(h, 17, 105)), '0 0 300 176');
   }
   function dreieck(g, h) {
     return svg('<polygon points="40,140 250,140 190,40" fill="' + C.rose + '" stroke="' + C.ink + '" stroke-width="3"/><line x1="190" y1="40" x2="190" y2="140" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/>' +
-      T(145, 163, g, C.blue, 17, 'middle') + T(200, 96, h, C.red, 17), '0 0 300 176');
+      T(145, 163, g, C.blue, G(g, 17, 280), 'middle') + T(184, 104, h, C.red, G(h, 17, 78), 'end'), '0 0 300 176');
   }
 
   /* ---------- Preisschilder: items = [{e: '🍦', t: 'x €'}] */
   function preise(items, titel) {
-    var n = items.length, bw = 84, W = Math.max(220, n * (bw + 12) + 12), s = '';
+    var n = items.length, bw = Math.max(84, Math.max.apply(null, items.map(function (it) { return len(it.t); })) * 10.5 + 30), W = Math.max(220, n * (bw + 12) + 12), s = '';
     items.forEach(function (it, i) {
       var x = 12 + i * (bw + 12);
       s += '<rect x="' + x + '" y="12" width="' + bw + '" height="' + (titel ? 108 : 118) + '" rx="14" fill="#fdf5e3" stroke="' + C.soft + '" stroke-dasharray="6 5"/>' +
@@ -835,12 +842,12 @@ var B7 = (function () {
         '<rect x="' + (x + 8) + '" y="82" width="' + (bw - 16) + '" height="30" rx="9" fill="' + (it.farbe || C.butter) + '" stroke="' + C.ink + '" stroke-width="1.8"/>' +
         '<text class="hand" x="' + (x + bw / 2) + '" y="103" text-anchor="middle" font-size="19" font-weight="700" fill="' + C.ink + '">' + hoch(it.t) + '</text>';
     });
-    if (titel) s += T(W / 2, 138, titel, C.soft, 14, 'middle');
+    if (titel) s += T(W / 2, 138, titel, C.soft, G(titel, 14, W - 10), 'middle');
     return svg(s, '0 0 ' + W + ' ' + (titel ? 148 : 134), Math.round(W * 1.3));
   }
   function ikone(zeichen, z1, z2) {
     return svg('<rect x="10" y="10" width="280" height="165" rx="18" fill="#fdf5e3" stroke="' + C.soft + '" stroke-dasharray="6 5"/><text x="150" y="98" text-anchor="middle" font-size="72">' + zeichen + '</text>' +
-      (z1 ? T(150, 140, z1, C.ink, 15, 'middle') : '') + (z2 ? T(150, 164, z2, C.soft, 13, 'middle') : ''));
+      (z1 ? T(150, 140, z1, C.ink, G(z1, 15, 262), 'middle') : '') + (z2 ? T(150, 164, z2, C.soft, G(z2, 13, 262), 'middle') : ''));
   }
 
   /* ---------- Muster: Figur k von typ; anz(typ, n) und term(typ) liefern die Anzahl bzw. den Term in n */
@@ -919,10 +926,12 @@ var B7 = (function () {
     o.linien.forEach(function (l, i) {
       var y1 = l.f(0), y2 = l.f(o.xmax), x2 = o.xmax;
       if (y2 > o.ymax) { x2 = (o.ymax - y1) / (y2 - y1) * o.xmax; y2 = o.ymax; }
-      s += '<line x1="' + px(0) + '" y1="' + py(y1) + '" x2="' + px(x2) + '" y2="' + py(y2) + '" stroke="' + l.farbe + '" stroke-width="3.2" stroke-linecap="round"/>' + T(px(x2) - 4, py(y2) + (i ? 16 : -6), l.name, l.farbe, 13, 'end');
+      /* Namen als Legende unter der Achse statt auf den Linien (Qualitätscheck 04.10.) */
+      s += '<line x1="' + px(0) + '" y1="' + py(y1) + '" x2="' + px(x2) + '" y2="' + py(y2) + '" stroke="' + l.farbe + '" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<line x1="' + (8 + i * 90) + '" y1="' + (Y0 + 48) + '" x2="' + (30 + i * 90) + '" y2="' + (Y0 + 48) + '" stroke="' + l.farbe + '" stroke-width="3.2" stroke-linecap="round"/>' + T(36 + i * 90, Y0 + 53, l.name, l.farbe, 13);
     });
     if (o.punkt) s += '<circle cx="' + px(o.punkt.x) + '" cy="' + py(o.punkt.y) + '" r="5" fill="' + C.ink + '"/>' + (o.punkt.lab ? T(px(o.punkt.x) + 8, py(o.punkt.y) - 8, o.punkt.lab, C.ink, 13) : '');
-    return svg(s, '0 0 300 190');
+    return svg(s, '0 0 300 210');
   }
 
   /* ---------- Handschläge: n Personen auf einem Kreis, alle Verbindungen */
@@ -948,7 +957,17 @@ var B7 = (function () {
   }
   /* Zwei Bilder untereinander, mit Beschriftung A und B */
   function paar(a, b, la, lb) { return '<div style="display:grid;gap:2px;justify-items:center"><div style="width:100%;max-width:230px"><b style="font-family:var(--hand);font-size:18px">' + (la || 'A') + '</b>' + a + '</div><div style="width:100%;max-width:230px"><b style="font-family:var(--hand);font-size:18px">' + (lb || 'B') + '</b>' + b + '</div></div>'; }
-  return { paar: paar, wtab: wtab, C: C, svg: svg, T: T, pfeil: pfeil, baum: baum, baumKnoten: baumKnoten, kette: kette, termkarte: termkarte, klammerfarbe: klammerfarbe, rechteck: rechteck, quadrat: quadrat, quader: quader,
+  /* ---------- Die fünf Rechenarten eines Terms (Legende zum Gliedern): Zeichen und Name auf Karten */
+  function legende() {
+    var k = [['+', 'Summe', C.mint], ['−', 'Differenz', C.sky], ['·', 'Produkt', C.peach], [':', 'Quotient', C.lav], ['x²', 'Potenz', C.butter]], s = '';
+    k.forEach(function (q, i) {
+      var x = 8 + i * 66;
+      s += '<rect x="' + x + '" y="8" width="60" height="64" rx="12" fill="' + q[2] + '" stroke="' + C.ink + '" stroke-width="2.3"/><text class="hand" x="' + (x + 30) + '" y="42" text-anchor="middle" font-size="30" font-weight="700" fill="' + C.ink + '">' + hoch(q[0].replace('x²', 'x^2')) + '</text>' +
+        '<text class="hand" x="' + (x + 30) + '" y="64" text-anchor="middle" font-size="13" font-weight="700" fill="' + C.ink + '">' + q[1] + '</text>';
+    });
+    return svg(s, '0 0 344 80', 420);
+  }
+  return { legende: legende, paar: paar, wtab: wtab, C: C, svg: svg, T: T, pfeil: pfeil, baum: baum, baumKnoten: baumKnoten, kette: kette, termkarte: termkarte, klammerfarbe: klammerfarbe, rechteck: rechteck, quadrat: quadrat, quader: quader,
     trapez: trapez, dreieck: dreieck, preise: preise, ikone: ikone, muster: muster, anz: anz, termM: termM, MUS: MUS, zellen: zellen, diagramm: diagramm, handschlag: handschlag, raetsel: raetsel, zt: zt };
 })();
 

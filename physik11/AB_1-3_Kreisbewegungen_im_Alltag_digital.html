@@ -309,10 +309,10 @@ body.mathe .optionen button svg{width:250px;max-width:100%;height:auto;display:b
 <rect x="96" y="28" width="28" height="22" rx="3" fill="#c6dbf5" stroke="#1d2733" stroke-width="1.8"/>
 <line x1="98" y1="52" x2="98" y2="100" stroke="#c92a2a" stroke-width="3.5" marker-end="url(#pf13a)"/>
 <line x1="124" y1="52" x2="124" y2="88" stroke="#7048c8" stroke-width="3.5" marker-end="url(#pf13b)"/>
-<g class="gap-svg"><text x="52" y="80" font-size="22" class="hand" fill="#c92a2a">F</text><text x="65" y="86" font-size="14" class="hand" fill="#c92a2a">G</text></g>
+<g class="gap-svg"><text x="64" y="80" font-size="22" class="hand" fill="#c92a2a">F</text><text x="77" y="86" font-size="14" class="hand" fill="#c92a2a">G</text></g>
 <g class="gap-svg"><text x="136" y="80" font-size="22" class="hand" fill="#7048c8">F</text><text x="149" y="86" font-size="14" class="hand" fill="#7048c8">N</text></g>
 <text x="138" y="24" font-size="18" class="hand" fill="#4a5665">oben</text>
-<text x="118" y="140" font-size="17" class="hand" fill="#4a5665">Mittelpunkt</text>
+<text x="110" y="140" font-size="17" class="hand" fill="#4a5665" text-anchor="middle">Mittelpunkt</text>
 </svg></div></div>
 <p>Wirken mehrere Kräfte, ist <span class="m">F<sub>Z</sub></span> ihre <span class="gap">Summe</span> in Richtung Mittelpunkt. <i>Becher oben:</i> <span class="m">F<sub>G</sub></span> + <span class="m">F<sub>N</sub></span> = <span class="m">m</span> · <span class="frac"><span><span class="m">v</span>²</span><span><span class="m">r</span></span></span>.</p>
 <p><b>Leitfrage:</b> Welche vorhandene Kraft zeigt hier zum <span class="gap">Mittelpunkt</span>?</p>
@@ -358,10 +358,10 @@ body.mathe .optionen button svg{width:250px;max-width:100%;height:auto;display:b
 <rect x="96" y="28" width="28" height="22" rx="3" fill="#c6dbf5" stroke="#1d2733" stroke-width="1.8"/>
 <line x1="98" y1="52" x2="98" y2="100" stroke="#c92a2a" stroke-width="3.5" marker-end="url(#pf13a)"/>
 <line x1="124" y1="52" x2="124" y2="88" stroke="#7048c8" stroke-width="3.5" marker-end="url(#pf13b)"/>
-<g class="gap-svg"><text x="52" y="80" font-size="22" class="hand" fill="#c92a2a">F</text><text x="65" y="86" font-size="14" class="hand" fill="#c92a2a">G</text></g>
+<g class="gap-svg"><text x="64" y="80" font-size="22" class="hand" fill="#c92a2a">F</text><text x="77" y="86" font-size="14" class="hand" fill="#c92a2a">G</text></g>
 <g class="gap-svg"><text x="136" y="80" font-size="22" class="hand" fill="#7048c8">F</text><text x="149" y="86" font-size="14" class="hand" fill="#7048c8">N</text></g>
 <text x="138" y="24" font-size="18" class="hand" fill="#4a5665">oben</text>
-<text x="118" y="140" font-size="17" class="hand" fill="#4a5665">Mittelpunkt</text>
+<text x="110" y="140" font-size="17" class="hand" fill="#4a5665" text-anchor="middle">Mittelpunkt</text>
 </svg></div></div>
 <p>Wirken mehrere Kräfte, ist <span class="m">F<sub>Z</sub></span> ihre <span class="gap">Summe</span> in Richtung Mittelpunkt. <i>Becher oben:</i> <span class="m">F<sub>G</sub></span> + <span class="m">F<sub>N</sub></span> = <span class="m">m</span> · <span class="frac"><span><span class="m">v</span>²</span><span><span class="m">r</span></span></span>.</p>
 <p><b>Leitfrage:</b> Welche vorhandene Kraft zeigt hier zum <span class="gap">Mittelpunkt</span>?</p>
@@ -475,6 +475,8 @@ var Bild = (function () {
     return '<defs><marker id="' + id + '" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="' + col + '"/></marker></defs>' +
       '<path d="M' + x1 + ',' + y1 + ' A' + r + ',' + r + ' 0 0 1 ' + x2 + ',' + y2 + '" fill="none" stroke="' + col + '" stroke-width="2.5" marker-end="url(#' + id + ')"/>';
   }
+  /* Schriftgröße so, dass der Text in maxw Pixel passt (Qualitätscheck 04.10.) */
+  function G(t, base, maxw) { var n = String(t || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, 'x').length; return n ? Math.max(9, Math.min(base, maxw / (n * 0.65))) : base; }
   function mass(x1, x2, y, t, col) { // Maßlinie waagrecht
     col = col || C.soft;
     return '<line x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '" stroke="' + col + '" stroke-width="1.5"/>' +
@@ -489,14 +491,14 @@ var Bild = (function () {
       for (var i = 1; i <= (o.ringe || 0); i++) s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (R - i * 8) + '" fill="none" stroke="' + C.ink + '" stroke-opacity=".18"/>';
       if (o.label) s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (R * 0.28) + '" fill="' + (o.label) + '" stroke="' + C.ink + '" stroke-width="1.5"/>';
       s += '<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="' + C.ink + '"/>';
-      s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + a) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="3"/>';
+      s += '<line x1="' + (o.d ? cx - a : cx) + '" y1="' + cy + '" x2="' + (cx + a) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="3"/>';   // o.d: Durchmesser statt Radius einzeichnen
       s += '<circle cx="' + (cx + a) + '" cy="' + cy + '" r="7" fill="' + C.red + '" stroke="#fff" stroke-width="2"/>';
-      if (o.lr) s += T(cx + a / 2, cy + 30, o.lr, C.red, 17, 'middle');
+      if (o.lr) s += T(6, 182, o.lr, C.red, G(o.lr, 17, 180));
       if (o.lv) s += pfeil(cx + a, cy, cx + a, cy + 58, C.blue) + T(cx + a + 8, cy + 56, o.lv, C.blue, 17);
       s += drehpfeil(cx, cy, R + 12, -70, -20, C.violet);
-      if (o.lw) s += T(cx + 58, cy - 72, o.lw, C.violet, 17);
+      if (o.lw) s += T(cx + 58, cy - 72, o.lw, C.violet, G(o.lw, 17, 125));
       if (o.extra) s += o.extra;
-      return svg(s);
+      return svg(s, '0 0 300 190');
     },
     platte: function (lr, lt) {
       return Bild.scheibe({ farbe: '#4a4038', ringe: 6, label: C.peach, anteil: 0.62, lr: lr, lw: lt }).replace('fill="#4a4038"', 'fill="#5a4e44"');
@@ -537,7 +539,7 @@ var Bild = (function () {
       s += '<circle cx="105" cy="105" r="52" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="4"/><circle cx="105" cy="105" r="40" fill="#e9f1fb" stroke="' + C.ink + '" stroke-opacity=".4"/>';
       s += '<path d="M80,110 q12,-18 26,-4 q10,12 22,-6" fill="none" stroke="' + C.rose + '" stroke-width="7" stroke-linecap="round"/>';
       s += '<line x1="65" y1="105" x2="145" y2="105" stroke="' + C.red + '" stroke-width="2" stroke-dasharray="5 4"/>';
-      s += T(190, 100, ld, C.red, 17) + drehpfeil(105, 105, 62, -60, -10, C.violet) + T(190, 60, ln, C.violet, 17);
+      s += T(190, 100, ld, C.red, G(ld, 17, 105)) + drehpfeil(105, 105, 62, -60, -10, C.violet) + T(190, 60, ln, C.violet, G(ln, 17, 105));
       return svg(s);
     },
     ventilator: function (ll, ln) {
@@ -546,7 +548,7 @@ var Bild = (function () {
       s += '<circle cx="' + cx + '" cy="' + cy + '" r="13" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2"/>';
       var a = -20 * Math.PI / 180, x = cx + 82 * Math.cos(a), y = cy + 82 * Math.sin(a);
       s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="' + C.red + '" stroke-width="2" stroke-dasharray="5 4"/>';
-      s += T(x + 6, y - 6, ll, C.red, 17) + drehpfeil(cx, cy, 90, 40, 95, C.violet) + T(150, 175, ln, C.violet, 17);
+      s += T(x + 6, y - 6, ll, C.red, 17) + drehpfeil(cx, cy, 90, 40, 95, C.violet) + T(296, 26, ln, C.violet, G(ln, 17, 110), 'end');
       return svg(s);
     },
     bohrer: function (ld, ln) {
@@ -555,25 +557,26 @@ var Bild = (function () {
       s += '<path d="M168,90 h70 l10,5 l-10,5 h-70 z" fill="#cfd6de" stroke="' + C.ink + '" stroke-width="1.5"/>';
       for (var i = 0; i < 6; i++) s += '<line x1="' + (175 + i * 11) + '" y1="90" x2="' + (182 + i * 11) + '" y2="100" stroke="' + C.ink + '" stroke-opacity=".5"/>';
       s += '<circle cx="215" cy="40" r="22" fill="#cfd6de" stroke="' + C.ink + '" stroke-width="2"/><line x1="193" y1="40" x2="237" y2="40" stroke="' + C.red + '" stroke-width="2" stroke-dasharray="4 3"/>';
-      s += T(215, 76, ld, C.red, 16, 'middle') + drehpfeil(215, 40, 30, -150, -80, C.violet) + T(20, 50, ln, C.violet, 17);
+      s += T(215, 86, ld, C.red, G(ld, 16, 160), 'middle') + drehpfeil(215, 40, 30, -150, -80, C.violet) + T(20, 50, ln, C.violet, G(ln, 17, 120));
       return svg(s);
     },
     orbit: function (o) { // o.zentral, o.farbeZ, o.farbeK, o.lr, o.lt, o.name
       var cx = 105, cy = 92, R = 74, s = '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/>';
       s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (o.rz || 24) + '" fill="' + o.farbeZ + '" stroke="' + C.ink + '" stroke-width="2"/>';
       var a = -35 * Math.PI / 180, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
-      s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="' + C.red + '" stroke-width="2.5"/>';
+      var rz = o.rz || 24;
+      s += '<line x1="' + (cx + rz * Math.cos(a)) + '" y1="' + (cy + rz * Math.sin(a)) + '" x2="' + x + '" y2="' + y + '" stroke="' + C.red + '" stroke-width="2.5"/>';
       s += '<circle cx="' + x + '" cy="' + y + '" r="' + (o.rk || 10) + '" fill="' + o.farbeK + '" stroke="' + C.ink + '" stroke-width="2"/>';
-      s += T(6, 180, o.lr ? M_('r') + ' = ' + o.lr : '', C.red, 16) + drehpfeil(cx, cy, R, 20, 75, C.violet) + T(186, 165, o.lt || '', C.violet, 17, 'start');
-      if (o.name) s += T(x + 14, y - 8, o.name, C.ink, 17);
-      if (o.nameZ) s += T(cx, cy + 5, o.nameZ, C.ink, 14, 'middle');
-      return svg(s);
+      s += T(6, 196, o.lr ? M_('r') + ' = ' + o.lr : '', C.red, G((o.lr || '') + 'r = ', 16, 285)) + drehpfeil(cx, cy, R, 20, 75, C.violet) + T(186, 165, o.lt || '', C.violet, G(o.lt, 17, 110), 'start');
+      if (o.name) s += T(x + 14, y - 8, o.name, C.ink, G(o.name, 17, 110));
+      if (o.nameZ) s += T(cx, cy + 5, o.nameZ, C.ink, G(o.nameZ, 14, 2 * rz + 6), 'middle');
+      return svg(s, '0 0 300 202');
     },
     fahrrad: function (ld, lv) {
       var cx = 100, cy = 100, R = 62, s = '<line x1="10" y1="' + (cy + R) + '" x2="250" y2="' + (cy + R) + '" stroke="' + C.soft + '" stroke-width="3"/>';
       for (var i = 0; i < 16; i++) { var a = i * Math.PI / 8; s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + R * Math.cos(a)) + '" y2="' + (cy + R * Math.sin(a)) + '" stroke="' + C.soft + '" stroke-width="1"/>'; }
       s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + C.ink + '" stroke-width="8"/><circle cx="' + cx + '" cy="' + cy + '" r="6" fill="' + C.ink + '"/>';
-      s += '<line x1="' + (cx - R) + '" y1="' + cy + '" x2="' + (cx + R) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="2" stroke-dasharray="5 4"/>' + T(cx, cy - 10, ld, C.red, 16, 'middle');
+      s += '<line x1="' + (cx - R) + '" y1="' + cy + '" x2="' + (cx + R) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="2" stroke-dasharray="5 4"/>' + T(cx + R + 10, cy + 6, ld, C.red, G(ld, 16, 125));
       s += pfeil(cx + 10, cy - R - 12, cx + 95, cy - R - 12, C.blue) + T(cx + 100, cy - R - 6, lv, C.blue, 17);
       s += drehpfeil(cx, cy, R + 14, 200, 250, C.violet);
       return svg(s);
@@ -584,7 +587,7 @@ var Bild = (function () {
       s += '<rect x="' + (cx - 70) + '" y="' + (cy - 6) + '" width="140" height="12" rx="4" fill="#cfd6de" stroke="' + C.ink + '" stroke-width="1.5" transform="rotate(-15 ' + cx + ' ' + cy + ')"/>';
       s += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="' + C.ink + '"/>';
       var a = -15 * Math.PI / 180, x = cx + 70 * Math.cos(a), y = cy + 70 * Math.sin(a);
-      s += T(cx + 10, cy + 30, lr, C.red, 16) + '<line x1="' + cx + '" y1="' + (cy + 12) + '" x2="' + x + '" y2="' + (y + 12) + '" stroke="' + C.red + '" stroke-width="2"/>';
+      s += T(cx - 58, cy + 42, lr, C.red, G(lr, 16, 115)) + '<line x1="' + cx + '" y1="' + (cy + 12) + '" x2="' + x + '" y2="' + (y + 12) + '" stroke="' + C.red + '" stroke-width="2"/>';
       s += pfeil(x, y, x + 18, y - 55, C.blue) + T(x + 26, y - 26, lv, C.blue, 17, 'start');
       return svg(s);
     },
@@ -610,7 +613,7 @@ var Bild = (function () {
       for (var i = 0; i < 9; i++) { var a = (40 + i * 7) * Math.PI / 180, x1 = cx + R * Math.cos(a), y1 = cy + R * Math.sin(a);
         s += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + (x1 + 40 + i * 4) + '" y2="' + (y1 + 10 + i * 3) + '" stroke="' + (i % 2 ? '#f4a261' : '#f7d77a') + '" stroke-width="3" stroke-linecap="round"/>'; }
       s += '<line x1="' + (cx - R) + '" y1="' + cy + '" x2="' + (cx + R) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="2" stroke-dasharray="5 4"/>';
-      s += T(cx, cy - 12, ld, C.red, 15, 'middle') + drehpfeil(cx, cy, R + 12, 190, 250, C.violet) + T(6, 30, ln, C.violet, 16);
+      s += T(cx, cy - 12, ld, C.red, 15, 'middle') + drehpfeil(cx, cy, R + 12, 190, 250, C.violet) + T(6, 180, ln, C.violet, G(ln, 16, 100));
       return svg(s);
     },
     kreisverkehr: function (lr, lt) {
@@ -619,8 +622,8 @@ var Bild = (function () {
       s += '<circle cx="' + cx + '" cy="' + cy + '" r="61" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="10 9"/>';
       s += '<g transform="translate(' + (cx + 61) + ',' + (cy + 4) + ') rotate(-90)"><rect x="-14" y="-8" width="28" height="16" rx="5" fill="' + C.red + '" stroke="' + C.ink + '" stroke-width="1.5"/><rect x="-6" y="-6" width="10" height="12" rx="2" fill="#e8f1fb"/></g>';
       s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + 61) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="2.5"/><circle cx="' + cx + '" cy="' + cy + '" r="4" fill="' + C.ink + '"/>';
-      s += T(cx + 4, cy + 24, lr, C.red, 15) + drehpfeil(cx, cy, 86, -60, -15, C.violet) + T(196, 40, lt, C.violet, 16);
-      return svg(s);
+      s += T(6, 196, lr, C.red, G(lr, 15, 285)) + drehpfeil(cx, cy, 86, -60, -15, C.violet) + T(196, 40, lt, C.violet, G(lt, 16, 100));
+      return svg(s, '0 0 300 202');
     },
     windrad: function (lw) {
       var cx = 110, cy = 70, s = '<path d="M' + (cx - 5) + ',' + cy + ' L' + (cx - 9) + ',178 L' + (cx + 9) + ',178 L' + (cx + 5) + ',' + cy + ' z" fill="#eef0f2" stroke="' + C.ink + '" stroke-width="2"/>';
@@ -676,6 +679,14 @@ var Bild = (function () {
   function mensch(x, y, f) { // kleine stehende Figur, Füße bei y
     return '<g stroke="' + (f || C.ink) + '" stroke-width="3.5" stroke-linecap="round" fill="none"><line x1="' + x + '" y1="' + (y - 22) + '" x2="' + (x - 8) + '" y2="' + y + '"/><line x1="' + x + '" y1="' + (y - 22) + '" x2="' + (x + 8) + '" y2="' + y + '"/><line x1="' + x + '" y1="' + (y - 22) + '" x2="' + x + '" y2="' + (y - 50) + '"/><line x1="' + x + '" y1="' + (y - 44) + '" x2="' + (x - 12) + '" y2="' + (y - 28) + '"/><line x1="' + x + '" y1="' + (y - 44) + '" x2="' + (x + 12) + '" y2="' + (y - 28) + '"/><circle cx="' + x + '" cy="' + (y - 59) + '" r="9" fill="#fff"/></g>';
   }
+  /* Qualitätscheck 04.10.: Beschriftungen passen ins Bild. G = Schriftgröße für maxw Pixel; TT teilt zu lange Texte an „:“, „,“ oder „·“ in zwei Zeilen */
+  function G(t, base, maxw) { var n = String(t || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, 'x').length; return n ? Math.max(9, Math.min(base, maxw / (n * 0.65))) : base; }
+  function TT(x, y, t, col, base, maxw, anchor) {
+    if (!t) return ''; var roh = String(t).replace(/<[^>]+>/g, '');
+    if (roh.length * 0.65 * base <= maxw) return T(x, y, t, col, base, anchor);
+    var m = String(t).match(/^(.*?(?::|,| ·))\s+(.+)$/);
+    return m ? T(x, y - 9, m[1], col, G(m[1], base, maxw), anchor) + T(x, y + 12, m[2], col, G(m[2], base, maxw), anchor) : T(x, y, t, col, G(t, base, maxw), anchor);
+  }
   function strasse(d, w) { return '<path d="' + d + '" fill="none" stroke="#cfd3d8" stroke-width="' + (w || 34) + '"/><path d="' + d + '" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="9 8"/>'; }
 
   var B = {
@@ -684,7 +695,7 @@ var Bild = (function () {
       s = s.replace(/<line x1="110" y1="92"[^>]*stroke="#d0624a"[^>]*\/>/, '').replace(/<circle cx="167.6"[^>]*\/>/, '');
       s += '<circle cx="138" cy="92" r="8" fill="' + C.blue + '" stroke="#fff" stroke-width="2"/><circle cx="172" cy="92" r="8" fill="' + C.red + '" stroke="#fff" stroke-width="2"/>';
       s += T(128, 80, 'A', C.blue, 15) + T(166, 80, 'B', C.red, 15);
-      return svg(s + T(196, 130, lA, C.blue, 15) + T(196, 156, lB, C.red, 15) + (lT ? T(196, 30, lT, C.violet, 15) : ''));
+      return svg(s + TT(196, 130, lA, C.blue, 15, 100) + TT(196, 160, lB, C.red, 15, 100) + (lT ? TT(196, 30, lT, C.violet, 15, 100) : ''));
     },
     kette: function (lv, lh, lx) { // Kettentrieb
       var s = rad(80, 100, 48, 20, C.butter) + rad(215, 100, 20, 9, C.mint);
@@ -702,7 +713,7 @@ var Bild = (function () {
       var s = '<circle cx="70" cy="100" r="18" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2"/><circle cx="200" cy="95" r="62" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="2"/>';
       s += '<line x1="70" y1="82" x2="200" y2="33" stroke="' + C.ink + '" stroke-width="3"/><line x1="70" y1="118" x2="200" y2="157" stroke="' + C.ink + '" stroke-width="3"/>';
       s += '<circle cx="70" cy="100" r="3" fill="' + C.ink + '"/><circle cx="200" cy="95" r="4" fill="' + C.ink + '"/>';
-      s += T(40, 150, l1, C.red, 15) + T(200, 101, l2, C.blue, 15, 'middle') + (lx ? T(6, 30, lx, C.violet, 15) : '');
+      s += T(6, 178, l1, C.red, G(l1, 15, 150)) + T(200, 128, l2, C.blue, G(l2, 15, 100), 'middle') + (lx ? T(6, 30, lx, C.violet, G(lx, 15, 120)) : '');
       return svg(s);
     },
     saege: function (l1, l2) {
@@ -720,31 +731,31 @@ var Bild = (function () {
     },
     rollrad: function (lv, ld) {
       var s = '<line x1="10" y1="165" x2="290" y2="165" stroke="' + C.soft + '" stroke-width="3"/><circle cx="120" cy="100" r="65" fill="none" stroke="' + C.ink + '" stroke-width="9"/><circle cx="120" cy="100" r="6" fill="' + C.ink + '"/>';
-      s += pfeil(120, 100, 180, 100, C.blue) + '<circle cx="120" cy="35" r="7" fill="' + C.red + '"/>' + T(132, 28, '?', C.red, 19) + T(186, 106, lv, C.blue, 15) + T(20, 30, ld, C.soft, 15);
+      s += pfeil(120, 100, 180, 100, C.blue) + '<circle cx="120" cy="35" r="7" fill="' + C.red + '"/>' + T(110, 30, '?', C.red, 19, 'end') + T(192, 106, lv, C.blue, G(lv, 15, 104)) + T(296, 26, ld, C.soft, G(ld, 15, 150), 'end');
       return svg(s);
     },
     schnur: function (lm, lr, lv, lF) { // Körper an Schnur von oben mit F_Z
       var s = '<circle cx="110" cy="92" r="70" fill="none" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/><circle cx="110" cy="92" r="5" fill="' + C.ink + '"/>';
       s += '<line x1="110" y1="92" x2="159.5" y2="42.5" stroke="' + C.ink + '" stroke-width="2"/><circle cx="159.5" cy="42.5" r="10" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2"/>';
-      if (lF) s += pfeil(152, 50, 127, 75, C.red, 3.5) + T(95, 70, lF, C.red, 14, 'end');
-      s += pfeil(167, 50, 205, 88, C.blue) + T(212, 100, lv || '', C.blue, 15) + T(175, 34, lm || '', C.ink, 15) + T(75, 130, lr || '', C.red, 15);
+      if (lF) s += pfeil(152, 50, 127, 75, C.red, 3.5) + T(6, 17, lF, C.red, G(lF, 14, 100));
+      s += pfeil(167, 50, 205, 88, C.blue) + TT(212, 100, lv || '', C.blue, 15, 84) + TT(175, 34, lm || '', C.ink, 15, 120) + T(75, 130, lr || '', C.red, G(lr, 15, 90));
       return svg(s);
     },
     radkurve: function (lm, lv, lr) {
       var s = strasse('M 20,170 A 150,150 0 0 1 170,20', 30);
       s += '<circle cx="170" cy="170" r="4" fill="' + C.ink + '"/><line x1="170" y1="170" x2="64" y2="64" stroke="' + C.red + '" stroke-width="1.5" stroke-dasharray="4 4"/>';
       s += '<g transform="translate(64,64) rotate(-45)"><rect x="-16" y="-4" width="32" height="8" rx="3" fill="' + C.green + '"/><circle cx="0" cy="0" r="6" fill="#fff" stroke="' + C.green + '" stroke-width="3"/></g>';
-      return svg(s + T(190, 120, lr, C.red, 15) + T(190, 60, lv, C.blue, 15) + T(190, 90, lm, C.ink, 15));
+      return svg(s + TT(190, 120, lr, C.red, 15, 106) + TT(190, 60, lv, C.blue, 15, 106) + TT(190, 90, lm, C.ink, 15, 106));
     },
     zug: function (lm, lv, lr) {
       var s = '<path d="M 10,175 A 240,240 0 0 1 250,-65" fill="none" stroke="#a59682" stroke-width="16"/><path d="M 10,175 A 240,240 0 0 1 250,-65" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="3 9"/>';
       s += '<g transform="translate(95,75) rotate(-42)"><rect x="-44" y="-9" width="88" height="18" rx="9" fill="#fff" stroke="' + C.red + '" stroke-width="3"/><line x1="-38" y1="0" x2="38" y2="0" stroke="' + C.red + '" stroke-width="2"/></g>';
-      return svg(s + T(170, 120, lr, C.red, 15) + T(170, 150, lv, C.blue, 15) + T(170, 176, lm, C.ink, 15));
+      return svg(s + TT(170, 120, lr, C.red, 15, 126) + TT(170, 150, lv, C.blue, 15, 126) + TT(170, 176, lm, C.ink, 15, 126));
     },
     flugzeug: function (lm, lv, lr) {
       var s = '<circle cx="110" cy="92" r="72" fill="none" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/>';
       s += '<g transform="translate(160,41) rotate(45)"><path d="M -22,0 L 22,0 M 0,-20 L 6,0 L 0,20 M -20,-7 L -16,0 L -20,7" stroke="' + C.ink + '" stroke-width="4" fill="none" stroke-linecap="round"/></g>';
-      return svg(s + T(200, 120, lr, C.red, 15) + T(200, 150, lv, C.blue, 15) + T(200, 176, lm, C.ink, 15));
+      return svg(s + TT(200, 120, lr, C.red, 15, 96) + TT(200, 150, lv, C.blue, 15, 96) + TT(200, 176, lm, C.ink, 15, 96));
     },
     bus: function () {
       var s = strasse('M 60,185 L 60,110 A 70,70 0 0 1 130,40 L 300,40', 70);
@@ -770,41 +781,41 @@ var Bild = (function () {
       var s = '<circle cx="110" cy="100" r="70" fill="none" stroke="' + C.ink + '" stroke-width="5"/><line x1="10" y1="172" x2="290" y2="172" stroke="' + C.ink + '" stroke-width="5"/>';
       s += '<rect x="96" y="31" width="28" height="16" rx="4" fill="' + C.red + '" stroke="' + C.ink + '"/><circle cx="110" cy="100" r="4" fill="' + C.ink + '"/><line x1="110" y1="100" x2="180" y2="100" stroke="' + C.red + '" stroke-width="1.5" stroke-dasharray="4 4"/>';
       s += pfeil(130, 30, 175, 30, C.blue);
-      return svg(s + T(190, 105, lr, C.red, 15) + T(180, 36, lv || '', C.blue, 15) + T(200, 150, lm || '', C.ink, 15));
+      return svg(s + TT(190, 105, lr, C.red, 15, 106) + TT(180, 36, lv || '', C.blue, 15, 116) + TT(200, 150, lm || '', C.ink, 15, 96));
     },
     becher: function (lr, lx) {
       var s = '<circle cx="110" cy="100" r="70" fill="none" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/>';
       s += '<line x1="110" y1="100" x2="110" y2="40" stroke="' + C.ink + '" stroke-width="3"/><path d="M 96,30 h 28 l -4,20 h -20 z" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="2"/>';
       s += mensch(110, 180, C.ink) + '<line x1="110" y1="100" x2="180" y2="100" stroke="' + C.red + '" stroke-width="1.5" stroke-dasharray="4 4"/>';
-      return svg(s + T(190, 105, lr, C.red, 15) + (lx ? T(190, 40, lx, C.violet, 15) : ''));
+      return svg(s + TT(190, 105, lr, C.red, 15, 106) + (lx ? TT(190, 40, lx, C.violet, 15, 106) : ''));
     },
     zentrifuge: function (lr, lx) {
       var s = '<circle cx="110" cy="92" r="72" fill="#eef1f4" stroke="' + C.ink + '" stroke-width="2.5"/>';
       for (var i = 0; i < 6; i++) { var a = i * Math.PI / 3; s += '<rect x="' + (110 + 50 * Math.cos(a) - 7) + '" y="' + (92 + 50 * Math.sin(a) - 7) + '" width="14" height="14" rx="3" fill="' + C.lav + '" stroke="' + C.ink + '"/>'; }
       s += '<circle cx="110" cy="92" r="6" fill="' + C.ink + '"/>' + dreh(110, 92, 84, -60, -15, C.violet);
-      return svg(s + T(196, 110, lr || '', C.red, 15) + T(196, 40, lx || '', C.violet, 15));
+      return svg(s + TT(196, 110, lr || '', C.red, 15, 100) + TT(196, 40, lx || '', C.violet, 15, 100));
     },
     kurve: function (lr, lmu, lv) { // Straßenkurve von oben
       var s = strasse('M 10,40 L 90,40 A 70,70 0 0 1 160,110 L 160,185', 36);
       s += '<circle cx="90" cy="110" r="4" fill="' + C.ink + '"/><line x1="90" y1="110" x2="139" y2="61" stroke="' + C.red + '" stroke-width="1.5" stroke-dasharray="4 4"/>';
       s += '<g transform="translate(139,61) rotate(45)"><rect x="-14" y="-8" width="28" height="16" rx="4" fill="' + C.blue + '" stroke="' + C.ink + '"/></g>';
-      return svg(s + T(190, 70, lr || '', C.red, 15) + T(190, 105, lmu || '', C.green, 15) + T(190, 140, lv || '', C.blue, 15));
+      return svg(s + TT(190, 70, lr || '', C.red, 15, 106) + TT(190, 108, lmu || '', C.green, 15, 106) + TT(190, 146, lv || '', C.blue, 15, 106));
     },
     drehteller: function (lr, lmu) {
       var s = '<ellipse cx="120" cy="110" rx="100" ry="38" fill="' + C.butter + '" stroke="' + C.ink + '" stroke-width="2.5"/><ellipse cx="190" cy="104" rx="11" ry="5" fill="#c9a44a" stroke="' + C.ink + '"/>';
       s += '<line x1="120" y1="110" x2="186" y2="105" stroke="' + C.red + '" stroke-width="1.5" stroke-dasharray="4 4"/><line x1="120" y1="148" x2="120" y2="175" stroke="' + C.soft + '" stroke-width="6"/>';
-      return svg(s + dreh(120, 110, 60, 190, 240, C.violet) + T(140, 60, lr || '', C.red, 15) + T(10, 30, lmu || '', C.green, 15));
+      return svg(s + dreh(120, 110, 60, 190, 240, C.violet) + TT(140, 60, lr || '', C.red, 15, 156) + TT(10, 30, lmu || '', C.green, 15, 280));
     },
     lkw: function (lr, lmu) {
       var s = strasse('M 10,175 A 170,170 0 0 1 180,5', 50);
       s += '<g transform="translate(80,80) rotate(-45)"><rect x="-40" y="-14" width="68" height="28" rx="3" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2"/><rect x="28" y="-12" width="18" height="24" rx="3" fill="' + C.red + '" stroke="' + C.ink + '"/><rect x="-26" y="-9" width="30" height="18" rx="3" fill="#b9bec5" stroke="' + C.ink + '"/></g>';
-      return svg(s + T(190, 120, lr || '', C.red, 15) + T(190, 150, lmu || '', C.green, 15));
+      return svg(s + TT(190, 112, lr || '', C.red, 15, 106) + TT(190, 154, lmu || '', C.green, 15, 106));
     },
     brief: function (l1) {
       var s = '<rect x="40" y="30" width="170" height="130" rx="6" fill="#fff" stroke="' + C.ink + '" stroke-width="2"/>';
       for (var i = 0; i < 6; i++) s += '<line x1="56" y1="' + (58 + i * 16) + '" x2="' + (i === 5 ? 140 : 194) + '" y2="' + (58 + i * 16) + '" stroke="' + C.soft + '" stroke-width="2"/>';
       s += '<path d="M 200,20 l 40,-10 l -30,60 z" fill="' + C.butter + '" stroke="' + C.ink + '"/>';
-      return svg(s + T(220, 170, l1 || '', C.violet, 15, 'end'));
+      return svg(s + T(220, 186, l1 || '', C.violet, G(l1, 15, 210), 'end'), '0 0 300 196');
     },
     kugeln: function (l1, l2, lr) { // zwei Massen, Gravitation
       var s = '<circle cx="60" cy="85" r="34" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="2"/><circle cx="230" cy="85" r="24" fill="' + C.butter + '" stroke="' + C.ink + '" stroke-width="2"/>';
@@ -833,7 +844,7 @@ var Bild = (function () {
         s += '<line x1="' + cx + '" y1="' + py.toFixed(1) + '" x2="' + px.toFixed(1) + '" y2="' + py.toFixed(1) + '" stroke="' + C.blue + '" stroke-width="3"/>';
         s += '<path d="M' + (cx + 22) + ',' + cy + ' A22,22 0 0 0 ' + (cx + 22 * Math.cos(w)).toFixed(1) + ',' + (cy - 22 * Math.sin(w)).toFixed(1) + '" fill="none" stroke="' + C.red + '" stroke-width="2"/>';
         s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="6" fill="' + C.red + '" stroke="#fff" stroke-width="2"/>';
-        return svg(s + T(cx + 26, cy - 6, 'φ', C.red, 13) + T(cx, cy + 44, name, C.ink, 15, 'middle') + T(px + 10, py - 8, l1 || '', C.red, 15) + T(cx + R + 8, cy + 26, l2 || '', C.green, 15));
+        return svg(s + T(cx + 26, cy - 6, 'φ', C.red, 13) + T(cx + R + 8, cy + 56, name, C.ink, 15) + T(px + 10, py - 8, l1 || '', C.red, G(l1, 15, 285 - px)) + T(cx + R + 8, cy + 26, l2 || '', C.green, G(l2, 15, 130)));
       }
       s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + R) + '" y2="' + cy + '" stroke="' + C.red + '" stroke-width="2"/>';
       if (hoch) {
@@ -842,24 +853,24 @@ var Bild = (function () {
         s += '<line x1="' + (cx - 6) + '" y1="' + (cy - R) + '" x2="' + (cx + 6) + '" y2="' + (cy - R) + '" stroke="' + C.soft + '" stroke-width="1.8"/>';
         s += '<circle cx="' + cx + '" cy="' + yb + '" r="8" fill="' + C.peach + '" stroke="' + C.ink + '" stroke-width="2"/>';
         s += pfeil(cx, cy - R + 5, cx, cy - R + 30, C.blue, 2.5);
-        return svg(s + T(cx, cy + 40, name, C.ink, 15, 'middle') + T(cx + 14, cy - R - 2, l1 || '', C.red, 15) + T(cx + 16, yb + 2, l2 || '', C.green, 15));
+        return svg(s + T(cx, cy + 56, name, C.ink, 15, 'middle') + T(cx + 14, cy - R - 2, l1 || '', C.red, G(l1, 15, 180)) + T(cx + 16, yb + 2, l2 || '', C.green, G(l2, 15, 180)));
       }
       s += '<g transform="translate(' + cx + ',' + (cy - R + 1) + ') scale(.7)">' + mensch(0, 0, '#e0620d') + '</g>';
       s += pfeil(cx, cy - R + 5, cx, cy - R + 30, C.blue, 2.5);
-      return svg(s + T(cx, cy + 40, name, C.ink, 15, 'middle') + T(cx + R + 8, cy + 6, l1 || '', C.red, 15) + T(cx + 18, cy - R - 22, l2 || '', C.green, 15));
+      return svg(s + T(cx, cy + 56, name, C.ink, 15, 'middle') + T(cx + R + 8, cy + 6, l1 || '', C.red, G(l1, 15, 130)) + T(cx + 18, cy - R - 22, l2 || '', C.green, G(l2, 15, 180)));
     },
     fall: function (lh, lt) {
       var s = '<line x1="10" y1="172" x2="290" y2="172" stroke="' + C.ink + '" stroke-width="3"/><line x1="60" y1="172" x2="60" y2="18" stroke="' + C.soft + '" stroke-width="4"/>';
       for (var i = 0; i < 8; i++) s += '<line x1="54" y1="' + (172 - i * 20) + '" x2="66" y2="' + (172 - i * 20) + '" stroke="' + C.soft + '" stroke-width="2"/>';
       s += '<circle cx="110" cy="26" r="9" fill="' + C.peach + '" stroke="' + C.ink + '"/><circle cx="110" cy="162" r="9" fill="' + C.peach + '" stroke="' + C.ink + '" opacity=".5"/>' + pfeil(110, 44, 110, 140, C.blue);
-      s += '<rect x="200" y="70" width="46" height="76" rx="8" fill="#2d3a2e" stroke="' + C.ink + '" stroke-width="2"/><circle cx="223" cy="80" r="3" fill="#b8f5a8"/>';
-      return svg(s + T(70, 100, lh, C.red, 15) + T(250, 60, lt || '', C.violet, 14, 'end'));
+      s += '<rect x="240" y="70" width="46" height="76" rx="8" fill="#2d3a2e" stroke="' + C.ink + '" stroke-width="2"/><circle cx="263" cy="80" r="3" fill="#b8f5a8"/>';
+      return svg(s + T(122, 100, lh, C.red, G(lh, 15, 112)) + T(296, 58, lt || '', C.violet, G(lt, 14, 170), 'end'));
     },
     satellit: function (lh, lx, name) {
       var s = '<circle cx="80" cy="130" r="70" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="2.5"/><circle cx="80" cy="130" r="118" fill="none" stroke="' + C.soft + '" stroke-width="2" stroke-dasharray="6 5"/>';
       s += '<g transform="translate(163,47) rotate(45)"><rect x="-8" y="-6" width="16" height="12" fill="' + C.butter + '" stroke="' + C.ink + '"/><rect x="-26" y="-3" width="16" height="6" fill="#4f7fc4"/><rect x="10" y="-3" width="16" height="6" fill="#4f7fc4"/></g>';
       s += '<line x1="80" y1="130" x2="150" y2="130" stroke="' + C.red + '" stroke-width="1.5"/>' + '<line x1="150" y1="130" x2="198" y2="130" stroke="' + C.violet + '" stroke-width="3"/>';
-      return svg(s + T(120, 150, 'R', C.red, 15, 'middle') + T(200, 165, lh || '', C.violet, 14) + T(200, 30, lx || '', C.blue, 14) + T(80, 125, name || 'Erde', C.ink, 13, 'middle'));
+      return svg(s + T(120, 150, 'R', C.red, 15, 'middle') + T(206, 136, lh || '', C.violet, G(lh, 14, 130)) + T(206, 26, lx || '', C.blue, G(lx, 14, 130)) + T(80, 172, name || 'Erde', C.ink, 13, 'middle'), '0 0 340 185');
     },
     astronaut: function () {
       var s = '<circle cx="60" cy="210" r="140" fill="' + C.sky + '" stroke="' + C.ink + '" stroke-width="2.5"/>';
@@ -1298,7 +1309,7 @@ var AUFGABEN = (function () {
     zufall: function () { return {}; }, festOnly: true,
     calc: function (p) { p.T = 60 / 13; p.w = P2 / p.T; p.a = Math.tan(55 * Math.PI / 180) * g; p.r = p.a / qu(p.w); },
     bild: function () { return Bild.kettenkarussell('?', '13 1/min', '55°'); },
-    text: function () { return 'Ein Kettenkarussell dreht sich mit 13 Umdrehungen pro Minute; die Ketten stehen dann 55° gegen die Senkrechte. <b>Bestimmen Sie</b> den Bahnradius der Sitze. Ein Mast steht 9,5 m von der Achse entfernt. <b>Beurteilen Sie</b>, ob ein Fahrgast mit dem Fuß an den Mast stoßen konnte (Beine etwa 0,5 m).'; },
+    text: function () { return 'Ein Kettenkarussell dreht sich mit 13 Umdrehungen pro Minute; die Ketten stehen dann 55° gegen die Senkrechte. <b>Bestimmen Sie</b> den Bahnradius der Sitze. Ein Mast steht 9,5 m von der Achse entfernt. <b>Beurteilen Sie</b>, ob ein Fahrgast mit dem Fuß an den Mast stoßen könnte (Beine etwa 0,5 m).'; },
     felder: [{ label: 'r', unit: 'm', wert: function (p) { return p.r; } }, { typ: 'wahl', label: 'Anstoßen war …', optionen: ['möglich', 'nicht möglich'], richtig: function (p) { return p.r + 0.5 > 9.5 ? 0 : 1; } }],
     tipps: [function () { return 'tan 55° = ' + FZ + '/' + FG + ' = ' + w_ + '²' + r_ + '/' + g_ + '.'; }, function () { return w_ + ' = 2π · 13/60 s.'; }],
     loesung: function (p) { return w_ + ' = ' + s(p.w) + ' 1/s;&ensp; ' + r_ + ' = ' + FR(g_ + ' · tan 55°', w_ + '²') + ' = ' + s(p.r) + ' m. Mit Beinen bis etwa ' + s(p.r + 0.5) + ' m: ' + (p.r + 0.5 > 9.5 ? 'Anstoßen war möglich.' : 'Der Mast ist außer Reichweite.'); } },
@@ -1362,7 +1373,7 @@ var AUFGABEN = (function () {
     tipps: [function () { return 'Für die Ladung liefert die Haftreibung zur Ladefläche ' + FZ + '. Gleiche Rechnung wie bei der Kurve.'; }, function () { return vmax + ' = √(' + mu + g_ + r_ + ').'; }],
     loesung: function (p) { return vmax + ' = √(' + f(p.mu, 2) + ' · 9,81 · ' + p.r + ') m/s = ' + s(p.v) + ' m/s ≈ ' + s(p.vk, 2) + ' km/h. Schon bei Stadtgeschwindigkeit!'; } },
 
-  { id: '2S31', teil: 2, stufe: 'S3', titel: 'Tempo 60: Wie eng darf die Kurve sein?',
+  { id: '2S31', teil: 2, stufe: 'S3', titel: 'Tempolimit: Wie eng darf die Kurve sein?',
     zufall: function () { return { vk: pick([50, 60, 70, 80]), mu: pick([0.7, 0.8]) }; },
     calc: function (p) { p.v = p.vk / 3.6; p.r = qu(p.v) / (p.mu * g); p.r9 = p.r / 0.9; },
     bild: function (p) { return Bild.kurve(M('r') + ' = ?', 'μ = ' + f(p.mu, 2), p.vk + ' km/h'); },
