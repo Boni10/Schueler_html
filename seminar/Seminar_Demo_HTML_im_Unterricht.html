@@ -2254,7 +2254,7 @@ var SIM = (function () {
     return s;
   }
   /* In der Stunde steht hier der QR-Code des mebis-Kurses (SUS_LINK, fest eingebaut). In der Demo führt er zur Lernlandkarte dieser Seite, damit das Publikum mitmachen kann. */
-  var SUS_LINK = 'https://boni10.github.io/Schueler_html/seminar/Seminar_Demo_HTML_im_Unterricht.html#ab';
+  var SUS_LINK = 'https://kobaum.github.io/Schueler_html/seminar/Seminar_Demo_HTML_im_Unterricht.html#ab';
   function qrSVG(text) {
     try { var q = qrcode(0, 'M'); q.addData(encodeURI(text)); q.make(); return q.createSvgTag({ cellSize: 8, margin: 0, scalable: true }); }
     catch (e) { return ''; }
