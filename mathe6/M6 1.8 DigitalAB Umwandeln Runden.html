@@ -1040,12 +1040,14 @@ var B6 = (function () {
   /* ---------- Balken (Bruchstreifen): z von n Teilen gefärbt; o.zeilen: mehrere Balken [[z,n,label],…] untereinander */
   function balken(zeilen, o) {
     o = o || {}; var w = o.w || 260, h = 26, s = '', y = 6;
+    // linker Rand nach der längsten Beschriftung (Qualitätscheck 10.10.: „3/4 von 20 €“ war links abgeschnitten)
+    var L = Math.max(50, 12 + 7.6 * Math.max.apply(null, zeilen.map(function (zl) { return String(zl[2] || '').length; })));
     zeilen.forEach(function (zl) {
       var z = zl[0], n = zl[1], bw = w / n;
-      for (var i = 0; i < n; i++) s += '<rect x="' + (50 + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
-      s += T(44, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
+      for (var i = 0; i < n; i++) s += '<rect x="' + (L + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
+      s += T(L - 6, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
     });
-    return svg(s, '0 0 ' + (w + 62) + ' ' + (y + 2), Math.round((w + 62) * 1.25));
+    return svg(s, '0 0 ' + (w + L + 12) + ' ' + (y + 2), Math.round((w + L + 12) * 1.25));
   }
   /* ---------- Glas / Messbecher: z von n Teilstrichen gefüllt (Flüssigkeit), Beschriftung oben */
   function glas(z, n, beschr, farbe) {
@@ -1686,7 +1688,8 @@ var AUFGABEN = (function () {
     tipps: t3, loesung: '5) Nach der Regel wäre 8,4 ≈ 8, aber 8 Rollen reichen nicht: 9 Rollen. 6) 138 : 52 = 2 Rest 34: 3 Busse.' }),
   A({ id: '3S11', teil: 3, stufe: 'S1', titel: 'Aufrunden oder abrunden?',
     zufall: function () { return { i: ri(0, 5) }; },
-    text: function (p) { return ['Für ein Regal braucht man 3,2 Bretter.', 'Ein Taxi hat 4 Plätze; 13 Kinder fahren mit. Taxis?', 'Aus 10 m Stoff werden Tischdecken zu je 3 m geschnitten. Wie viele ganze Tischdecken?', 'Ein Kuchen braucht 2,5 Eier (Eier gibt es nur ganz). Wie viele kaufen?', 'Mit 20 € kauft man Hefte zu je 3 €. Wie viele Hefte?', 'Für eine Fahrt braucht man 6,1 Liter Benzin; im Kanister sind ganze Liter. Wie viele Liter mindestens?'][p.i] + ' <b>Entscheide</b>.'; },
+    // Fragen als ganze Sätze (Fachsprache, Qualitätscheck 10.10.)
+    text: function (p) { return ['Für ein Regal braucht man 3,2 Bretter. Wie viele Bretter muss man kaufen?', 'Ein Taxi hat 4 Plätze; 13 Kinder fahren mit. Wie viele Taxis braucht man?', 'Aus 10 m Stoff werden Tischdecken zu je 3 m geschnitten. Wie viele ganze Tischdecken entstehen?', 'Ein Kuchen braucht 2,5 Eier, Eier gibt es nur ganz. Wie viele Eier muss man nehmen?', 'Mit 20 € kauft man Hefte zu je 3 €. Wie viele Hefte kann man kaufen?', 'Für eine Fahrt braucht man 6,1 Liter Benzin; im Kanister sind ganze Liter. Wie viele Liter braucht man mindestens?'][p.i] + ' <b>Entscheide</b>, ob man aufrunden oder abrunden muss.'; },
     felder: [fw('Hier muss man', ['aufrunden', 'abrunden'], function (p) { return [0, 0, 1, 0, 1, 0][p.i]; })], tipps: t3,
     loesung: function (p) { return ['4 Bretter (aufrunden).', '4 Taxis (aufrunden).', '3 Tischdecken (abrunden).', '3 Eier (aufrunden).', '6 Hefte (abrunden).', '7 Liter (aufrunden).'][p.i]; } }),
   A({ id: '3S21', teil: 3, stufe: 'S2', titel: 'Kisten packen',
@@ -1848,7 +1851,7 @@ var AUFGABEN = (function () {
   A({ id: '3S12', teil: 3, stufe: 'S1', titel: 'Aufrunden oder abrunden? (mehr Fälle)',
     zufall: function () { return { i: ri(0, 7) }; },
     bild: function (p) { return B7.ikone(['🪜', '🚌', '🎂', '🍎', '🎟️', '🧱', '🧃', '🚗'][p.i], '', ''); },
-    text: function (p) { return ['Für ein Regal braucht man 5,1 Bretter. Wie viele kaufen?', 'Ein Bus fasst 40 Personen, es fahren 85 mit. Wie viele Busse?', 'Aus 25 cm Teig werden Streifen zu je 4 cm geschnitten. Wie viele ganze Streifen?', 'Ein Apfelkuchen braucht 1,5 kg Äpfel; Äpfel gibt es nur in ganzen kg. Wie viele kg kaufen?', 'Mit 25 € kauft man Karten zu je 4 €. Wie viele Karten?', 'Für eine Mauer braucht man 12,3 Paletten Steine. Wie viele bestellen?', 'Aus 1 l Saft werden Gläser zu je 0,3 l gefüllt. Wie viele ganze Gläser?', 'Eine Fahrt braucht 6,2 l Benzin; es gibt nur ganze Liter zu kaufen. Wie viele?'][p.i] + ' <b>Entscheide</b>.'; },
+    text: function (p) { return ['Für ein Regal braucht man 5,1 Bretter. Wie viele Bretter muss man kaufen?', 'Ein Bus fasst 40 Personen, es fahren 85 mit. Wie viele Busse braucht man?', 'Aus 25 cm Teig werden Streifen zu je 4 cm geschnitten. Wie viele ganze Streifen entstehen?', 'Ein Apfelkuchen braucht 1,5 kg Äpfel; Äpfel gibt es nur in ganzen kg. Wie viele kg muss man kaufen?', 'Mit 25 € kauft man Karten zu je 4 €. Wie viele Karten kann man kaufen?', 'Für eine Mauer braucht man 12,3 Paletten Steine. Wie viele Paletten muss man bestellen?', 'Aus 1 l Saft werden Gläser zu je 0,3 l gefüllt. Wie viele ganze Gläser kann man füllen?', 'Eine Fahrt braucht 6,2 l Benzin; es gibt nur ganze Liter zu kaufen. Wie viele Liter muss man kaufen?'][p.i] + ' <b>Entscheide</b>, ob man aufrunden oder abrunden muss.'; },
     felder: [fw('Hier muss man', ['aufrunden', 'abrunden'], function (p) { return [0, 0, 1, 0, 1, 0, 1, 0][p.i]; }, ['Reicht es, wenn man abrundet? Dann fehlt etwas.', 'Man kann nur ganze Stücke verwenden: abrunden.'])], tipps: t3, loesung: function (p) { return ['6 Bretter', '3 Busse', '6 Streifen', '2 kg', '6 Karten', '13 Paletten', '3 Gläser', '7 Liter'][p.i] + '.'; } }),
   A({ id: '3S13', teil: 3, stufe: 'S1', titel: 'Wie viele Busse?',
     zufall: function () { var k = pick([30, 40, 50, 55]), a = ri(k + 5, 3 * k); while (a % k === 0) a++; return { k: k, a: a }; },
@@ -1906,7 +1909,7 @@ var AUFGABEN = (function () {
     felder: [fz('Autos', function (p) { return Math.ceil(p.a / p.k); }), fz('Sprit', function (p) { return Math.ceil(p.a / p.k) * p.f; }, '€')], tipps: t3, loesung: function (p) { return Math.ceil(p.a / p.k) + ' Autos, ' + Math.ceil(p.a / p.k) * p.f + ' €.'; } }),
   A({ id: '3T2', teil: 3, stufe: 'T', niveau: 'S1', serie: 5, titel: 'Serie: aufrunden oder abrunden?',
     zufall: function () { return { i: ri(0, 5) }; },
-    text: function (p) { return ['Man braucht 4,2 Bretter.', 'Aus 20 m Band werden Stücke zu 3 m geschnitten. Wie viele ganze Stücke?', '41 Kinder, Boote mit 6 Plätzen. Wie viele Boote?', 'Mit 17 € kauft man Eiskugeln zu je 2 €. Wie viele Eiskugeln?', '5,3 l Farbe werden gebraucht, es gibt nur ganze Liter.', 'Aus 100 g Teig werden Brötchen zu je 30 g. Wie viele ganze Brötchen?'][p.i]; },
+    text: function (p) { return ['Man braucht 4,2 Bretter. Wie viele Bretter muss man kaufen?', 'Aus 20 m Band werden Stücke zu 3 m geschnitten. Wie viele ganze Stücke entstehen?', '41 Kinder fahren mit Booten mit je 6 Plätzen. Wie viele Boote braucht man?', 'Mit 17 € kauft man Eiskugeln zu je 2 €. Wie viele Eiskugeln kann man kaufen?', '5,3 l Farbe werden gebraucht, es gibt nur ganze Liter. Wie viele Liter muss man kaufen?', 'Aus 100 g Teig werden Brötchen zu je 30 g. Wie viele ganze Brötchen entstehen?'][p.i] + ' Muss man aufrunden oder abrunden?'; },
     felder: [fw('Hier muss man', ['aufrunden', 'abrunden'], function (p) { return [0, 1, 0, 1, 0, 1][p.i]; }, ['', ''])], tipps: t3, loesung: function (p) { return ['aufrunden', 'abrunden', 'aufrunden', 'abrunden', 'aufrunden', 'abrunden'][p.i]; } }),
   A({ id: '3T3', teil: 3, stufe: 'T', niveau: 'S2', serie: 5, titel: 'Serie: Wie viele Kästen?',
     zufall: function () { var k = ri(4, 24), a = ri(k + 1, 10 * k); while (a % k === 0) a++; return { k: k, a: a }; }, text: function (p) { return p.a + ' Flaschen, Kästen zu ' + p.k + '. Wie viele Kästen?'; }, felder: [fz('Kästen', function (p) { return Math.ceil(p.a / p.k); })], tipps: t3, loesung: function (p) { return String(Math.ceil(p.a / p.k)); } })

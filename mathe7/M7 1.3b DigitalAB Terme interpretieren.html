@@ -1452,6 +1452,8 @@ var AUFGABEN = (function () {
   var M = M6, A = M.A, ri = M.ri, pick = M.pick, fz = M.fz, fw = M.fw, T7 = M7, D = M7.D, B = B7;
   var t1 = ['Zuerst klären: Wofür steht die Variable?', 'Dann den Term in Bausteine zerlegen und jeden Baustein im Sachverhalt suchen.'];
   function zeig(t) { return MT.zeige(MT.parse(t)).replace(/\^2/g, '²').replace(/\^3/g, '³'); }
+  // Deutung als Satz (Qualitätscheck 10.10.): „3 gibt an, wie viele cm …“ statt „3 ist wie viele cm …“
+  function deut(z, s) { return z + (s.indexOf('wie ') === 0 ? ' gibt an, ' : ' ist ') + s; }
   function rd(x) { return Math.round(x * 1e6) / 1e6; }
   var FREIBAD = [['3x', 'Eintritt für drei Kinder'], ['2x + 2y', 'Eintritt für zwei Kinder und zwei Erwachsene'], ['y − x', 'der Betrag, den ein Erwachsener mehr zahlt als ein Kind'],
                  ['x + y', 'Eintritt für ein Kind und einen Erwachsenen'], ['4y', 'Eintritt für vier Erwachsene'], ['2y + x', 'Eintritt für zwei Erwachsene und ein Kind'], ['y − 2x', 'um so viel ist ein Erwachsener teurer als zwei Kinder'],
@@ -1502,11 +1504,11 @@ var AUFGABEN = (function () {
   A({ id: '1S13', teil: 1, stufe: 'S1', titel: 'Was bedeutet die erste Zahl?',
     zufall: gesch, bild: gbild,
     text: function (p) { return p.g.n + ': ' + gz(p) + '. Was bedeutet die Zahl ' + p.a + '?'; },
-    felder: [fw('Die erste Zahl ist', [function (p) { return p.g.a; }, function (p) { return p.g.b; }, function (p) { return p.g.vt; }], function () { return 0; }, ['', 'Das ist die Zahl, die mit der Variablen multipliziert wird. Die erste Zahl steht allein.', 'Das ist die Variable.'])], tipps: t1, loesung: function (p) { return p.a + ' ist ' + p.g.a + '.'; } }),
+    felder: [fw('Die erste Zahl ist', [function (p) { return p.g.a; }, function (p) { return p.g.b; }, function (p) { return p.g.vt; }], function () { return 0; }, ['', 'Das ist die Zahl, die mit der Variablen multipliziert wird. Die erste Zahl steht allein.', 'Das ist die Variable.'])], tipps: t1, loesung: function (p) { return deut(p.a, p.g.a) + '.'; } }),
   A({ id: '1S14', teil: 1, stufe: 'S1', titel: 'Was bedeutet die Zahl vor der Variablen?',
     zufall: gesch, bild: gbild,
     text: function (p) { return p.g.n + ': ' + gz(p) + '. Was bedeutet die Zahl ' + p.b + '?'; },
-    felder: [fw('Diese Zahl ist', [function (p) { return p.g.b; }, function (p) { return p.g.a; }, function (p) { return p.g.vt; }], function () { return 0; }, ['', 'Das ist der Wert am Anfang, er steht allein.', 'Das ist die Variable selbst, nicht die Zahl davor.'])], tipps: t1, loesung: function (p) { return p.b + ' ist ' + p.g.b + '.'; } }),
+    felder: [fw('Diese Zahl ist', [function (p) { return p.g.b; }, function (p) { return p.g.a; }, function (p) { return p.g.vt; }], function () { return 0; }, ['', 'Das ist der Wert am Anfang, er steht allein.', 'Das ist die Variable selbst, nicht die Zahl davor.'])], tipps: t1, loesung: function (p) { return deut(p.b, p.g.b) + '.'; } }),
   A({ id: '1S15', teil: 1, stufe: 'S1', titel: 'Einsetzen und deuten',
     zufall: gesch, bild: gbild,
     text: function (p) { return p.g.n + ': ' + gz(p) + ' (' + p.g.v + ' steht für ' + p.g.vt + '). <b>Berechne</b> ' + p.g.f + '(' + p.x + ') und <b>sage</b>, was das Ergebnis bedeutet.'; },
@@ -1532,11 +1534,12 @@ var AUFGABEN = (function () {
     bild: function (p) { return freibadBild(); },
     text: function (p) { return 'Im Freibad zahlen Kinder x €, Erwachsene y €. Mia schreibt ' + p.t1 + ', Leo schreibt ' + p.t2 + ' für die Kosten einer Gruppe. <b>Entscheide</b>, ob beide Terme für dieselbe Gruppe stehen können (setze Zahlen ein).'; },
     felder: [fw('Beide Terme', ['beschreiben dieselben Kosten', 'beschreiben verschiedene Kosten'], function (p) { return p.gl ? 0 : 1; }, ['Setze x = 1 und y = 2 ein: Die Werte unterscheiden sich.', 'Setze x = 1 und y = 2 ein: Beide Werte sind gleich, es ist derselbe Betrag.'])], tipps: ['Setze für x und y Zahlen ein und vergleiche beide Werte.', 'Klammer ausmultiplizieren: 2(x + y) = 2x + 2y.'], loesung: function (p) { return (p.gl ? 'Gleichwertig' : 'Nicht gleichwertig') + ': ' + p.t1 + ' und ' + p.t2 + '.'; } }),
-  A({ id: '1S24', teil: 1, stufe: 'S2', titel: 'Welche Gruppe ist gemeint?',
+  A({ id: '1S24', teil: 1, stufe: 'S2', titel: 'Was gibt der Term an?',
     zufall: function () { return { i: ri(7, 9) }; },
     bild: function (p) { return freibadBild(); },
-    text: function (p) { return 'Kinder zahlen x €, Erwachsene y €. Eine Gruppe zahlt insgesamt ' + FREIBAD[p.i][0] + '. Welche Aussage passt?'; },
-    felder: [fw('Die Gruppe besteht aus', [function (p) { return FREIBAD[p.i][1]; }, function (p) { return FREIBAD[p.i - 6][1]; }, function (p) { return FREIBAD[p.i - 5][1]; }], function () { return 0; }, ['', 'Das ist ein anderer Term.', 'Das ist ein anderer Term.'])], tipps: t1, loesung: function (p) { return FREIBAD[p.i][0] + ': ' + FREIBAD[p.i][1] + '.'; } }),
+    // Nicht jeder Term ist ein Gruppenpreis (y − x ist ein Unterschied); deshalb nach der Bedeutung des Terms fragen (Qualitätscheck 10.10.)
+    text: function (p) { return 'Kinder zahlen x €, Erwachsene y €. Was gibt der Term ' + FREIBAD[p.i][0] + ' an?'; },
+    felder: [fw('Der Term gibt an', [function (p) { return FREIBAD[p.i][1]; }, function (p) { return FREIBAD[p.i - 6][1]; }, function (p) { return FREIBAD[p.i - 5][1]; }], function () { return 0; }, ['', 'Das ist ein anderer Term.', 'Das ist ein anderer Term.'])], tipps: t1, loesung: function (p) { return FREIBAD[p.i][0] + ': ' + FREIBAD[p.i][1] + '.'; } }),
   A({ id: '1S25', teil: 1, stufe: 'S2', titel: 'Kosten pro Kind',
     zufall: function () { return { b: pick([600, 720, 960, 1200]), e: pick([60, 90, 116]) }; },
     calc: function (p) { var ok = [10, 12, 15, 20, 24, 30].filter(function (q) { return p.b % q === 0; }); p.n = ok[ri(0, ok.length - 1)]; p.n2 = p.n * 2; },
@@ -1566,7 +1569,7 @@ var AUFGABEN = (function () {
   A({ id: '1S34', teil: 1, stufe: 'S3', titel: 'Welche Deutung ist falsch?',
     zufall: gesch, bild: gbild,
     text: function (p) { return p.g.n + ': ' + gz(p) + '. Welche Aussage über den Term ist <b>falsch</b>?'; },
-    felder: [fw('Falsch ist', [function (p) { return 'Die Zahl ' + p.b + ' ist ' + p.g.a + '.'; }, function (p) { return 'Die Zahl ' + p.a + ' ist ' + p.g.a + '.'; }, function (p) { return p.g.v + ' steht für ' + p.g.vt + '.'; }, function (p) { return 'Die Zahl ' + p.b + ' ist ' + p.g.b + '.'; }], function () { return 0; }, ['', 'Das ist richtig gedeutet.', 'Das ist richtig gedeutet.', 'Das ist richtig gedeutet.'])], tipps: t1, loesung: function (p) { return 'Die Zahl ' + p.b + ' ist ' + p.g.b + ', nicht ' + p.g.a + '.'; } }),
+    felder: [fw('Falsch ist', [function (p) { return deut('Die Zahl ' + p.b, p.g.a) + '.'; }, function (p) { return deut('Die Zahl ' + p.a, p.g.a) + '.'; }, function (p) { return p.g.v + ' steht für ' + p.g.vt + '.'; }, function (p) { return deut('Die Zahl ' + p.b, p.g.b) + '.'; }], function () { return 0; }, ['', 'Das ist richtig gedeutet.', 'Das ist richtig gedeutet.', 'Das ist richtig gedeutet.'])], tipps: t1, loesung: function (p) { return deut('Die Zahl ' + p.b, p.g.b) + ', nicht ' + p.g.a + '.'; } }),
 
   // ---- Level 🟣 absoluter Irrsinn
   A({ id: '1S41', teil: 1, stufe: 'S4', titel: 'Handschläge',
@@ -1600,7 +1603,7 @@ var AUFGABEN = (function () {
   A({ id: '1T3', teil: 1, stufe: 'T', niveau: 'S2', serie: 5, titel: 'Serie: Was bedeutet die Zahl?',
     zufall: gesch, bild: gbild,
     text: function (p) { return p.g.n + ': ' + gz(p) + '. Was bedeutet ' + p.b + '?'; },
-    felder: [fw('Die Zahl', [function (p) { return p.g.b; }, function (p) { return p.g.a; }], function () { return 0; }, ['', 'Das ist der Anfangswert.'])], tipps: t1, loesung: function (p) { return p.b + ' ist ' + p.g.b + '.'; } })
+    felder: [fw('Die Zahl', [function (p) { return p.g.b; }, function (p) { return p.g.a; }], function () { return 0; }, ['', 'Das ist der Anfangswert.'])], tipps: t1, loesung: function (p) { return deut(p.b, p.g.b) + '.'; } })
   ];
 })();
 

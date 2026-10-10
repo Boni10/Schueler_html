@@ -1030,12 +1030,14 @@ var B6 = (function () {
   /* ---------- Balken (Bruchstreifen): z von n Teilen gefärbt; o.zeilen: mehrere Balken [[z,n,label],…] untereinander */
   function balken(zeilen, o) {
     o = o || {}; var w = o.w || 260, h = 26, s = '', y = 6;
+    // linker Rand nach der längsten Beschriftung (Qualitätscheck 10.10.: „3/4 von 20 €“ war links abgeschnitten)
+    var L = Math.max(50, 12 + 7.6 * Math.max.apply(null, zeilen.map(function (zl) { return String(zl[2] || '').length; })));
     zeilen.forEach(function (zl) {
       var z = zl[0], n = zl[1], bw = w / n;
-      for (var i = 0; i < n; i++) s += '<rect x="' + (50 + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
-      s += T(44, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
+      for (var i = 0; i < n; i++) s += '<rect x="' + (L + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
+      s += T(L - 6, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
     });
-    return svg(s, '0 0 ' + (w + 62) + ' ' + (y + 2), Math.round((w + 62) * 1.25));
+    return svg(s, '0 0 ' + (w + L + 12) + ' ' + (y + 2), Math.round((w + L + 12) * 1.25));
   }
   /* ---------- Glas / Messbecher: z von n Teilstrichen gefüllt (Flüssigkeit), Beschriftung oben */
   function glas(z, n, beschr, farbe) {
@@ -1726,7 +1728,7 @@ var AUFGABEN = (function () {
     felder: [fw('Die beiden Zahlen sind', ['gleich', 'nicht gleich'], function (p) { return p.gl ? 0 : 1; }, ['Wandle den Bruch in einen Dezimalbruch um und vergleiche.', 'Wandle den Bruch in einen Dezimalbruch um und vergleiche.'])], tipps: t2, loesung: function (p) { return F(p.f[0], p.f[1]) + ' = ' + D(p.f[0] / p.f[1]) + (p.gl ? ': gleich.' : ': nicht gleich.'); } }),
   A({ id: '1S43', teil: 1, stufe: 'S4', titel: 'Wie viele Nachkommastellen?',
     zufall: function () { return { n: pick([2, 4, 5, 8, 16, 20, 25, 40, 50, 125]) }; },
-    text: function (p) { return 'Der Stammbruch ' + F(1, p.n) + ' ist ein Dezimalbruch. <b>Wie viele</b> Nachkommastellen hat er?'; },
+    text: function (p) { return 'Der Stammbruch ' + F(1, p.n) + ' lässt sich als Dezimalbruch schreiben. <b>Wie viele</b> Nachkommastellen hat dieser Dezimalbruch?'; },
     felder: [fz('Nachkommastellen', function (p) { return (String(1 / p.n).split('.')[1] || '').length; })], tipps: ['Erweitere auf eine Zehnerpotenz oder rechne 1 : n schriftlich.', 'Zähle die Stellen nach dem Komma.'], loesung: function (p) { return F(1, p.n) + ' = ' + D(1 / p.n) + '.'; } }),
   A({ id: '1T2', teil: 1, stufe: 'T', niveau: 'S1', serie: 5, titel: 'Serie: Hundertstelquadrat',
     zufall: function () { var k = ri(1, 99); while (k % 10 === 0) k++; return { k: k }; }, bild: function (p) { return B6.raster(p.k); },
@@ -1744,7 +1746,7 @@ var AUFGABEN = (function () {
   A({ id: '2S13', teil: 2, stufe: 'S1', titel: 'Kreisanteil als Dezimalbruch',
     zufall: function () { return pick([{ z: 1, n: 2 }, { z: 1, n: 4 }, { z: 3, n: 4 }, { z: 1, n: 5 }, { z: 2, n: 5 }, { z: 3, n: 5 }, { z: 4, n: 5 }]); },
     bild: function (p) { return B6.kreis(p.z, p.n); },
-    text: function (p) { return 'Welcher Anteil des Kreises ist gefärbt? <b>Schreibe</b> ihn als Bruch ' + F(p.z, p.n) + ' und als Dezimalbruch.'; },
+    text: function (p) { return 'Der gefärbte Anteil des Kreises ist ' + F(p.z, p.n) + '. <b>Schreibe</b> ihn als Dezimalbruch.'; },
     felder: [fz('Dezimalbruch', function (p) { return p.z / p.n; })], tipps: t2, loesung: function (p) { return F(p.z, p.n) + ' = ' + D(p.z / p.n) + '.'; } }),
   A({ id: '2S14', teil: 2, stufe: 'S1', titel: 'Euro und Cent',
     zufall: function () { return pick([{ z: 1, n: 2 }, { z: 1, n: 4 }, { z: 3, n: 4 }, { z: 1, n: 5 }, { z: 2, n: 5 }, { z: 1, n: 10 }, { z: 7, n: 20 }, { z: 3, n: 20 }]); },

@@ -1040,12 +1040,14 @@ var B6 = (function () {
   /* ---------- Balken (Bruchstreifen): z von n Teilen gefärbt; o.zeilen: mehrere Balken [[z,n,label],…] untereinander */
   function balken(zeilen, o) {
     o = o || {}; var w = o.w || 260, h = 26, s = '', y = 6;
+    // linker Rand nach der längsten Beschriftung (Qualitätscheck 10.10.: „3/4 von 20 €“ war links abgeschnitten)
+    var L = Math.max(50, 12 + 7.6 * Math.max.apply(null, zeilen.map(function (zl) { return String(zl[2] || '').length; })));
     zeilen.forEach(function (zl) {
       var z = zl[0], n = zl[1], bw = w / n;
-      for (var i = 0; i < n; i++) s += '<rect x="' + (50 + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
-      s += T(44, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
+      for (var i = 0; i < n; i++) s += '<rect x="' + (L + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
+      s += T(L - 6, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
     });
-    return svg(s, '0 0 ' + (w + 62) + ' ' + (y + 2), Math.round((w + 62) * 1.25));
+    return svg(s, '0 0 ' + (w + L + 12) + ' ' + (y + 2), Math.round((w + L + 12) * 1.25));
   }
   /* ---------- Glas / Messbecher: z von n Teilstrichen gefüllt (Flüssigkeit), Beschriftung oben */
   function glas(z, n, beschr, farbe) {
@@ -1668,7 +1670,7 @@ var AUFGABEN = (function () {
     bild: function (p) { return M.zahlengerade({ von: 0, bis: 1, teile: 10, px: 420, zahlen: false, beschrift: [[0, String(p.g)], [1, String(p.g + 1)]], punkte: [{ x: p.k / 10, lab: 'P' }] }); },
     text: 'Welcher Wert gehört zu P?', geruest: 'Ein Teilstrich = 1 : 10 = 0,1', felder: [fz('P', function (p) { return p.g + p.k / 10; })], tipps: t2,
     loesung: function (p) { return 'P = ' + D(p.g + p.k / 10); } }),
-  A({ id: '2S21', teil: 2, stufe: 'S2', titel: 'Hundertstel ablesen',
+  A({ id: '2S21', teil: 2, stufe: 'S2', titel: 'Tausendstel ablesen',
     zufall: function () { var a = ri(10, 98) / 100, k = ri(1, 9); return { a: a, k: k }; },
     bild: function (p) { return M.zahlengerade({ von: 0, bis: 1, teile: 10, px: 420, zahlen: false, beschrift: [[0, D(p.a)], [1, D(Math.round((p.a + .01) * 100) / 100)]], punkte: [{ x: p.k / 10, lab: 'Q' }] }); },
     text: 'Welcher Wert gehört zu Q?', felder: [fz('Q', function (p) { return Math.round((p.a + p.k / 1000) * 1000) / 1000; })], tipps: t2,
@@ -1875,12 +1877,12 @@ var AUFGABEN = (function () {
     zufall: function () { var a = ri(1, 9), b = ri(1, 8); return { a: a, b: b }; },
     bild: function (p) { return B6.stellen('0,' + p.a + p.b, { leer: false }); },
     text: function (p) { return 'Es soll gelten: 0,' + p.a + '□ &gt; 0,' + p.a + p.b + '. <b>Wie viele</b> Ziffern (0 bis 9) passen für □?'; },
-    felder: [fz('Anzahl', function (p) { return 9 - p.b; }, '', [{ w: function (p) { return 10 - p.b; }, t: 'Gleich zählt nicht: Die Ziffer ' + 'muss größer sein.' }])], tipps: t3, loesung: function (p) { return (p.b + 1) + ' bis 9: ' + pl(9 - p.b, 'Ziffer', 'Ziffern') + '.'; } }),
+    felder: [fz('Anzahl', function (p) { return 9 - p.b; }, '', [{ w: function (p) { return 10 - p.b; }, t: 'Gleich zählt nicht: Die Ziffer ' + 'muss größer sein.' }])], tipps: t3, loesung: function (p) { return p.b === 8 ? 'Nur die Ziffer 9: 1 Ziffer.' : (p.b + 1) + ' bis 9: ' + pl(9 - p.b, 'Ziffer', 'Ziffern') + '.'; } }),
   A({ id: '3S15', teil: 3, stufe: 'S1', titel: 'Vorgänger und Nachfolger',
     zufall: function () { return { a: ri(1, 98) / 100 }; },
     text: function (p) { return 'Auf einer Zahlengeraden mit Hundertstelschritten: Welche Zahl kommt direkt nach ' + D(p.a) + ', welche direkt davor?'; },
     felder: [fz('davor', function (p) { return Math.round((p.a - 0.01) * 100) / 100; }), fz('danach', function (p) { return Math.round((p.a + 0.01) * 100) / 100; })], tipps: t3, loesung: function (p) { return D(Math.round((p.a - 0.01) * 100) / 100) + ' und ' + D(Math.round((p.a + 0.01) * 100) / 100) + '.'; } }),
-  A({ id: '3S22', teil: 3, stufe: 'S2', titel: 'Zwei fehlende Ziffern',
+  A({ id: '3S22', teil: 3, stufe: 'S2', titel: 'Kleinste und größte Ziffer',
     zufall: function () { var a = ri(1, 8), b = ri(0, 8); return { a: a, b: b }; },
     text: function (p) { return 'Es gilt: ' + D(p.a + p.b / 10) + ' &lt; ' + p.a + ',□ &lt; ' + (p.a + 1) + ',0. <b>Gib</b> die kleinste und die größte Ziffer an, die für □ passen.'; },
     felder: [fz('kleinste', function (p) { return p.b + 1; }), fz('größte', function () { return 9; })], tipps: t3, loesung: function (p) { return 'Von ' + (p.b + 1) + ' bis 9.'; } }),

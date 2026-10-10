@@ -1095,7 +1095,7 @@ var P = (function () {
     if (!ks.length) return '0';
     return ks.map(function (k, i) {
       var c = p[k], v = vars(k), m = Object.keys(v).sort().map(function (x) { return x + (v[x] > 1 ? '^' + v[x] : ''); }).join('');
-      var a = Math.abs(c), s = (a === 1 && m) ? m : zahl(a) + m;
+      var a = Math.abs(c), s = (Math.abs(a - 1) < 1e-9 && m) ? m : zahl(a) + m;   // auch 0,999…: kein „1y“ (Qualitätscheck 10.10.)
       return (c < 0 ? '-' : (i ? '+' : '')) + s;
     }).join('');
   }
@@ -2039,13 +2039,13 @@ var AUFGABEN = (function () {
 
   // ---- Mehr üben
   A({ id: '2T1', teil: 2, stufe: 'T', niveau: 'S1', serie: 5, titel: 'Serie: Faktor Fläche',
-    zufall: function () { return { p: ri(1, 5), q: ri(2, 5) }; },
+    zufall: function () { return { p: ri(2, 5), q: ri(2, 5) }; },   // kein „mal 1“; ganze Sätze (Qualitätscheck 10.10.)
     bild: function (p) { return B.rechteck(k(p.p, 'a'), p.q + 'b'); },
-    text: function (p) { return 'Länge mal ' + p.p + ', Breite mal ' + p.q + ': Faktor der Fläche?'; }, felder: [fz('Faktor', function (p) { return p.p * p.q; })], tipps: t2, loesung: function (p) { return String(p.p * p.q); } }),
+    text: function (p) { return 'Die Länge eines Rechtecks wird mit ' + p.p + ' multipliziert, die Breite mit ' + p.q + '. Mit welchem Faktor ändert sich der Flächeninhalt?'; }, felder: [fz('Faktor', function (p) { return p.p * p.q; })], tipps: t2, loesung: function (p) { return String(p.p * p.q); } }),
   A({ id: '2T2', teil: 2, stufe: 'T', niveau: 'S2', serie: 5, titel: 'Serie: Faktor Volumen',
-    zufall: function () { return { p: ri(1, 3), q: ri(2, 3), r: ri(2, 4) }; },
+    zufall: function () { return { p: ri(2, 3), q: ri(2, 3), r: ri(2, 4) }; },
     bild: function (p) { return B.quader(k(p.p, 'a'), p.q + 'b', p.r + 'c'); },
-    text: function (p) { return 'Quader: Länge mal ' + p.p + ', Breite mal ' + p.q + ', Höhe mal ' + p.r + '. Faktor des Volumens?'; }, felder: [fz('Faktor', function (p) { return p.p * p.q * p.r; })], tipps: t2, loesung: function (p) { return String(p.p * p.q * p.r); } }),
+    text: function (p) { return 'Bei einem Quader wird die Länge mit ' + p.p + ', die Breite mit ' + p.q + ' und die Höhe mit ' + p.r + ' multipliziert. Mit welchem Faktor ändert sich das Volumen?'; }, felder: [fz('Faktor', function (p) { return p.p * p.q * p.r; })], tipps: t2, loesung: function (p) { return String(p.p * p.q * p.r); } }),
   A({ id: '2T3', teil: 2, stufe: 'T', niveau: 'S3', serie: 5, titel: 'Serie: neuer Term',
     zufall: function () { return { k: ri(2, 5), v: pick(['a', 'x', 's']) }; },
     bild: function (p) { return B.quadrat(p.k + p.v); },

@@ -1040,12 +1040,14 @@ var B6 = (function () {
   /* ---------- Balken (Bruchstreifen): z von n Teilen gefärbt; o.zeilen: mehrere Balken [[z,n,label],…] untereinander */
   function balken(zeilen, o) {
     o = o || {}; var w = o.w || 260, h = 26, s = '', y = 6;
+    // linker Rand nach der längsten Beschriftung (Qualitätscheck 10.10.: „3/4 von 20 €“ war links abgeschnitten)
+    var L = Math.max(50, 12 + 7.6 * Math.max.apply(null, zeilen.map(function (zl) { return String(zl[2] || '').length; })));
     zeilen.forEach(function (zl) {
       var z = zl[0], n = zl[1], bw = w / n;
-      for (var i = 0; i < n; i++) s += '<rect x="' + (50 + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
-      s += T(44, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
+      for (var i = 0; i < n; i++) s += '<rect x="' + (L + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
+      s += T(L - 6, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
     });
-    return svg(s, '0 0 ' + (w + 62) + ' ' + (y + 2), Math.round((w + 62) * 1.25));
+    return svg(s, '0 0 ' + (w + L + 12) + ' ' + (y + 2), Math.round((w + L + 12) * 1.25));
   }
   /* ---------- Glas / Messbecher: z von n Teilstrichen gefüllt (Flüssigkeit), Beschriftung oben */
   function glas(z, n, beschr, farbe) {
@@ -1745,7 +1747,7 @@ var AUFGABEN = (function () {
   A({ id: '1S32', teil: 1, stufe: 'S3', titel: 'Wann kommt der Rest wieder?',
     zufall: function () { var q = pick([[1, 3], [1, 7], [1, 11], [1, 13], [2, 7], [1, 6]]); return { z: q[0], n: q[1] }; },
     bild: function (p) { return B6.schrift(p.z, p.n, 7); },
-    text: function (p) { return 'In der Division ' + p.z + ' : ' + p.n + ' tauchen Reste auf. <b>Nach wie vielen Schritten</b> nach dem Komma ist zum ersten Mal ein Rest dabei, der schon einmal vorkam (so lang ist die Periode)?'; },
+    text: function (p) { return 'In der Division ' + p.z + ' : ' + p.n + ' wiederholen sich die Reste. <b>Bestimme</b> die Periodenlänge: So viele Divisionsschritte liegen zwischen einem Rest und seiner ersten Wiederholung.'; },
     felder: [fz('Periodenlänge', function (p) { return M.periode(p.z, p.n).per.length; })], tipps: ['Schreibe die Reste untereinander und suche den ersten Rest, der zum zweiten Mal erscheint.', t1[0]], loesung: function (p) { return 'Periodenlänge ' + M.periode(p.z, p.n).per.length + '.'; } }),
   A({ id: '1S33', teil: 1, stufe: 'S3', titel: 'Mit ganzer Zahl',
     zufall: function () { var q = pick([[7, 3], [5, 3], [10, 3], [14, 9], [11, 6], [13, 6], [25, 9], [17, 11]]); return { z: q[0], n: q[1] }; },
@@ -1865,9 +1867,10 @@ var AUFGABEN = (function () {
     text: function (p) { return p.t + ', ' + p.tb + '. <b>Wer</b> hat mehr geschafft?'; },
     felder: [fw('Mehr hat', ['Lea', 'Tim', 'beide gleich viel'], function (p) { return p.a[0] / p.a[1] > p.b ? 0 : 1; }, ['', '', ''])], tipps: t3, loesung: function (p) { return aus(p.a[0], p.a[1], 5) + '… gegen ' + D(p.b) + '.'; } }),
   A({ id: '3S32', teil: 3, stufe: 'S3', titel: 'Wie viele Tausendstel dazwischen?',
-    zufall: function () { var d = ri(1, 4); return { d: d, o: Math.round((d / 10 + 0.02) * 100) / 100 }; },
+    // Obergrenze 0,d(d+1) liegt über 0,(d) (Qualitätscheck 10.10.: vorher 0,d2 und damit unter 0,(d), Lösung immer 0)
+    zufall: function () { var d = ri(1, 4); return { d: d, o: Math.round((d / 10 + (d + 1) / 100) * 100) / 100 }; },
     text: function (p) { return 'Wie viele Dezimalbrüche mit genau drei Nachkommastellen liegen zwischen 0,<span style="text-decoration:overline">' + p.d + '</span> und ' + D(p.o) + '?'; },
-    felder: [fz('Anzahl', function (p) { var c = 0; for (var k = 0; k <= 1000; k++) { var x = k / 1000; if (x > p.d / 9 + 1e-12 && x < p.o - 1e-12) c++; } return c; })], tipps: ['Schreibe 0,(d) mit mehr Stellen: Das erste Tausendstel danach beginnt bei ' + 'der nächsten Dreistelligen.', 'Zähle in Tausendsteln.'], loesung: function (p) { var c = 0; for (var k = 0; k <= 1000; k++) { var x = k / 1000; if (x > p.d / 9 + 1e-12 && x < p.o - 1e-12) c++; } return c + ' Zahlen.'; } }),
+    felder: [fz('Anzahl', function (p) { var c = 0; for (var k = 0; k <= 1000; k++) { var x = k / 1000; if (x > p.d / 9 + 1e-12 && x < p.o - 1e-12) c++; } return c; })], tipps: [function (p) { return 'Schreibe 0,<span style="text-decoration:overline">' + p.d + '</span> mit mehr Stellen aus: 0,' + String(p.d).repeat(4) + '… Welches ist das erste Tausendstel, das größer ist?'; }, 'Zähle in Tausendstelschritten bis kurz vor die obere Grenze.'], loesung: function (p) { var k0 = Math.floor(p.d / 9 * 1000) + 1, k1 = Math.round(p.o * 1000) - 1; return '0,' + String(p.d).repeat(4) + '… &lt; ' + D(k0 / 1000) + '; dann in Tausendstelschritten bis ' + D(k1 / 1000) + ' &lt; ' + D(p.o) + ': ' + (k1 - k0 + 1) + ' Zahlen.'; } }),
   A({ id: '3S33', teil: 3, stufe: 'S3', titel: 'Eine Zahl dazwischen',
     zufall: function () { var d = ri(1, 7); return { d: d }; },
     text: function (p) { return '<b>Gib</b> eine Zahl <b>an</b>, die zwischen 0,<span style="text-decoration:overline">' + p.d + '</span> und 0,' + (p.d + 1) + ' liegt.'; },

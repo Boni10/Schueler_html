@@ -1040,12 +1040,14 @@ var B6 = (function () {
   /* ---------- Balken (Bruchstreifen): z von n Teilen gefärbt; o.zeilen: mehrere Balken [[z,n,label],…] untereinander */
   function balken(zeilen, o) {
     o = o || {}; var w = o.w || 260, h = 26, s = '', y = 6;
+    // linker Rand nach der längsten Beschriftung (Qualitätscheck 10.10.: „3/4 von 20 €“ war links abgeschnitten)
+    var L = Math.max(50, 12 + 7.6 * Math.max.apply(null, zeilen.map(function (zl) { return String(zl[2] || '').length; })));
     zeilen.forEach(function (zl) {
       var z = zl[0], n = zl[1], bw = w / n;
-      for (var i = 0; i < n; i++) s += '<rect x="' + (50 + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
-      s += T(44, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
+      for (var i = 0; i < n; i++) s += '<rect x="' + (L + i * bw) + '" y="' + y + '" width="' + bw + '" height="' + h + '" fill="' + (i < z ? (zl[3] || C.sky) : '#fff') + '" stroke="' + C.ink + '" stroke-width="1.8"/>';
+      s += T(L - 6, y + 19, zl[2] || '', C.ink, 14, 'end'); y += h + 12;
     });
-    return svg(s, '0 0 ' + (w + 62) + ' ' + (y + 2), Math.round((w + 62) * 1.25));
+    return svg(s, '0 0 ' + (w + L + 12) + ' ' + (y + 2), Math.round((w + L + 12) * 1.25));
   }
   /* ---------- Glas / Messbecher: z von n Teilstrichen gefüllt (Flüssigkeit), Beschriftung oben */
   function glas(z, n, beschr, farbe) {
@@ -1666,7 +1668,7 @@ var AUFGABEN = (function () {
     felder: [fb('gemischte Zahl', function (p) { return M.K(p.z, p.n); }, 'gemischt')], tipps: t2, loesung: function (p) { var k = M.K(p.z, p.n); return F(k[0], k[1]) + ' = ' + G(k[0], k[1]); } }),
   A({ id: '2S41', teil: 2, stufe: 'S4', titel: 'Vorzeichen-Detektiv',
     zufall: function () { return { m: ri(1, 4) }; },
-    text: function (p) { return 'In einem Bruch stehen insgesamt ' + p.m + ' Minuszeichen (vor dem Bruch, im Zähler oder im Nenner). <b>Entscheide</b>, ob der Bruch positiv oder negativ ist.'; },
+    text: function (p) { return 'In einem Bruch ' + (p.m === 1 ? 'steht' : 'stehen') + ' insgesamt ' + p.m + ' Minuszeichen (vor dem Bruch, im Zähler oder im Nenner). <b>Entscheide</b>, ob der Bruch positiv oder negativ ist.'; },
     felder: [fw('Antwort', ['positiv', 'negativ'], function (p) { return p.m % 2 === 0 ? 0 : 1; })], tipps: ['Zwei Minuszeichen heben sich auf.', 'Gerade Anzahl: positiv. Ungerade: negativ.'],
     loesung: function (p) { return p.m + ' Minuszeichen: ' + (p.m % 2 === 0 ? 'gerade Anzahl, positiv.' : 'ungerade Anzahl, negativ.'); } }),
   A({ id: '2T1', teil: 2, stufe: 'T', niveau: 'S1', serie: 5, titel: 'Serie: Quotient mit Vorzeichen',
@@ -1685,10 +1687,10 @@ var AUFGABEN = (function () {
     zufall: function () { var t = pick([0, 1, 2]); var n = t === 2 ? ri(2, 9) : 1, z = ri(1, 20) * (t === 1 ? -1 : 1); if (t === 2) { while (z % n === 0) z++; if (Math.random() < .5) z = -z; } return { z: z, n: n }; },
     text: function (p) { return 'Zu welcher kleinsten Zahlmenge gehört ' + F(p.z, p.n) + '?'; }, felder: [(function () { var f = fw('Menge', MENGE, function (p) { return menge(p.z, p.n); }); f.fest = true; return f; })()], tipps: t3,
     loesung: function (p) { return F(p.z, p.n) + ' gehört zu ' + MENGE[menge(p.z, p.n)] + '.'; } }),
-  A({ id: '3S21', teil: 3, stufe: 'S2', titel: 'Getarnte ganze Zahlen',
+  A({ id: '3S21', teil: 3, stufe: 'S2', titel: 'Getarnte ganze Zahl?',
     zufall: function () { var g = ri(2, 9), k = ri(1, 9) * pick([1, -1]); var echt = Math.random() < .5; return { z: echt ? k * g : k * g + 1, n: g }; },
-    text: function (p) { return 'Zu welcher kleinsten Zahlmenge gehört ' + F(p.z, p.n) + '? Kürze zuerst.'; }, felder: [(function () { var f = fw('Menge', MENGE, function (p) { return menge(p.z, p.n); }); f.fest = true; return f; })()], tipps: t3,
-    loesung: function (p) { var k = M.K(p.z, p.n); return F(p.z, p.n) + ' = ' + F(k[0], k[1]) + ': ' + MENGE[menge(p.z, p.n)] + '.'; } }),
+    text: function (p) { return 'Zu welcher kleinsten Zahlmenge gehört ' + F(p.z, p.n) + '? Kürze zuerst, wenn es geht.'; }, felder: [(function () { var f = fw('Menge', MENGE, function (p) { return menge(p.z, p.n); }); f.fest = true; return f; })()], tipps: t3,
+    loesung: function (p) { var k = M.K(p.z, p.n); return (k[1] === p.n ? F(p.z, p.n) + ' lässt sich nicht kürzen' : F(p.z, p.n) + ' = ' + F(k[0], k[1])) + ': ' + MENGE[menge(p.z, p.n)] + '.'; } }),
   A({ id: '3S31', teil: 3, stufe: 'S3', titel: 'Wahr oder falsch?',
     zufall: function () { return { i: ri(0, 4) }; },
     text: function (p) { return ['„Jede natürliche Zahl ist auch eine ganze Zahl.“', '„Jede ganze Zahl ist eine natürliche Zahl.“', '„0 gehört zu ℤ.“', '„Es gibt eine rationale Zahl, die nicht in ℤ liegt.“', '„−' + F(8, 4) + ' liegt nicht in ℤ.“'][p.i] + ' <b>Entscheide</b>.'; },

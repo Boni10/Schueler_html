@@ -1105,7 +1105,7 @@ var P = (function () {
     if (!ks.length) return '0';
     return ks.map(function (k, i) {
       var c = p[k], v = vars(k), m = Object.keys(v).sort().map(function (x) { return x + (v[x] > 1 ? '^' + v[x] : ''); }).join('');
-      var a = Math.abs(c), s = (a === 1 && m) ? m : zahl(a) + m;
+      var a = Math.abs(c), s = (Math.abs(a - 1) < 1e-9 && m) ? m : zahl(a) + m;   // auch 0,999…: kein „1y“ (Qualitätscheck 10.10.)
       return (c < 0 ? '-' : (i ? '+' : '')) + s;
     }).join('');
   }

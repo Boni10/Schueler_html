@@ -1334,7 +1334,7 @@ var AUFGABEN = (function () {
     tipps: [function () { return r_ + ' ist der Abstand zum Erdmittelpunkt, also der Erdradius.'; }, function () { return 'Es kommt fast genau ' + m_ + ' · ' + g_ + ' heraus.'; }],
     loesung: function (p) { return FG + ' = ' + s(p.F) + ' N;&ensp; ' + m_ + g_ + ' = ' + s(p.FG) + ' N. Beides ist dieselbe Kraft: die Gewichtskraft.'; } },
 
-  { id: '1S21', teil: 1, stufe: 'S2', titel: 'Leichter auf dem Berg?',
+  { id: '1S21', teil: 1, stufe: 'S2', titel: 'Leichter in der Höhe?',
     zufall: function () { var o = pick([['auf der Zugspitze', 2962], ['auf dem Mont Blanc', 4806], ['auf dem Mount Everest', 8849], ['im Flugzeug', 10000]]); return { ort: o[0], h: o[1], m: r(55, 85, 5) }; },
     calc: function (p) { p.F0 = G * ME * p.m / qu(RE); p.F1 = G * ME * p.m / qu(RE + p.h); p.d = p.F0 - p.F1; },
     bild: function (p) { return Bild.planet('Erde', Bild.C.sky, M('h') + ' = ' + f(p.h, 0) + ' m', p.m + ' kg'); },

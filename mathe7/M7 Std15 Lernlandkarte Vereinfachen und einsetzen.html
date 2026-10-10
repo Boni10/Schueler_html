@@ -1095,7 +1095,7 @@ var P = (function () {
     if (!ks.length) return '0';
     return ks.map(function (k, i) {
       var c = p[k], v = vars(k), m = Object.keys(v).sort().map(function (x) { return x + (v[x] > 1 ? '^' + v[x] : ''); }).join('');
-      var a = Math.abs(c), s = (a === 1 && m) ? m : zahl(a) + m;
+      var a = Math.abs(c), s = (Math.abs(a - 1) < 1e-9 && m) ? m : zahl(a) + m;   // auch 0,999…: kein „1y“ (Qualitätscheck 10.10.)
       return (c < 0 ? '-' : (i ? '+' : '')) + s;
     }).join('');
   }
@@ -1869,7 +1869,7 @@ var AUFGABEN = (function () {
     tipps: t1, loesung: function (p) { return TZ(p.t) + ' = ' + TZ(p.a + 'b-' + p.b + '+' + p.c + 'b') + ' = ' + TZ(p.l); } }),
   A({ id: '1S33', teil: 1, stufe: 'S3', titel: 'Was steht in der Klammer?',
     zufall: function () { var a = ri(5, 9), b = ri(1, a - 2), c = ri(1, 9); return { a: a, b: b, c: c }; },
-    calc: function (p) { p.r = (p.a - p.b) + 'x+' + p.c; p.lsg = p.b + 'x-' + p.c; },
+    calc: function (p) { p.r = (p.a - p.b) + 'x+' + p.c; p.lsg = (p.b === 1 ? '' : p.b) + 'x-' + p.c; },   // nicht „1x“ (Qualitätscheck 10.10.)
     bild: function (p) { return TK(p.a + 'x-(□)=' + p.r); },
     text: function (p) { return 'Was gehört in die Klammer? ' + p.a + 'x − (□) = ' + TZ(p.r); },
     felder: [fn('□', function (p) { return p.lsg; }, [fe(function (p) { return p.b + 'x+' + p.c; }, 'Löse zur Probe die Klammer auf: Das Vorzeichen der Zahl ändert sich.')])], tipps: ['Löse zur Probe auf: Was muss abgezogen werden, damit rechts herauskommt?', 'Ein Plus rechts kommt aus einem Minus in der Klammer.'], loesung: function (p) { return '□ = ' + TZ(p.lsg); } }),
